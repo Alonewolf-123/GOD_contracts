@@ -9,7 +9,7 @@ import "./GOD.sol";
 
 contract Clan is Ownable, IERC721Receiver, Pausable {
   
-  // maximum alpha score for a Wolf
+  // maximum alpha score for a Mobster
   uint8 public constant MAX_ALPHA = 8;
 
   // struct to store a stake's token, owner, and earning values
@@ -20,8 +20,8 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
   }
 
   event TokenStaked(address owner, uint256 tokenId, uint256 value);
-  event SheepClaimed(uint256 tokenId, uint256 earned, bool unstaked);
-  event WolfClaimed(uint256 tokenId, uint256 earned, bool unstaked);
+  event MerchantClaimed(uint256 tokenId, uint256 earned, bool unstaked);
+  event MobsterClaimed(uint256 tokenId, uint256 earned, bool unstaked);
 
   // reference to the Dwarfs_NFT NFT contract
   Dwarfs_NFT dwarfs_nft;
@@ -30,9 +30,9 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
 
   // maps tokenId to stake
   mapping(uint256 => Stake) public clan; 
-  // maps alpha to all Wolf stakes with that alpha
+  // maps alpha to all Mobster stakes with that alpha
   mapping(uint256 => Stake[]) public pack; 
-  // tracks location of each Wolf in Pack
+  // tracks location of each Mobster in Pack
   mapping(uint256 => uint256) public packIndices; 
   // total alpha scores staked
   uint256 public totalAlphaStaked = 0; 
@@ -41,9 +41,9 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
   // amount of $GOD due for each alpha point staked
   uint256 public godPerAlpha = 0; 
 
-  // sheep earn 10000 $GOD per day
+  // merchant earn 10000 $GOD per day
   uint256 public constant DAILY_GOD_RATE = 10000 ether;
-  // sheep must have 2 days worth of $GOD to unstake or else it's too cold
+  // merchant must have 2 days worth of $GOD to unstake or else it's too cold
   uint256 public constant MINIMUM_TO_EXIT = 2 days;
   // wolves take a 20% tax on all $GOD claimed
   uint256 public constant GOD_CLAIM_TAX_PERCENTAGE = 20;
@@ -52,8 +52,8 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
 
   // amount of $GOD earned so far
   uint256 public totalGodEarned;
-  // number of Sheep staked in the Clan
-  uint256 public totalSheepStaked;
+  // number of Merchant staked in the Clan
+  uint256 public totalMerchantStaked;
   // the last time $GOD was claimed
   uint256 public lastClaimTimestamp;
 
@@ -72,9 +72,9 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
   /** STAKING */
 
   /**
-   * adds Sheep and Wolves to the Clan and Pack
+   * adds Merchant and Wolves to the Clan and Pack
    * @param account the address of the staker
-   * @param tokenIds the IDs of the Sheep and Wolves to stake
+   * @param tokenIds the IDs of the Merchant and Wolves to stake
    */
   function addManyToClanAndPack(address account, uint16[] calldata tokenIds) external {
     require(account == _msgSender() || _msgSender() == address(dwarfs_nft), "DONT GIVE YOUR TOKENS AWAY");
@@ -86,42 +86,42 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
         continue; // there may be gaps in the array for stolen tokens
       }
 
-      if (isSheep(tokenIds[i])) 
-        _addSheepToClan(account, tokenIds[i]);
+      if (isMerchant(tokenIds[i])) 
+        _addMerchantToClan(account, tokenIds[i]);
       else 
-        _addWolfToPack(account, tokenIds[i]);
+        _addMobsterToPack(account, tokenIds[i]);
     }
   }
 
   /**
-   * adds a single Sheep to the Clan
+   * adds a single Merchant to the Clan
    * @param account the address of the staker
-   * @param tokenId the ID of the Sheep to add to the Clan
+   * @param tokenId the ID of the Merchant to add to the Clan
    */
-  function _addSheepToClan(address account, uint256 tokenId) internal whenNotPaused _updateEarnings {
+  function _addMerchantToClan(address account, uint256 tokenId) internal whenNotPaused _updateEarnings {
     clan[tokenId] = Stake({
       owner: account,
       tokenId: uint16(tokenId),
       value: uint80(block.timestamp)
     });
-    totalSheepStaked += 1;
+    totalMerchantStaked += 1;
     emit TokenStaked(account, tokenId, block.timestamp);
   }
 
   /**
-   * adds a single Wolf to the Pack
+   * adds a single Mobster to the Pack
    * @param account the address of the staker
-   * @param tokenId the ID of the Wolf to add to the Pack
+   * @param tokenId the ID of the Mobster to add to the Pack
    */
-  function _addWolfToPack(address account, uint256 tokenId) internal {
-    uint256 alpha = _alphaForWolf(tokenId);
+  function _addMobsterToPack(address account, uint256 tokenId) internal {
+    uint256 alpha = _alphaForMobster(tokenId);
     totalAlphaStaked += alpha; // Portion of earnings ranges from 8 to 5
-    packIndices[tokenId] = pack[alpha].length; // Store the location of the wolf in the Pack
+    packIndices[tokenId] = pack[alpha].length; // Store the location of the mobster in the Pack
     pack[alpha].push(Stake({
       owner: account,
       tokenId: uint16(tokenId),
       value: uint80(godPerAlpha)
-    })); // Add the wolf to the Pack
+    })); // Add the mobster to the Pack
     emit TokenStaked(account, tokenId, godPerAlpha);
   }
 
@@ -129,31 +129,31 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
 
   /**
    * realize $GOD earnings and optionally unstake tokens from the Clan / Pack
-   * to unstake a Sheep it will require it has 2 days worth of $GOD unclaimed
+   * to unstake a Merchant it will require it has 2 days worth of $GOD unclaimed
    * @param tokenIds the IDs of the tokens to claim earnings from
    * @param unstake whether or not to unstake ALL of the tokens listed in tokenIds
    */
   function claimManyFromClanAndPack(uint16[] calldata tokenIds, bool unstake) external whenNotPaused _updateEarnings {
     uint256 owed = 0;
     for (uint i = 0; i < tokenIds.length; i++) {
-      if (isSheep(tokenIds[i]))
-        owed += _claimSheepFromClan(tokenIds[i], unstake);
+      if (isMerchant(tokenIds[i]))
+        owed += _claimMerchantFromClan(tokenIds[i], unstake);
       else
-        owed += _claimWolfFromPack(tokenIds[i], unstake);
+        owed += _claimMobsterFromPack(tokenIds[i], unstake);
     }
     if (owed == 0) return;
     god.mint(_msgSender(), owed);
   }
 
   /**
-   * realize $GOD earnings for a single Sheep and optionally unstake it
+   * realize $GOD earnings for a single Merchant and optionally unstake it
    * if not unstaking, pay a 20% tax to the staked Wolves
    * if unstaking, there is a 50% chance all $GOD is stolen
-   * @param tokenId the ID of the Sheep to claim earnings from
-   * @param unstake whether or not to unstake the Sheep
+   * @param tokenId the ID of the Merchant to claim earnings from
+   * @param unstake whether or not to unstake the Merchant
    * @return owed - the amount of $GOD earned
    */
-  function _claimSheepFromClan(uint256 tokenId, bool unstake) internal returns (uint256 owed) {
+  function _claimMerchantFromClan(uint256 tokenId, bool unstake) internal returns (uint256 owed) {
     Stake memory stake = clan[tokenId];
     require(stake.owner == _msgSender(), "SWIPER, NO SWIPING");
     require(!(unstake && block.timestamp - stake.value < MINIMUM_TO_EXIT), "GONNA BE COLD WITHOUT TWO DAY'S GOD");
@@ -166,42 +166,42 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     }
     if (unstake) {
       if (random(tokenId) & 1 == 1) { // 50% chance of all $GOD stolen
-        _payWolfTax(owed);
+        _payMobsterTax(owed);
         owed = 0;
       }
-      dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // send back Sheep
+      dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // send back Merchant
       delete clan[tokenId];
-      totalSheepStaked -= 1;
+      totalMerchantStaked -= 1;
     } else {
-      _payWolfTax(owed * GOD_CLAIM_TAX_PERCENTAGE / 100); // percentage tax to staked wolves
-      owed = owed * (100 - GOD_CLAIM_TAX_PERCENTAGE) / 100; // remainder goes to Sheep owner
+      _payMobsterTax(owed * GOD_CLAIM_TAX_PERCENTAGE / 100); // percentage tax to staked wolves
+      owed = owed * (100 - GOD_CLAIM_TAX_PERCENTAGE) / 100; // remainder goes to Merchant owner
       clan[tokenId] = Stake({
         owner: _msgSender(),
         tokenId: uint16(tokenId),
         value: uint80(block.timestamp)
       }); // reset stake
     }
-    emit SheepClaimed(tokenId, owed, unstake);
+    emit MerchantClaimed(tokenId, owed, unstake);
   }
 
   /**
-   * realize $GOD earnings for a single Wolf and optionally unstake it
+   * realize $GOD earnings for a single Mobster and optionally unstake it
    * Wolves earn $GOD proportional to their Alpha rank
-   * @param tokenId the ID of the Wolf to claim earnings from
-   * @param unstake whether or not to unstake the Wolf
+   * @param tokenId the ID of the Mobster to claim earnings from
+   * @param unstake whether or not to unstake the Mobster
    * @return owed - the amount of $GOD earned
    */
-  function _claimWolfFromPack(uint256 tokenId, bool unstake) internal returns (uint256 owed) {
+  function _claimMobsterFromPack(uint256 tokenId, bool unstake) internal returns (uint256 owed) {
     require(dwarfs_nft.ownerOf(tokenId) == address(this), "AINT A PART OF THE PACK");
-    uint256 alpha = _alphaForWolf(tokenId);
+    uint256 alpha = _alphaForMobster(tokenId);
     Stake memory stake = pack[alpha][packIndices[tokenId]];
     require(stake.owner == _msgSender(), "SWIPER, NO SWIPING");
     owed = (alpha) * (godPerAlpha - stake.value); // Calculate portion of tokens based on Alpha
     if (unstake) {
       totalAlphaStaked -= alpha; // Remove Alpha from total staked
-      dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // Send back Wolf
+      dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // Send back Mobster
       Stake memory lastStake = pack[alpha][pack[alpha].length - 1];
-      pack[alpha][packIndices[tokenId]] = lastStake; // Shuffle last Wolf to current position
+      pack[alpha][packIndices[tokenId]] = lastStake; // Shuffle last Mobster to current position
       packIndices[lastStake.tokenId] = packIndices[tokenId];
       pack[alpha].pop(); // Remove duplicate
       delete packIndices[tokenId]; // Delete old mapping
@@ -212,7 +212,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
         value: uint80(godPerAlpha)
       }); // reset stake
     }
-    emit WolfClaimed(tokenId, owed, unstake);
+    emit MobsterClaimed(tokenId, owed, unstake);
   }
 
   /**
@@ -227,25 +227,25 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     uint256 alpha;
     for (uint i = 0; i < tokenIds.length; i++) {
       tokenId = tokenIds[i];
-      if (isSheep(tokenId)) {
+      if (isMerchant(tokenId)) {
         stake = clan[tokenId];
         require(stake.owner == _msgSender(), "SWIPER, NO SWIPING");
-        dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // send back Sheep
+        dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // send back Merchant
         delete clan[tokenId];
-        totalSheepStaked -= 1;
-        emit SheepClaimed(tokenId, 0, true);
+        totalMerchantStaked -= 1;
+        emit MerchantClaimed(tokenId, 0, true);
       } else {
-        alpha = _alphaForWolf(tokenId);
+        alpha = _alphaForMobster(tokenId);
         stake = pack[alpha][packIndices[tokenId]];
         require(stake.owner == _msgSender(), "SWIPER, NO SWIPING");
         totalAlphaStaked -= alpha; // Remove Alpha from total staked
-        dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // Send back Wolf
+        dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // Send back Mobster
         lastStake = pack[alpha][pack[alpha].length - 1];
-        pack[alpha][packIndices[tokenId]] = lastStake; // Shuffle last Wolf to current position
+        pack[alpha][packIndices[tokenId]] = lastStake; // Shuffle last Mobster to current position
         packIndices[lastStake.tokenId] = packIndices[tokenId];
         pack[alpha].pop(); // Remove duplicate
         delete packIndices[tokenId]; // Delete old mapping
-        emit WolfClaimed(tokenId, 0, true);
+        emit MobsterClaimed(tokenId, 0, true);
       }
     }
   }
@@ -256,7 +256,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
    * add $GOD to claimable pot for the Pack
    * @param amount $GOD to add to the pot
    */
-  function _payWolfTax(uint256 amount) internal {
+  function _payMobsterTax(uint256 amount) internal {
     if (totalAlphaStaked == 0) { // if there's no staked wolves
       unaccountedRewards += amount; // keep track of $GOD due to wolves
       return;
@@ -273,7 +273,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     if (totalGodEarned < MAXIMUM_GLOBAL_GOD) {
       totalGodEarned += 
         (block.timestamp - lastClaimTimestamp)
-        * totalSheepStaked
+        * totalMerchantStaked
         * DAILY_GOD_RATE / 1 days; 
       lastClaimTimestamp = block.timestamp;
     }
@@ -301,30 +301,30 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
   /** READ ONLY */
 
   /**
-   * checks if a token is a Sheep
+   * checks if a token is a Merchant
    * @param tokenId the ID of the token to check
-   * @return sheep - whether or not a token is a Sheep
+   * @return merchant - whether or not a token is a Merchant
    */
-  function isSheep(uint256 tokenId) public view returns (bool sheep) {
-    (sheep, , , , , , , , , ) = dwarfs_nft.tokenTraits(tokenId);
+  function isMerchant(uint256 tokenId) public view returns (bool merchant) {
+    (merchant, , , , , , , , , ) = dwarfs_nft.tokenTraits(tokenId);
   }
 
   /**
-   * gets the alpha score for a Wolf
-   * @param tokenId the ID of the Wolf to get the alpha score for
-   * @return the alpha score of the Wolf (5-8)
+   * gets the alpha score for a Mobster
+   * @param tokenId the ID of the Mobster to get the alpha score for
+   * @return the alpha score of the Mobster (5-8)
    */
-  function _alphaForWolf(uint256 tokenId) internal view returns (uint8) {
+  function _alphaForMobster(uint256 tokenId) internal view returns (uint8) {
     ( , , , , , , , , , uint8 alphaIndex) = dwarfs_nft.tokenTraits(tokenId);
     return MAX_ALPHA - alphaIndex; // alpha index is 0-3
   }
 
   /**
-   * chooses a random Wolf thief when a newly minted token is stolen
-   * @param seed a random value to choose a Wolf from
-   * @return the owner of the randomly selected Wolf thief
+   * chooses a random Mobster thief when a newly minted token is stolen
+   * @param seed a random value to choose a Mobster from
+   * @return the owner of the randomly selected Mobster thief
    */
-  function randomWolfOwner(uint256 seed) external view returns (address) {
+  function randomMobsterOwner(uint256 seed) external view returns (address) {
     if (totalAlphaStaked == 0) return address(0x0);
     uint256 bucket = (seed & 0xFFFFFFFF) % totalAlphaStaked; // choose a value from 0 to total alpha staked
     uint256 cumulative;
@@ -334,7 +334,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
       cumulative += pack[i].length * i;
       // if the value is not inside of that bucket, keep going
       if (bucket >= cumulative) continue;
-      // get the address of a random Wolf with that alpha score
+      // get the address of a random Mobster with that alpha score
       return pack[i][seed % pack[i].length].owner;
     }
     return address(0x0);

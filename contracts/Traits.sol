@@ -86,24 +86,24 @@ contract Traits is Ownable, ITraits {
     /**
      * generates an entire SVG by composing multiple <image> elements of PNGs
      * @param tokenId the ID of the token to generate an SVG for
-     * @return a valid SVG of the Sheep / Wolf
+     * @return a valid SVG of the Merchant / Mobster
      */
     function drawSVG(uint256 tokenId) public view returns (string memory) {
-        IDwarfs_NFT.SheepWolf memory s = dwarfs_nft.getTokenTraits(tokenId);
-        uint8 shift = s.isSheep ? 0 : 9;
+        IDwarfs_NFT.DwarfTrait memory s = dwarfs_nft.getTokenTraits(tokenId);
+        uint8 shift = s.isMerchant ? 0 : 9;
 
         string memory svgString = string(
             abi.encodePacked(
                 drawTrait(traitData[0 + shift][s.fur]),
-                s.isSheep
+                s.isMerchant
                     ? drawTrait(traitData[1 + shift][s.head])
                     : drawTrait(traitData[1 + shift][s.alphaIndex]),
-                s.isSheep ? drawTrait(traitData[2 + shift][s.ears]) : "",
+                s.isMerchant ? drawTrait(traitData[2 + shift][s.ears]) : "",
                 drawTrait(traitData[3 + shift][s.eyes]),
-                s.isSheep ? drawTrait(traitData[4 + shift][s.nose]) : "",
+                s.isMerchant ? drawTrait(traitData[4 + shift][s.nose]) : "",
                 drawTrait(traitData[5 + shift][s.mouth]),
-                s.isSheep ? "" : drawTrait(traitData[6 + shift][s.neck]),
-                s.isSheep ? drawTrait(traitData[7 + shift][s.feet]) : ""
+                s.isMerchant ? "" : drawTrait(traitData[6 + shift][s.neck]),
+                s.isMerchant ? drawTrait(traitData[7 + shift][s.feet]) : ""
             )
         );
 
@@ -149,9 +149,9 @@ contract Traits is Ownable, ITraits {
         view
         returns (string memory)
     {
-        IDwarfs_NFT.SheepWolf memory s = dwarfs_nft.getTokenTraits(tokenId);
+        IDwarfs_NFT.DwarfTrait memory s = dwarfs_nft.getTokenTraits(tokenId);
         string memory traits;
-        if (s.isSheep) {
+        if (s.isMerchant) {
             traits = string(
                 abi.encodePacked(
                     attributeForTypeAndValue(
@@ -235,7 +235,7 @@ contract Traits is Ownable, ITraits {
                     '{"trait_type":"Generation","value":',
                     tokenId <= dwarfs_nft.getPaidTokens() ? '"Gen 0"' : '"Gen 1"',
                     '},{"trait_type":"Type","value":',
-                    s.isSheep ? '"Sheep"' : '"Wolf"',
+                    s.isMerchant ? '"Merchant"' : '"Mobster"',
                     "}]"
                 )
             );
@@ -252,14 +252,14 @@ contract Traits is Ownable, ITraits {
         override
         returns (string memory)
     {
-        IDwarfs_NFT.SheepWolf memory s = dwarfs_nft.getTokenTraits(tokenId);
+        IDwarfs_NFT.DwarfTrait memory s = dwarfs_nft.getTokenTraits(tokenId);
 
         string memory metadata = string(
             abi.encodePacked(
                 '{"name": "',
-                s.isSheep ? "Sheep #" : "Wolf #",
+                s.isMerchant ? "Merchant #" : "Mobster #",
                 tokenId.toString(),
-                '", "description": "Thousands of Sheep and Wolves compete on a farm in the metaverse. A tempting prize of $GOD awaits, with deadly high stakes. All the metadata and images are generated and stored 100% on-chain. No IPFS. NO API. Just the Ethereum blockchain.", "image": "data:image/svg+xml;base64,',
+                '", "description": "Thousands of Merchant and Wolves compete on a farm in the metaverse. A tempting prize of $GOD awaits, with deadly high stakes. All the metadata and images are generated and stored 100% on-chain. No IPFS. NO API. Just the Ethereum blockchain.", "image": "data:image/svg+xml;base64,',
                 base64(bytes(drawSVG(tokenId))),
                 '", "attributes":',
                 compileAttributes(tokenId),

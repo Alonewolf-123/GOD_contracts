@@ -20,19 +20,19 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     uint16 public minted;
 
     // mapping from tokenId to a struct containing the token's traits
-    mapping(uint256 => SheepWolf) public tokenTraits;
+    mapping(uint256 => DwarfTrait) public tokenTraits;
     // mapping from hashed(tokenTrait) to the tokenId it's associated with
     // used to ensure there are no duplicates
     mapping(uint256 => uint256) public existingCombinations;
 
     // list of probabilities for each trait type
-    // 0 - 9 are associated with Sheep, 10 - 18 are associated with Wolves
+    // 0 - 9 are associated with Merchant, 10 - 18 are associated with Wolves
     uint8[][18] public rarities;
     // list of aliases for Walker's Alias algorithm
-    // 0 - 9 are associated with Sheep, 10 - 18 are associated with Wolves
+    // 0 - 9 are associated with Merchant, 10 - 18 are associated with Wolves
     uint8[][18] public aliases;
 
-    // reference to the Clan for choosing random Wolf thieves
+    // reference to the Clan for choosing random Mobster thieves
     IClan public clan;
     // reference to $GOD for burning on mint
     GOD public god;
@@ -54,7 +54,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
 
         // I know this looks weird but it saves users gas by making lookup O(1)
         // A.J. Walker's Alias Algorithm
-        // sheep
+        // merchant
         // fur
         rarities[0] = [15, 50, 200, 250, 255];
         aliases[0] = [4, 4, 4, 4, 4];
@@ -359,7 +359,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     /** EXTERNAL */
 
     /**
-     * mint a token - 90% Sheep, 10% Wolves
+     * mint a token - 90% Merchant, 10% Wolves
      * The first 20% are free to claim, the remaining cost $GOD
      */
     function mint(uint256 amount, bool stake) external payable whenNotPaused {
@@ -438,7 +438,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
      */
     function generate(uint256 tokenId, uint256 seed)
         internal
-        returns (SheepWolf memory t)
+        returns (DwarfTrait memory t)
     {
         t = selectTraits(seed);
         if (existingCombinations[structToHash(t)] == 0) {
@@ -469,14 +469,14 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
 
     /**
      * the first 20% (ETH purchases) go to the minter
-     * the remaining 80% have a 10% chance to be given to a random staked wolf
+     * the remaining 80% have a 10% chance to be given to a random staked mobster
      * @param seed a random value to select a recipient from
-     * @return the address of the recipient (either the minter or the Wolf thief's owner)
+     * @return the address of the recipient (either the minter or the Mobster thief's owner)
      */
     function selectRecipient(uint256 seed) internal view returns (address) {
         if (minted <= PAID_TOKENS || ((seed >> 245) % 10) != 0)
             return _msgSender(); // top 10 bits haven't been used
-        address thief = clan.randomWolfOwner(seed >> 144); // 144 bits reserved for trait selection
+        address thief = clan.randomMobsterOwner(seed >> 144); // 144 bits reserved for trait selection
         if (thief == address(0x0)) return _msgSender();
         return thief;
     }
@@ -489,10 +489,10 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     function selectTraits(uint256 seed)
         internal
         view
-        returns (SheepWolf memory t)
+        returns (DwarfTrait memory t)
     {
-        t.isSheep = (seed & 0xFFFF) % 10 != 0;
-        uint8 shift = t.isSheep ? 0 : 9;
+        t.isMerchant = (seed & 0xFFFF) % 10 != 0;
+        uint8 shift = t.isMerchant ? 0 : 9;
         seed >>= 16;
         t.fur = selectTrait(uint16(seed & 0xFFFF), 0 + shift);
         seed >>= 16;
@@ -518,12 +518,12 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
      * @param s the struct to pack into a hash
      * @return the 256 bit hash of the struct
      */
-    function structToHash(SheepWolf memory s) internal pure returns (uint256) {
+    function structToHash(DwarfTrait memory s) internal pure returns (uint256) {
         return
             uint256(
                 bytesToBytes32(
                     abi.encodePacked(
-                        s.isSheep,
+                        s.isMerchant,
                         s.fur,
                         s.head,
                         s.eyes,
@@ -575,7 +575,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         external
         view
         override
-        returns (SheepWolf memory)
+        returns (DwarfTrait memory)
     {
         return tokenTraits[tokenId];
     }
@@ -587,7 +587,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     /** ADMIN */
 
     /**
-     * called after deployment so that the contract can get random wolf thieves
+     * called after deployment so that the contract can get random mobster thieves
      * @param _clan the address of the Clan
      */
     function setClan(address _clan) external onlyOwner {

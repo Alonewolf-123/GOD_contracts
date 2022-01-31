@@ -5,8 +5,8 @@ pragma solidity ^0.8.0;
 interface IDwarfs_NFT {
 
   // struct to store each token's traits
-  struct SheepWolf {
-    bool isSheep;
+  struct DwarfTrait {
+    bool isMerchant;
     uint8 fur;
     uint8 head;
     uint8 ears;
@@ -20,5 +20,5 @@ interface IDwarfs_NFT {
 
 
   function getPaidTokens() external view returns (uint256);
-  function getTokenTraits(uint256 tokenId) external view returns (SheepWolf memory);
+  function getTokenTraits(uint256 tokenId) external view returns (DwarfTrait memory);
 }
