@@ -4,17 +4,17 @@ pragma solidity ^0.8.0;
 import "./ERC20.sol";
 import "./Ownable.sol";
 
-contract WOOL is ERC20, Ownable {
+contract GOD is ERC20, Ownable {
 
   // a mapping from an address to whether or not it can mint / burn
   mapping(address => bool) controllers;
   
-  constructor() ERC20("WOOL", "WOOL") { }
+  constructor() ERC20("GOD COIN", "GOD") { }
 
   /**
-   * mints $WOOL to a recipient
-   * @param to the recipient of the $WOOL
-   * @param amount the amount of $WOOL to mint
+   * mints $GOD to a recipient
+   * @param to the recipient of the $GOD
+   * @param amount the amount of $GOD to mint
    */
   function mint(address to, uint256 amount) external {
     require(controllers[msg.sender], "Only controllers can mint");
@@ -22,9 +22,9 @@ contract WOOL is ERC20, Ownable {
   }
 
   /**
-   * burns $WOOL from a holder
-   * @param from the holder of the $WOOL
-   * @param amount the amount of $WOOL to burn
+   * burns $GOD from a holder
+   * @param from the holder of the $GOD
+   * @param amount the amount of $GOD to burn
    */
   function burn(address from, uint256 amount) external {
     require(controllers[msg.sender], "Only controllers can burn");

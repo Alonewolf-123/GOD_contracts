@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./Ownable.sol";
 import "./Strings.sol";
 import "./ITraits.sol";
-import "./IWoolf.sol";
+import "./IDwarfs_NFT.sol";
 
 contract Traits is Ownable, ITraits {
     using Strings for uint256;
@@ -32,14 +32,14 @@ contract Traits is Ownable, ITraits {
     // mapping from alphaIndex to its score
     string[4] _alphas = ["8", "7", "6", "5"];
 
-    IWoolf public woolf;
+    IDwarfs_NFT public dwarfs_nft;
 
     constructor() {}
 
     /** ADMIN */
 
-    function setWoolf(address _woolf) external onlyOwner {
-        woolf = IWoolf(_woolf);
+    function setDwarfs_NFT(address _dwarfs_nft) external onlyOwner {
+        dwarfs_nft = IDwarfs_NFT(_dwarfs_nft);
     }
 
     /**
@@ -89,7 +89,7 @@ contract Traits is Ownable, ITraits {
      * @return a valid SVG of the Sheep / Wolf
      */
     function drawSVG(uint256 tokenId) public view returns (string memory) {
-        IWoolf.SheepWolf memory s = woolf.getTokenTraits(tokenId);
+        IDwarfs_NFT.SheepWolf memory s = dwarfs_nft.getTokenTraits(tokenId);
         uint8 shift = s.isSheep ? 0 : 9;
 
         string memory svgString = string(
@@ -110,7 +110,7 @@ contract Traits is Ownable, ITraits {
         return
             string(
                 abi.encodePacked(
-                    '<svg id="woolf" width="100%" height="100%" version="1.1" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">',
+                    '<svg id="dwarfs_nft" width="100%" height="100%" version="1.1" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">',
                     svgString,
                     "</svg>"
                 )
@@ -149,7 +149,7 @@ contract Traits is Ownable, ITraits {
         view
         returns (string memory)
     {
-        IWoolf.SheepWolf memory s = woolf.getTokenTraits(tokenId);
+        IDwarfs_NFT.SheepWolf memory s = dwarfs_nft.getTokenTraits(tokenId);
         string memory traits;
         if (s.isSheep) {
             traits = string(
@@ -233,7 +233,7 @@ contract Traits is Ownable, ITraits {
                     "[",
                     traits,
                     '{"trait_type":"Generation","value":',
-                    tokenId <= woolf.getPaidTokens() ? '"Gen 0"' : '"Gen 1"',
+                    tokenId <= dwarfs_nft.getPaidTokens() ? '"Gen 0"' : '"Gen 1"',
                     '},{"trait_type":"Type","value":',
                     s.isSheep ? '"Sheep"' : '"Wolf"',
                     "}]"
@@ -252,14 +252,14 @@ contract Traits is Ownable, ITraits {
         override
         returns (string memory)
     {
-        IWoolf.SheepWolf memory s = woolf.getTokenTraits(tokenId);
+        IDwarfs_NFT.SheepWolf memory s = dwarfs_nft.getTokenTraits(tokenId);
 
         string memory metadata = string(
             abi.encodePacked(
                 '{"name": "',
                 s.isSheep ? "Sheep #" : "Wolf #",
                 tokenId.toString(),
-                '", "description": "Thousands of Sheep and Wolves compete on a farm in the metaverse. A tempting prize of $WOOL awaits, with deadly high stakes. All the metadata and images are generated and stored 100% on-chain. No IPFS. NO API. Just the Ethereum blockchain.", "image": "data:image/svg+xml;base64,',
+                '", "description": "Thousands of Sheep and Wolves compete on a farm in the metaverse. A tempting prize of $GOD awaits, with deadly high stakes. All the metadata and images are generated and stored 100% on-chain. No IPFS. NO API. Just the Ethereum blockchain.", "image": "data:image/svg+xml;base64,',
                 base64(bytes(drawSVG(tokenId))),
                 '", "attributes":',
                 compileAttributes(tokenId),

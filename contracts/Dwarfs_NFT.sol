@@ -4,12 +4,12 @@ pragma solidity ^0.8.0;
 import "./Ownable.sol";
 import "./Pausable.sol";
 import "./ERC721Enumerable.sol";
-import "./IWoolf.sol";
-import "./IBarn.sol";
+import "./IDwarfs_NFT.sol";
+import "./IClan.sol";
 import "./ITraits.sol";
-import "./WOOL.sol";
+import "./GOD.sol";
 
-contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
+contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     // mint price
     uint256 public constant MINT_PRICE = .069420 ether;
     // max number of tokens that can be minted - 50000 in production
@@ -32,10 +32,10 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
     // 0 - 9 are associated with Sheep, 10 - 18 are associated with Wolves
     uint8[][18] public aliases;
 
-    // reference to the Barn for choosing random Wolf thieves
-    IBarn public barn;
-    // reference to $WOOL for burning on mint
-    WOOL public wool;
+    // reference to the Clan for choosing random Wolf thieves
+    IClan public clan;
+    // reference to $GOD for burning on mint
+    GOD public god;
     // reference to Traits
     ITraits public traits;
 
@@ -43,11 +43,11 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
      * instantiates contract and rarity tables
      */
     constructor(
-        address _wool,
+        address _god,
         address _traits,
         uint256 _maxTokens
-    ) ERC721("Wolf Game", "WGAME") {
-        wool = WOOL(_wool);
+    ) ERC721("Game Of Dwarfs", "DWARF") {
+        god = GOD(_god);
         traits = ITraits(_traits);
         MAX_TOKENS = _maxTokens;
         PAID_TOKENS = _maxTokens / 5;
@@ -360,7 +360,7 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
 
     /**
      * mint a token - 90% Sheep, 10% Wolves
-     * The first 20% are free to claim, the remaining cost $WOOL
+     * The first 20% are free to claim, the remaining cost $GOD
      */
     function mint(uint256 amount, bool stake) external payable whenNotPaused {
         require(tx.origin == _msgSender(), "Only EOA");
@@ -376,7 +376,7 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
             require(msg.value == 0);
         }
 
-        uint256 totalWoolCost = 0;
+        uint256 totalGodCost = 0;
         uint16[] memory tokenIds = stake
             ? new uint16[](amount)
             : new uint16[](0);
@@ -389,21 +389,21 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
             if (!stake || recipient != _msgSender()) {
                 _safeMint(recipient, minted);
             } else {
-                _safeMint(address(barn), minted);
+                _safeMint(address(clan), minted);
                 tokenIds[i] = minted;
             }
-            totalWoolCost += mintCost(minted);
+            totalGodCost += mintCost(minted);
         }
 
-        if (totalWoolCost > 0) wool.burn(_msgSender(), totalWoolCost);
-        if (stake) barn.addManyToBarnAndPack(_msgSender(), tokenIds);
+        if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
+        if (stake) clan.addManyToClanAndPack(_msgSender(), tokenIds);
     }
 
     /**
      * the first 20% are paid in ETH
-     * the next 20% are 20000 $WOOL
-     * the next 40% are 40000 $WOOL
-     * the final 20% are 80000 $WOOL
+     * the next 20% are 20000 $GOD
+     * the next 40% are 40000 $GOD
+     * the final 20% are 80000 $GOD
      * @param tokenId the ID to check the cost of to mint
      * @return the cost of the given token ID
      */
@@ -419,8 +419,8 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
         address to,
         uint256 tokenId
     ) public virtual override {
-        // Hardcode the Barn's approval so that users don't have to waste gas approving
-        if (_msgSender() != address(barn))
+        // Hardcode the Clan's approval so that users don't have to waste gas approving
+        if (_msgSender() != address(clan))
             require(
                 _isApprovedOrOwner(_msgSender(), tokenId),
                 "ERC721: transfer caller is not owner nor approved"
@@ -476,7 +476,7 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
     function selectRecipient(uint256 seed) internal view returns (address) {
         if (minted <= PAID_TOKENS || ((seed >> 245) % 10) != 0)
             return _msgSender(); // top 10 bits haven't been used
-        address thief = barn.randomWolfOwner(seed >> 144); // 144 bits reserved for trait selection
+        address thief = clan.randomWolfOwner(seed >> 144); // 144 bits reserved for trait selection
         if (thief == address(0x0)) return _msgSender();
         return thief;
     }
@@ -588,10 +588,10 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
 
     /**
      * called after deployment so that the contract can get random wolf thieves
-     * @param _barn the address of the Barn
+     * @param _clan the address of the Clan
      */
-    function setBarn(address _barn) external onlyOwner {
-        barn = IBarn(_barn);
+    function setClan(address _clan) external onlyOwner {
+        clan = IClan(_clan);
     }
 
     /**

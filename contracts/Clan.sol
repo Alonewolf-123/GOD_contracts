@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 
 import "./IERC721Receiver.sol";
 import "./Pausable.sol";
-import "./Woolf.sol";
-import "./WOOL.sol";
+import "./Dwarfs_NFT.sol";
+import "./GOD.sol";
 
-contract Barn is Ownable, IERC721Receiver, Pausable {
+contract Clan is Ownable, IERC721Receiver, Pausable {
   
   // maximum alpha score for a Wolf
   uint8 public constant MAX_ALPHA = 8;
@@ -23,13 +23,13 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
   event SheepClaimed(uint256 tokenId, uint256 earned, bool unstaked);
   event WolfClaimed(uint256 tokenId, uint256 earned, bool unstaked);
 
-  // reference to the Woolf NFT contract
-  Woolf woolf;
-  // reference to the $WOOL contract for minting $WOOL earnings
-  WOOL wool;
+  // reference to the Dwarfs_NFT NFT contract
+  Dwarfs_NFT dwarfs_nft;
+  // reference to the $GOD contract for minting $GOD earnings
+  GOD god;
 
   // maps tokenId to stake
-  mapping(uint256 => Stake) public barn; 
+  mapping(uint256 => Stake) public clan; 
   // maps alpha to all Wolf stakes with that alpha
   mapping(uint256 => Stake[]) public pack; 
   // tracks location of each Wolf in Pack
@@ -38,68 +38,68 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
   uint256 public totalAlphaStaked = 0; 
   // any rewards distributed when no wolves are staked
   uint256 public unaccountedRewards = 0; 
-  // amount of $WOOL due for each alpha point staked
-  uint256 public woolPerAlpha = 0; 
+  // amount of $GOD due for each alpha point staked
+  uint256 public godPerAlpha = 0; 
 
-  // sheep earn 10000 $WOOL per day
-  uint256 public constant DAILY_WOOL_RATE = 10000 ether;
-  // sheep must have 2 days worth of $WOOL to unstake or else it's too cold
+  // sheep earn 10000 $GOD per day
+  uint256 public constant DAILY_GOD_RATE = 10000 ether;
+  // sheep must have 2 days worth of $GOD to unstake or else it's too cold
   uint256 public constant MINIMUM_TO_EXIT = 2 days;
-  // wolves take a 20% tax on all $WOOL claimed
-  uint256 public constant WOOL_CLAIM_TAX_PERCENTAGE = 20;
-  // there will only ever be (roughly) 2.4 billion $WOOL earned through staking
-  uint256 public constant MAXIMUM_GLOBAL_WOOL = 2400000000 ether;
+  // wolves take a 20% tax on all $GOD claimed
+  uint256 public constant GOD_CLAIM_TAX_PERCENTAGE = 20;
+  // there will only ever be (roughly) 2.4 billion $GOD earned through staking
+  uint256 public constant MAXIMUM_GLOBAL_GOD = 2400000000 ether;
 
-  // amount of $WOOL earned so far
-  uint256 public totalWoolEarned;
-  // number of Sheep staked in the Barn
+  // amount of $GOD earned so far
+  uint256 public totalGodEarned;
+  // number of Sheep staked in the Clan
   uint256 public totalSheepStaked;
-  // the last time $WOOL was claimed
+  // the last time $GOD was claimed
   uint256 public lastClaimTimestamp;
 
-  // emergency rescue to allow unstaking without any checks but without $WOOL
+  // emergency rescue to allow unstaking without any checks but without $GOD
   bool public rescueEnabled = false;
 
   /**
-   * @param _woolf reference to the Woolf NFT contract
-   * @param _wool reference to the $WOOL token
+   * @param _dwarfs_nft reference to the Dwarfs_NFT NFT contract
+   * @param _god reference to the $GOD token
    */
-  constructor(address _woolf, address _wool) { 
-    woolf = Woolf(_woolf);
-    wool = WOOL(_wool);
+  constructor(address _dwarfs_nft, address _god) { 
+    dwarfs_nft = Dwarfs_NFT(_dwarfs_nft);
+    god = GOD(_god);
   }
 
   /** STAKING */
 
   /**
-   * adds Sheep and Wolves to the Barn and Pack
+   * adds Sheep and Wolves to the Clan and Pack
    * @param account the address of the staker
    * @param tokenIds the IDs of the Sheep and Wolves to stake
    */
-  function addManyToBarnAndPack(address account, uint16[] calldata tokenIds) external {
-    require(account == _msgSender() || _msgSender() == address(woolf), "DONT GIVE YOUR TOKENS AWAY");
+  function addManyToClanAndPack(address account, uint16[] calldata tokenIds) external {
+    require(account == _msgSender() || _msgSender() == address(dwarfs_nft), "DONT GIVE YOUR TOKENS AWAY");
     for (uint i = 0; i < tokenIds.length; i++) {
-      if (_msgSender() != address(woolf)) { // dont do this step if its a mint + stake
-        require(woolf.ownerOf(tokenIds[i]) == _msgSender(), "AINT YO TOKEN");
-        woolf.transferFrom(_msgSender(), address(this), tokenIds[i]);
+      if (_msgSender() != address(dwarfs_nft)) { // dont do this step if its a mint + stake
+        require(dwarfs_nft.ownerOf(tokenIds[i]) == _msgSender(), "AINT YO TOKEN");
+        dwarfs_nft.transferFrom(_msgSender(), address(this), tokenIds[i]);
       } else if (tokenIds[i] == 0) {
         continue; // there may be gaps in the array for stolen tokens
       }
 
       if (isSheep(tokenIds[i])) 
-        _addSheepToBarn(account, tokenIds[i]);
+        _addSheepToClan(account, tokenIds[i]);
       else 
         _addWolfToPack(account, tokenIds[i]);
     }
   }
 
   /**
-   * adds a single Sheep to the Barn
+   * adds a single Sheep to the Clan
    * @param account the address of the staker
-   * @param tokenId the ID of the Sheep to add to the Barn
+   * @param tokenId the ID of the Sheep to add to the Clan
    */
-  function _addSheepToBarn(address account, uint256 tokenId) internal whenNotPaused _updateEarnings {
-    barn[tokenId] = Stake({
+  function _addSheepToClan(address account, uint256 tokenId) internal whenNotPaused _updateEarnings {
+    clan[tokenId] = Stake({
       owner: account,
       tokenId: uint16(tokenId),
       value: uint80(block.timestamp)
@@ -120,62 +120,62 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
     pack[alpha].push(Stake({
       owner: account,
       tokenId: uint16(tokenId),
-      value: uint80(woolPerAlpha)
+      value: uint80(godPerAlpha)
     })); // Add the wolf to the Pack
-    emit TokenStaked(account, tokenId, woolPerAlpha);
+    emit TokenStaked(account, tokenId, godPerAlpha);
   }
 
   /** CLAIMING / UNSTAKING */
 
   /**
-   * realize $WOOL earnings and optionally unstake tokens from the Barn / Pack
-   * to unstake a Sheep it will require it has 2 days worth of $WOOL unclaimed
+   * realize $GOD earnings and optionally unstake tokens from the Clan / Pack
+   * to unstake a Sheep it will require it has 2 days worth of $GOD unclaimed
    * @param tokenIds the IDs of the tokens to claim earnings from
    * @param unstake whether or not to unstake ALL of the tokens listed in tokenIds
    */
-  function claimManyFromBarnAndPack(uint16[] calldata tokenIds, bool unstake) external whenNotPaused _updateEarnings {
+  function claimManyFromClanAndPack(uint16[] calldata tokenIds, bool unstake) external whenNotPaused _updateEarnings {
     uint256 owed = 0;
     for (uint i = 0; i < tokenIds.length; i++) {
       if (isSheep(tokenIds[i]))
-        owed += _claimSheepFromBarn(tokenIds[i], unstake);
+        owed += _claimSheepFromClan(tokenIds[i], unstake);
       else
         owed += _claimWolfFromPack(tokenIds[i], unstake);
     }
     if (owed == 0) return;
-    wool.mint(_msgSender(), owed);
+    god.mint(_msgSender(), owed);
   }
 
   /**
-   * realize $WOOL earnings for a single Sheep and optionally unstake it
+   * realize $GOD earnings for a single Sheep and optionally unstake it
    * if not unstaking, pay a 20% tax to the staked Wolves
-   * if unstaking, there is a 50% chance all $WOOL is stolen
+   * if unstaking, there is a 50% chance all $GOD is stolen
    * @param tokenId the ID of the Sheep to claim earnings from
    * @param unstake whether or not to unstake the Sheep
-   * @return owed - the amount of $WOOL earned
+   * @return owed - the amount of $GOD earned
    */
-  function _claimSheepFromBarn(uint256 tokenId, bool unstake) internal returns (uint256 owed) {
-    Stake memory stake = barn[tokenId];
+  function _claimSheepFromClan(uint256 tokenId, bool unstake) internal returns (uint256 owed) {
+    Stake memory stake = clan[tokenId];
     require(stake.owner == _msgSender(), "SWIPER, NO SWIPING");
-    require(!(unstake && block.timestamp - stake.value < MINIMUM_TO_EXIT), "GONNA BE COLD WITHOUT TWO DAY'S WOOL");
-    if (totalWoolEarned < MAXIMUM_GLOBAL_WOOL) {
-      owed = (block.timestamp - stake.value) * DAILY_WOOL_RATE / 1 days;
+    require(!(unstake && block.timestamp - stake.value < MINIMUM_TO_EXIT), "GONNA BE COLD WITHOUT TWO DAY'S GOD");
+    if (totalGodEarned < MAXIMUM_GLOBAL_GOD) {
+      owed = (block.timestamp - stake.value) * DAILY_GOD_RATE / 1 days;
     } else if (stake.value > lastClaimTimestamp) {
-      owed = 0; // $WOOL production stopped already
+      owed = 0; // $GOD production stopped already
     } else {
-      owed = (lastClaimTimestamp - stake.value) * DAILY_WOOL_RATE / 1 days; // stop earning additional $WOOL if it's all been earned
+      owed = (lastClaimTimestamp - stake.value) * DAILY_GOD_RATE / 1 days; // stop earning additional $GOD if it's all been earned
     }
     if (unstake) {
-      if (random(tokenId) & 1 == 1) { // 50% chance of all $WOOL stolen
+      if (random(tokenId) & 1 == 1) { // 50% chance of all $GOD stolen
         _payWolfTax(owed);
         owed = 0;
       }
-      woolf.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // send back Sheep
-      delete barn[tokenId];
+      dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // send back Sheep
+      delete clan[tokenId];
       totalSheepStaked -= 1;
     } else {
-      _payWolfTax(owed * WOOL_CLAIM_TAX_PERCENTAGE / 100); // percentage tax to staked wolves
-      owed = owed * (100 - WOOL_CLAIM_TAX_PERCENTAGE) / 100; // remainder goes to Sheep owner
-      barn[tokenId] = Stake({
+      _payWolfTax(owed * GOD_CLAIM_TAX_PERCENTAGE / 100); // percentage tax to staked wolves
+      owed = owed * (100 - GOD_CLAIM_TAX_PERCENTAGE) / 100; // remainder goes to Sheep owner
+      clan[tokenId] = Stake({
         owner: _msgSender(),
         tokenId: uint16(tokenId),
         value: uint80(block.timestamp)
@@ -185,21 +185,21 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
   }
 
   /**
-   * realize $WOOL earnings for a single Wolf and optionally unstake it
-   * Wolves earn $WOOL proportional to their Alpha rank
+   * realize $GOD earnings for a single Wolf and optionally unstake it
+   * Wolves earn $GOD proportional to their Alpha rank
    * @param tokenId the ID of the Wolf to claim earnings from
    * @param unstake whether or not to unstake the Wolf
-   * @return owed - the amount of $WOOL earned
+   * @return owed - the amount of $GOD earned
    */
   function _claimWolfFromPack(uint256 tokenId, bool unstake) internal returns (uint256 owed) {
-    require(woolf.ownerOf(tokenId) == address(this), "AINT A PART OF THE PACK");
+    require(dwarfs_nft.ownerOf(tokenId) == address(this), "AINT A PART OF THE PACK");
     uint256 alpha = _alphaForWolf(tokenId);
     Stake memory stake = pack[alpha][packIndices[tokenId]];
     require(stake.owner == _msgSender(), "SWIPER, NO SWIPING");
-    owed = (alpha) * (woolPerAlpha - stake.value); // Calculate portion of tokens based on Alpha
+    owed = (alpha) * (godPerAlpha - stake.value); // Calculate portion of tokens based on Alpha
     if (unstake) {
       totalAlphaStaked -= alpha; // Remove Alpha from total staked
-      woolf.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // Send back Wolf
+      dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // Send back Wolf
       Stake memory lastStake = pack[alpha][pack[alpha].length - 1];
       pack[alpha][packIndices[tokenId]] = lastStake; // Shuffle last Wolf to current position
       packIndices[lastStake.tokenId] = packIndices[tokenId];
@@ -209,7 +209,7 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
       pack[alpha][packIndices[tokenId]] = Stake({
         owner: _msgSender(),
         tokenId: uint16(tokenId),
-        value: uint80(woolPerAlpha)
+        value: uint80(godPerAlpha)
       }); // reset stake
     }
     emit WolfClaimed(tokenId, owed, unstake);
@@ -228,10 +228,10 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
     for (uint i = 0; i < tokenIds.length; i++) {
       tokenId = tokenIds[i];
       if (isSheep(tokenId)) {
-        stake = barn[tokenId];
+        stake = clan[tokenId];
         require(stake.owner == _msgSender(), "SWIPER, NO SWIPING");
-        woolf.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // send back Sheep
-        delete barn[tokenId];
+        dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // send back Sheep
+        delete clan[tokenId];
         totalSheepStaked -= 1;
         emit SheepClaimed(tokenId, 0, true);
       } else {
@@ -239,7 +239,7 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
         stake = pack[alpha][packIndices[tokenId]];
         require(stake.owner == _msgSender(), "SWIPER, NO SWIPING");
         totalAlphaStaked -= alpha; // Remove Alpha from total staked
-        woolf.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // Send back Wolf
+        dwarfs_nft.safeTransferFrom(address(this), _msgSender(), tokenId, ""); // Send back Wolf
         lastStake = pack[alpha][pack[alpha].length - 1];
         pack[alpha][packIndices[tokenId]] = lastStake; // Shuffle last Wolf to current position
         packIndices[lastStake.tokenId] = packIndices[tokenId];
@@ -253,28 +253,28 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
   /** ACCOUNTING */
 
   /** 
-   * add $WOOL to claimable pot for the Pack
-   * @param amount $WOOL to add to the pot
+   * add $GOD to claimable pot for the Pack
+   * @param amount $GOD to add to the pot
    */
   function _payWolfTax(uint256 amount) internal {
     if (totalAlphaStaked == 0) { // if there's no staked wolves
-      unaccountedRewards += amount; // keep track of $WOOL due to wolves
+      unaccountedRewards += amount; // keep track of $GOD due to wolves
       return;
     }
-    // makes sure to include any unaccounted $WOOL 
-    woolPerAlpha += (amount + unaccountedRewards) / totalAlphaStaked;
+    // makes sure to include any unaccounted $GOD 
+    godPerAlpha += (amount + unaccountedRewards) / totalAlphaStaked;
     unaccountedRewards = 0;
   }
 
   /**
-   * tracks $WOOL earnings to ensure it stops once 2.4 billion is eclipsed
+   * tracks $GOD earnings to ensure it stops once 2.4 billion is eclipsed
    */
   modifier _updateEarnings() {
-    if (totalWoolEarned < MAXIMUM_GLOBAL_WOOL) {
-      totalWoolEarned += 
+    if (totalGodEarned < MAXIMUM_GLOBAL_GOD) {
+      totalGodEarned += 
         (block.timestamp - lastClaimTimestamp)
         * totalSheepStaked
-        * DAILY_WOOL_RATE / 1 days; 
+        * DAILY_GOD_RATE / 1 days; 
       lastClaimTimestamp = block.timestamp;
     }
     _;
@@ -306,7 +306,7 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
    * @return sheep - whether or not a token is a Sheep
    */
   function isSheep(uint256 tokenId) public view returns (bool sheep) {
-    (sheep, , , , , , , , , ) = woolf.tokenTraits(tokenId);
+    (sheep, , , , , , , , , ) = dwarfs_nft.tokenTraits(tokenId);
   }
 
   /**
@@ -315,7 +315,7 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
    * @return the alpha score of the Wolf (5-8)
    */
   function _alphaForWolf(uint256 tokenId) internal view returns (uint8) {
-    ( , , , , , , , , , uint8 alphaIndex) = woolf.tokenTraits(tokenId);
+    ( , , , , , , , , , uint8 alphaIndex) = dwarfs_nft.tokenTraits(tokenId);
     return MAX_ALPHA - alphaIndex; // alpha index is 0-3
   }
 
@@ -360,7 +360,7 @@ contract Barn is Ownable, IERC721Receiver, Pausable {
         uint256,
         bytes calldata
     ) external pure override returns (bytes4) {
-      require(from == address(0x0), "Cannot send tokens to Barn directly");
+      require(from == address(0x0), "Cannot send tokens to Clan directly");
       return IERC721Receiver.onERC721Received.selector;
     }
 

@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface IWoolf {
+interface IDwarfs_NFT {
 
   // struct to store each token's traits
   struct SheepWolf {
