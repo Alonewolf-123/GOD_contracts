@@ -1,5 +1,7 @@
 const Barn = artifacts.require("Barn");
+const Woolf = artifacts.require("Woolf");
+const WOOL = artifacts.require("WOOL");
 
 module.exports = function(deployer) {
-    deployer.deploy(Barn, "0x6Db0569afd06431AC9Ff044377907e6d2451a4cE", "0xe421ada030610f173F9db7752707C1A68Cf02832");
+    deployer.deploy(Barn, Woolf.address, WOOL.address);
 };

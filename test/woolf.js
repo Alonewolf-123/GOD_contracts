@@ -3,6 +3,7 @@
 const { ethers } = require("ethers");
 
 const Woolf = artifacts.require("Woolf");
+const Barn = artifacts.require("Barn");
 // Is there is an injected web3 instance?
 // var web3Provider;
 
@@ -18,8 +19,9 @@ const Woolf = artifacts.require("Woolf");
 
 contract("Woolf", accounts => {
     web3.eth.getAccounts().then(web3_accounts => console.log(web3_accounts));
+    console.log(Barn.address);
+    Woolf.deployed().then(function(instance) { return instance.setBarn(Barn.address) });
 
     it("Mint testing", () =>
-        Woolf.deployed()
-        .then(instance => instance.mint(5, true)))
+        Woolf.deployed().then(instance => instance.mint(5, true)))
 });
