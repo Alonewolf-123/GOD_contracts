@@ -19,6 +19,6 @@ interface IDwarfs_NFT {
   }
 
 
-  function getPaidTokens() external view returns (uint256);
+  function getGen0Tokens() external view returns (uint256);
   function getTokenTraits(uint256 tokenId) external view returns (DwarfTrait memory);
 }

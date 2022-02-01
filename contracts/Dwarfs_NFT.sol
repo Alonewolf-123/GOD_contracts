@@ -11,11 +11,25 @@ import "./GOD.sol";
 
 contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     // mint price
-    uint256 public constant MINT_PRICE = .069420 ether;
-    // max number of tokens that can be minted - 50000 in production
-    uint256 public immutable MAX_TOKENS;
-    // number of tokens that can be claimed for free - 20% of MAX_TOKENS
-    uint256 public PAID_TOKENS;
+    uint256 public MINT_ETH_PRICE_0 = 0.12 ether;
+    uint256 public MINT_ETH_PRICE_1 = 0.14 ether;
+    uint256 public MINT_ETH_PRICE_2 = 0.16 ether;
+    uint256 public MINT_ETH_PRICE_3 = 0.18 ether;
+
+    uint256 public MINT_GOD_PRICE_0 = 0 ether;
+    uint256 public MINT_GOD_PRICE_1 = 100000 ether;
+    uint256 public MINT_GOD_PRICE_2 = 120000 ether;
+    uint256 public MINT_GOD_PRICE_3 = 140000 ether;
+
+    uint256 public MAX_GEN0_TOKENS = 8000;
+    uint256 public MAX_GEN1_TOKENS = 12000;
+    uint256 public MAX_GEN2_TOKENS = 16000;
+
+    // max number of tokens that can be minted - 20000 in production
+    uint256 public MAX_TOKENS = 20000;
+
+    uint256 public MAX_TOKENS_ETH_SOLD = 50;
+
     // number of tokens have been minted so far
     uint16 public minted;
 
@@ -42,15 +56,11 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     /**
      * instantiates contract and rarity tables
      */
-    constructor(
-        address _god,
-        address _traits,
-        uint256 _maxTokens
-    ) ERC721("Game Of Dwarfs", "DWARF") {
+    constructor(address _god, address _traits)
+        ERC721("Game Of Dwarfs", "DWARF")
+    {
         god = GOD(_god);
         traits = ITraits(_traits);
-        MAX_TOKENS = _maxTokens;
-        PAID_TOKENS = _maxTokens / 5;
 
         // I know this looks weird but it saves users gas by making lookup O(1)
         // A.J. Walker's Alias Algorithm
@@ -358,6 +368,16 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
 
     /** EXTERNAL */
 
+    function mintByOwner(uint256 amount) external onlyOwner {
+        uint256 seed;
+        for (uint256 i = 0; i < amount; i++) {
+            minted++;
+            seed = random(minted);
+            generate(minted, seed);
+            _safeMint(_msgSender(), minted);
+        }
+    }
+
     /**
      * mint a token - 90% Merchant, 10% Wolves
      * The first 20% are free to claim, the remaining cost $GOD
@@ -366,14 +386,51 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         require(tx.origin == _msgSender(), "Only EOA");
         require(minted + amount <= MAX_TOKENS, "All tokens minted");
         require(amount > 0 && amount <= 10, "Invalid mint amount");
-        if (minted < PAID_TOKENS) {
+        if (minted < MAX_GEN0_TOKENS) {
             require(
-                minted + amount <= PAID_TOKENS,
+                minted + amount <= MAX_GEN0_TOKENS,
                 "All tokens on-sale already sold"
             );
-            require(amount * MINT_PRICE > msg.value, "Invalid payment amount");
-        } else {
-            require(msg.value == 0);
+            require(
+                amount * MINT_ETH_PRICE_0 >= msg.value,
+                "Invalid payment amount"
+            );
+        } else if (
+            minted > MAX_GEN0_TOKENS &&
+            minted < MAX_GEN0_TOKENS + (MAX_GEN1_TOKENS - MAX_GEN0_TOKENS) * MAX_TOKENS_ETH_SOLD / 100
+        ) {
+            require(
+                minted + amount <= MAX_GEN0_TOKENS + (MAX_GEN1_TOKENS - MAX_GEN0_TOKENS) * MAX_TOKENS_ETH_SOLD / 100,
+                "All tokens on-sale already sold"
+            );
+            require(
+                amount * MINT_ETH_PRICE_1 >= msg.value,
+                "Invalid payment amount"
+            );
+        } else if (
+            minted > MAX_GEN1_TOKENS &&
+            minted < MAX_GEN1_TOKENS + (MAX_GEN2_TOKENS - MAX_GEN1_TOKENS) * MAX_TOKENS_ETH_SOLD / 100
+        ) {
+            require(
+                minted + amount <= MAX_GEN1_TOKENS + (MAX_GEN2_TOKENS - MAX_GEN1_TOKENS) * MAX_TOKENS_ETH_SOLD / 100,
+                "All tokens on-sale already sold"
+            );
+            require(
+                amount * MINT_ETH_PRICE_2 >= msg.value,
+                "Invalid payment amount"
+            );
+        } else if (
+            minted > MAX_GEN2_TOKENS &&
+            minted < MAX_GEN2_TOKENS + (MAX_TOKENS - MAX_GEN2_TOKENS) * MAX_TOKENS_ETH_SOLD / 100
+        ) {
+            require(
+                minted + amount <= MAX_GEN2_TOKENS + (MAX_TOKENS - MAX_GEN2_TOKENS) * MAX_TOKENS_ETH_SOLD / 100,
+                "All tokens on-sale already sold"
+            );
+            require(
+                amount * MINT_ETH_PRICE_3 >= msg.value,
+                "Invalid payment amount"
+            );
         }
 
         uint256 totalGodCost = 0;
@@ -385,9 +442,9 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
             minted++;
             seed = random(minted);
             generate(minted, seed);
-            address recipient = selectRecipient(seed);
-            if (!stake || recipient != _msgSender()) {
-                _safeMint(recipient, minted);
+
+            if (!stake) {
+                _safeMint(_msgSender(), minted);
             } else {
                 _safeMint(address(clan), minted);
                 tokenIds[i] = minted;
@@ -408,10 +465,15 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
      * @return the cost of the given token ID
      */
     function mintCost(uint256 tokenId) public view returns (uint256) {
-        if (tokenId <= PAID_TOKENS) return 0;
-        if (tokenId <= (MAX_TOKENS * 2) / 5) return 20000 ether;
-        if (tokenId <= (MAX_TOKENS * 4) / 5) return 40000 ether;
-        return 80000 ether;
+        if (tokenId <= MAX_GEN0_TOKENS) return MINT_GOD_PRICE_0;
+        if (tokenId <= MAX_GEN0_TOKENS + (MAX_GEN1_TOKENS - MAX_GEN0_TOKENS) * MAX_TOKENS_ETH_SOLD / 100) return 0;
+        if (tokenId <= MAX_GEN1_TOKENS) return MINT_GOD_PRICE_1;
+        if (tokenId <= MAX_GEN1_TOKENS + (MAX_GEN2_TOKENS - MAX_GEN1_TOKENS) * MAX_TOKENS_ETH_SOLD / 100) return 0;
+        if (tokenId <= MAX_GEN2_TOKENS) return MINT_GOD_PRICE_2;
+        if (tokenId <= MAX_GEN2_TOKENS + (MAX_TOKENS - MAX_GEN2_TOKENS) * MAX_TOKENS_ETH_SOLD / 100) return 0;
+        if (tokenId <= MAX_TOKENS) return MINT_GOD_PRICE_3;
+
+        return 0 ether;
     }
 
     function transferFrom(
@@ -468,20 +530,6 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     }
 
     /**
-     * the first 20% (ETH purchases) go to the minter
-     * the remaining 80% have a 10% chance to be given to a random staked mobster
-     * @param seed a random value to select a recipient from
-     * @return the address of the recipient (either the minter or the Mobster thief's owner)
-     */
-    function selectRecipient(uint256 seed) internal view returns (address) {
-        if (minted <= PAID_TOKENS || ((seed >> 245) % 10) != 0)
-            return _msgSender(); // top 10 bits haven't been used
-        address thief = clan.randomMobsterOwner(seed >> 144); // 144 bits reserved for trait selection
-        if (thief == address(0x0)) return _msgSender();
-        return thief;
-    }
-
-    /**
      * selects the species and all of its traits based on the seed value
      * @param seed a pseudorandom 256 bit number to derive traits from
      * @return t -  a struct of randomly selected traits
@@ -532,7 +580,8 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
                         s.ears,
                         s.feet,
                         s.alphaIndex
-                    ), 0
+                    ),
+                    0
                 )
             );
     }
@@ -570,7 +619,6 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     }
 
     /** READ */
-
     function getTokenTraits(uint256 tokenId)
         external
         view
@@ -580,8 +628,8 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         return tokenTraits[tokenId];
     }
 
-    function getPaidTokens() external view override returns (uint256) {
-        return PAID_TOKENS;
+    function getGen0Tokens() external view override returns (uint256) {
+        return MAX_GEN0_TOKENS;
     }
 
     /** ADMIN */
@@ -604,8 +652,56 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     /**
      * updates the number of tokens for sale
      */
-    function setPaidTokens(uint256 _paidTokens) external onlyOwner {
-        PAID_TOKENS = _paidTokens;
+    function setGen0Tokens(uint256 _gen0Tokens) external onlyOwner {
+        MAX_GEN0_TOKENS = _gen0Tokens;
+    }
+
+    function setGen1Tokens(uint256 _gen1Tokens) external onlyOwner {
+        MAX_GEN1_TOKENS = _gen1Tokens;
+    }
+
+    function setGen2Tokens(uint256 _gen2Tokens) external onlyOwner {
+        MAX_GEN2_TOKENS = _gen2Tokens;
+    }
+
+    function setGen3Tokens(uint256 _gen3Tokens) external onlyOwner {
+        MAX_TOKENS = _gen3Tokens;
+    }
+
+    function setMintETHPrice0(uint256 _price) external onlyOwner {
+        MINT_ETH_PRICE_0 = _price;
+    }
+
+    function setMintETHPrice1(uint256 _price) external onlyOwner {
+        MINT_ETH_PRICE_1 = _price;
+    }
+
+    function setMintETHPrice2(uint256 _price) external onlyOwner {
+        MINT_ETH_PRICE_2 = _price;
+    }
+
+    function setMintETHPrice3(uint256 _price) external onlyOwner {
+        MINT_ETH_PRICE_3 = _price;
+    }
+
+    function setMintGODPrice0(uint256 _price) external onlyOwner {
+        MINT_GOD_PRICE_0 = _price;
+    }
+
+    function setMintGODPrice1(uint256 _price) external onlyOwner {
+        MINT_GOD_PRICE_1 = _price;
+    }
+
+    function setMintGODPrice2(uint256 _price) external onlyOwner {
+        MINT_GOD_PRICE_2 = _price;
+    }
+
+    function setMintGODPrice3(uint256 _price) external onlyOwner {
+        MINT_GOD_PRICE_3 = _price;
+    }
+
+    function setEthSoldPercent(uint256 _percent) external onlyOwner {
+        MAX_TOKENS_ETH_SOLD = _percent;
     }
 
     /**

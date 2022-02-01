@@ -233,7 +233,7 @@ contract Traits is Ownable, ITraits {
                     "[",
                     traits,
                     '{"trait_type":"Generation","value":',
-                    tokenId <= dwarfs_nft.getPaidTokens() ? '"Gen 0"' : '"Gen 1"',
+                    tokenId <= dwarfs_nft.getGen0Tokens() ? '"Gen 0"' : '"Gen 1"',
                     '},{"trait_type":"Type","value":',
                     s.isMerchant ? '"Merchant"' : '"Mobster"',
                     "}]"

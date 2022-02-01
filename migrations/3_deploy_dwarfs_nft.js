@@ -3,5 +3,5 @@ const GOD = artifacts.require("GOD");
 const Traits = artifacts.require("Traits");
 
 module.exports = function(deployer) {
-    deployer.deploy(Dwarfs_NFT, GOD.address, Traits.address, 50000);
+    deployer.deploy(Dwarfs_NFT, GOD.address, Traits.address);
 };
