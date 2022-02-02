@@ -36,7 +36,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
   mapping(uint256 => uint256) public packIndices; 
   // total alpha scores staked
   uint256 public totalAlphaStaked = 0; 
-  // any rewards distributed when no wolves are staked
+  // any rewards distributed when no mobsters are staked
   uint256 public unaccountedRewards = 0; 
   // amount of $GOD due for each alpha point staked
   uint256 public godPerAlpha = 0; 
@@ -45,7 +45,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
   uint256 public constant DAILY_GOD_RATE = 10000 ether;
   // merchant must have 2 days worth of $GOD to unstake or else it's too cold
   uint256 public constant MINIMUM_TO_EXIT = 2 days;
-  // wolves take a 20% tax on all $GOD claimed
+  // mobsters take a 20% tax on all $GOD claimed
   uint256 public constant GOD_CLAIM_TAX_PERCENTAGE = 20;
   // there will only ever be (roughly) 2.4 billion $GOD earned through staking
   uint256 public constant MAXIMUM_GLOBAL_GOD = 2400000000 ether;
@@ -72,9 +72,9 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
   /** STAKING */
 
   /**
-   * adds Merchant and Wolves to the Clan and Pack
+   * adds Merchant and Mobsters to the Clan and Pack
    * @param account the address of the staker
-   * @param tokenIds the IDs of the Merchant and Wolves to stake
+   * @param tokenIds the IDs of the Merchant and Mobsters to stake
    */
   function addManyToClanAndPack(address account, uint16[] calldata tokenIds) external {
     require(account == _msgSender() || _msgSender() == address(dwarfs_nft), "DONT GIVE YOUR TOKENS AWAY");
@@ -147,7 +147,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
 
   /**
    * realize $GOD earnings for a single Merchant and optionally unstake it
-   * if not unstaking, pay a 20% tax to the staked Wolves
+   * if not unstaking, pay a 20% tax to the staked Mobsters
    * if unstaking, there is a 50% chance all $GOD is stolen
    * @param tokenId the ID of the Merchant to claim earnings from
    * @param unstake whether or not to unstake the Merchant
@@ -173,7 +173,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
       delete clan[tokenId];
       totalMerchantStaked -= 1;
     } else {
-      _payMobsterTax(owed * GOD_CLAIM_TAX_PERCENTAGE / 100); // percentage tax to staked wolves
+      _payMobsterTax(owed * GOD_CLAIM_TAX_PERCENTAGE / 100); // percentage tax to staked mobsters
       owed = owed * (100 - GOD_CLAIM_TAX_PERCENTAGE) / 100; // remainder goes to Merchant owner
       clan[tokenId] = Stake({
         owner: _msgSender(),
@@ -186,7 +186,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
 
   /**
    * realize $GOD earnings for a single Mobster and optionally unstake it
-   * Wolves earn $GOD proportional to their Alpha rank
+   * Mobsters earn $GOD proportional to their Alpha rank
    * @param tokenId the ID of the Mobster to claim earnings from
    * @param unstake whether or not to unstake the Mobster
    * @return owed - the amount of $GOD earned
@@ -257,8 +257,8 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
    * @param amount $GOD to add to the pot
    */
   function _payMobsterTax(uint256 amount) internal {
-    if (totalAlphaStaked == 0) { // if there's no staked wolves
-      unaccountedRewards += amount; // keep track of $GOD due to wolves
+    if (totalAlphaStaked == 0) { // if there's no staked mobsters
+      unaccountedRewards += amount; // keep track of $GOD due to mobsters
       return;
     }
     // makes sure to include any unaccounted $GOD 
@@ -306,7 +306,8 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
    * @return merchant - whether or not a token is a Merchant
    */
   function isMerchant(uint256 tokenId) public view returns (bool merchant) {
-    (merchant, , , , , , , , , ) = dwarfs_nft.tokenTraits(tokenId);
+    IDwarfs_NFT.DwarfTrait memory s = dwarfs_nft.getTokenTraits(tokenId);
+    merchant = s.isMerchant;
   }
 
   /**
@@ -315,8 +316,8 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
    * @return the alpha score of the Mobster (5-8)
    */
   function _alphaForMobster(uint256 tokenId) internal view returns (uint8) {
-    ( , , , , , , , , , uint8 alphaIndex) = dwarfs_nft.tokenTraits(tokenId);
-    return MAX_ALPHA - alphaIndex; // alpha index is 0-3
+    IDwarfs_NFT.DwarfTrait memory s = dwarfs_nft.getTokenTraits(tokenId);
+    return MAX_ALPHA - s.alphaIndex; // alpha index is 0-3
   }
 
   /**
@@ -329,7 +330,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     uint256 bucket = (seed & 0xFFFFFFFF) % totalAlphaStaked; // choose a value from 0 to total alpha staked
     uint256 cumulative;
     seed >>= 32;
-    // loop through each bucket of Wolves with the same alpha score
+    // loop through each bucket of Mobsters with the same alpha score
     for (uint i = MAX_ALPHA - 3; i <= MAX_ALPHA; i++) {
       cumulative += pack[i].length * i;
       // if the value is not inside of that bucket, keep going

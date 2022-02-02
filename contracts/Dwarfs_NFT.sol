@@ -40,10 +40,10 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     mapping(uint256 => uint256) public existingCombinations;
 
     // list of probabilities for each trait type
-    // 0 - 9 are associated with Merchant, 10 - 18 are associated with Wolves
+    // 0 - 9 are associated with Merchant, 10 - 18 are associated with Mobsters
     uint8[][18] public rarities;
     // list of aliases for Walker's Alias algorithm
-    // 0 - 9 are associated with Merchant, 10 - 18 are associated with Wolves
+    // 0 - 9 are associated with Merchant, 10 - 18 are associated with Mobsters
     uint8[][18] public aliases;
 
     // reference to the Clan for choosing random Mobster thieves
@@ -250,7 +250,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         rarities[8] = [255];
         aliases[8] = [0];
 
-        // wolves
+        // mobsters
         // fur
         rarities[9] = [210, 90, 9, 9, 9, 150, 9, 255, 9];
         aliases[9] = [5, 0, 0, 5, 5, 7, 5, 7, 5];
@@ -379,7 +379,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     }
 
     /**
-     * mint a token - 90% Merchant, 10% Wolves
+     * mint a token - 90% Merchant, 10% Mobsters
      * The first 20% are free to claim, the remaining cost $GOD
      */
     function mint(uint256 amount, bool stake) external payable whenNotPaused {
@@ -542,21 +542,21 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         t.isMerchant = (seed & 0xFFFF) % 10 != 0;
         uint8 shift = t.isMerchant ? 0 : 9;
         seed >>= 16;
-        t.fur = selectTrait(uint16(seed & 0xFFFF), 0 + shift);
+        t.background_weapon = selectTrait(uint16(seed & 0xFFFF), 0 + shift);
         seed >>= 16;
         t.head = selectTrait(uint16(seed & 0xFFFF), 1 + shift);
         seed >>= 16;
         t.ears = selectTrait(uint16(seed & 0xFFFF), 2 + shift);
         seed >>= 16;
-        t.eyes = selectTrait(uint16(seed & 0xFFFF), 3 + shift);
+        t.eyes_brows_wear = selectTrait(uint16(seed & 0xFFFF), 3 + shift);
         seed >>= 16;
         t.nose = selectTrait(uint16(seed & 0xFFFF), 4 + shift);
         seed >>= 16;
         t.mouth = selectTrait(uint16(seed & 0xFFFF), 5 + shift);
         seed >>= 16;
-        t.neck = selectTrait(uint16(seed & 0xFFFF), 6 + shift);
+        t.body_outfit = selectTrait(uint16(seed & 0xFFFF), 6 + shift);
         seed >>= 16;
-        t.feet = selectTrait(uint16(seed & 0xFFFF), 7 + shift);
+        t.hair_facialhair = selectTrait(uint16(seed & 0xFFFF), 7 + shift);
         seed >>= 16;
         t.alphaIndex = selectTrait(uint16(seed & 0xFFFF), 8 + shift);
     }
@@ -572,13 +572,14 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
                 keccak256(
                     abi.encodePacked(
                         s.isMerchant,
-                        s.fur,
+                        s.background_weapon,
+                        s.body_outfit,
                         s.head,
-                        s.eyes,
                         s.mouth,
-                        s.neck,
+                        s.eyes_brows_wear,
+                        s.nose,
+                        s.hair_facialhair,
                         s.ears,
-                        s.feet,
                         s.alphaIndex
                     )
                 )

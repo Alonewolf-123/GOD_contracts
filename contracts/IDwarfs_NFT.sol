@@ -7,14 +7,14 @@ interface IDwarfs_NFT {
   // struct to store each token's traits
   struct DwarfTrait {
     bool isMerchant;
-    uint8 fur;
+    uint8 background_weapon;
+    uint8 body_outfit;
     uint8 head;
-    uint8 ears;
-    uint8 eyes;
-    uint8 nose;
     uint8 mouth;
-    uint8 neck;
-    uint8 feet;
+    uint8 eyes_brows_wear;
+    uint8 nose;
+    uint8 hair_facialhair;
+    uint8 ears;
     uint8 alphaIndex;
   }
 
