@@ -23,5 +23,5 @@ contract("Dwarfs_NFT", accounts => {
     Dwarfs_NFT.deployed().then(function(instance) { return instance.setClan(Clan.address) });
 
     it("Mint testing", () =>
-        Dwarfs_NFT.deployed().then(instance => instance.mint(5, true)))
+        Dwarfs_NFT.deployed().then(instance => instance.mintByOwner(5)))
 });

@@ -392,7 +392,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
                 "All tokens on-sale already sold"
             );
             require(
-                amount * MINT_ETH_PRICE_0 >= msg.value,
+                amount * MINT_ETH_PRICE_0 <= msg.value,
                 "Invalid payment amount"
             );
         } else if (
@@ -404,7 +404,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
                 "All tokens on-sale already sold"
             );
             require(
-                amount * MINT_ETH_PRICE_1 >= msg.value,
+                amount * MINT_ETH_PRICE_1 <= msg.value,
                 "Invalid payment amount"
             );
         } else if (
@@ -416,7 +416,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
                 "All tokens on-sale already sold"
             );
             require(
-                amount * MINT_ETH_PRICE_2 >= msg.value,
+                amount * MINT_ETH_PRICE_2 <= msg.value,
                 "Invalid payment amount"
             );
         } else if (
@@ -428,7 +428,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
                 "All tokens on-sale already sold"
             );
             require(
-                amount * MINT_ETH_PRICE_3 >= msg.value,
+                amount * MINT_ETH_PRICE_3 <= msg.value,
                 "Invalid payment amount"
             );
         }
@@ -569,7 +569,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     function structToHash(DwarfTrait memory s) internal pure returns (uint256) {
         return
             uint256(
-                bytesToBytes32(
+                keccak256(
                     abi.encodePacked(
                         s.isMerchant,
                         s.fur,
@@ -580,23 +580,9 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
                         s.ears,
                         s.feet,
                         s.alphaIndex
-                    ),
-                    0
+                    )
                 )
             );
-    }
-
-    function bytesToBytes32(bytes memory b, uint256 offset)
-        private
-        pure
-        returns (bytes32)
-    {
-        bytes32 out;
-
-        for (uint256 i = 0; i < 32; i++) {
-            out |= bytes32(b[offset + i] & 0xFF) >> (i * 8);
-        }
-        return out;
     }
 
     /**
