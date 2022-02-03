@@ -2,14 +2,11 @@
 
 pragma solidity ^0.8.0;
 import "./Ownable.sol";
-import "./Strings.sol";
 import "./ITraits.sol";
 import "./IDwarfs_NFT.sol";
-import "./Strings.sol";
 
 contract Traits is Ownable, ITraits {
-    using Strings for uint256;
-
+    
     IDwarfs_NFT public dwarfs_nft;
 
     constructor() {}
@@ -32,24 +29,29 @@ contract Traits is Ownable, ITraits {
         returns (string memory)
     {
         IDwarfs_NFT.DwarfTrait memory s = dwarfs_nft.getTokenTraits(tokenId);
-        uint256 m_uri = uint256(
-                keccak256(
-                    abi.encodePacked(
-                        s.isMerchant,
-                        s.background_weapon,
-                        s.body_outfit,
-                        s.head,
-                        s.mouth,
-                        s.eyes_brows_wear,
-                        s.nose,
-                        s.hair_facialhair,
-                        s.ears,
-                        s.alphaIndex
-                    )
-                )
-            );
+        bytes memory t = new bytes(14);
+        t[0] = bytes1((uint8)(s.background_weapon >> 8));
+        t[1] = bytes1((uint8)(s.background_weapon & 0x00FF));
 
-        return m_uri.toString();
+        t[2] = bytes1((uint8)(s.body_outfit >> 8));
+        t[3] = bytes1((uint8)(s.body_outfit & 0x00FF));
+
+        t[4] = bytes1((uint8)(s.head_ears >> 8));
+        t[5] = bytes1((uint8)(s.head_ears & 0x00FF));
+
+        t[6] = bytes1((uint8)(s.mouth_nose >> 8));
+        t[7] = bytes1((uint8)(s.mouth_nose & 0x00FF));
+
+        t[8] = bytes1((uint8)(s.eyes_brows >> 8));
+        t[9] = bytes1((uint8)(s.eyes_brows & 0x00FF));
+
+        t[10] = bytes1((uint8)(s.hair_facialhair >> 8));
+        t[11] = bytes1((uint8)(s.hair_facialhair & 0x00FF));
+
+        t[12] = bytes1(s.eyewear);
+        t[13] = bytes1(s.alphaIndex);
+
+        return base64(t);
     }
 
     string internal constant TABLE =

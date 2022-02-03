@@ -7,17 +7,15 @@ interface IDwarfs_NFT {
   // struct to store each token's traits
   struct DwarfTrait {
     bool isMerchant;
-    uint8 background_weapon;
-    uint8 body_outfit;
-    uint8 head;
-    uint8 mouth;
-    uint8 eyes_brows_wear;
-    uint8 nose;
-    uint8 hair_facialhair;
-    uint8 ears;
+    uint16 background_weapon;
+    uint16 body_outfit;
+    uint16 head_ears;
+    uint16 mouth_nose;
+    uint16 eyes_brows;
+    uint16 hair_facialhair;
+    uint8 eyewear;  
     uint8 alphaIndex;
   }
-
 
   function getGen0Tokens() external view returns (uint256);
   function getTokenTraits(uint256 tokenId) external view returns (DwarfTrait memory);
