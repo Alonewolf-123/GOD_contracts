@@ -29,7 +29,7 @@ contract Traits is Ownable, ITraits {
         returns (string memory)
     {
         IDwarfs_NFT.DwarfTrait memory s = dwarfs_nft.getTokenTraits(tokenId);
-        bytes memory t = new bytes(14);
+        bytes memory t = new bytes(15);
         t[0] = bytes1((uint8)(s.background_weapon >> 8));
         t[1] = bytes1((uint8)(s.background_weapon & 0x00FF));
 
@@ -49,7 +49,8 @@ contract Traits is Ownable, ITraits {
         t[11] = bytes1((uint8)(s.hair_facialhair & 0x00FF));
 
         t[12] = bytes1(s.eyewear);
-        t[13] = bytes1(s.alphaIndex);
+        t[13] = bytes1(s.cityId);
+        t[14] = bytes1(s.alphaIndex);
 
         return base64(t);
     }

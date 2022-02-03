@@ -8,8 +8,11 @@ import "./IDwarfs_NFT.sol";
 import "./IClan.sol";
 import "./ITraits.sol";
 import "./GOD.sol";
+import "./Strings.sol";
 
 contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
+    using Strings for uint256;
+
     // mint price
     uint256 public MINT_ETH_PRICE_0 = 0.12 ether;
     uint256 public MINT_ETH_PRICE_1 = 0.14 ether;
@@ -59,6 +62,9 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     uint8 public MAX_EYEWEAR = 255;
     uint8 public MAX_FACIALHAIR = 255;
     uint8 public MAX_EARS = 255;
+
+    // Base URI
+    string private baseURI;
 
     /**
      * instantiates contract and rarity tables
@@ -165,9 +171,9 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         for (uint256 i = 0; i < amount; i++) {
             minted++;
             seed = random(minted);
-            generate(minted, seed);
+            DwarfTrait memory t = generate(minted, seed);
 
-            if (!stake) {
+            if (!stake || t.isMerchant) {
                 _safeMint(_msgSender(), minted);
             } else {
                 _safeMint(address(clan), minted);
@@ -260,7 +266,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         view
         returns (DwarfTrait memory t)
     {
-        t.isMerchant = (seed & 0xFFFF) % 10 != 0;
+        t.isMerchant = (seed & 0xFFFF) % 100 > 15;
         t.background_weapon =
             uint16((random(seed) % MAX_BACKGROUND) << 8) +
             uint8(random(seed + 1) % MAX_WEAPON);
@@ -280,7 +286,40 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
             uint16((random(seed + 10) % MAX_HAIR) << 8) +
             uint8(random(seed + 11) % MAX_FACIALHAIR);
         t.eyewear = uint8(random(seed + 12) % MAX_EYEWEAR);
-        t.alphaIndex = uint8((random(seed + 13) % 4) + 5);
+
+        if (t.isMerchant == true) {
+            t.alphaIndex = 0;
+        } else {
+            uint256 cur_seed = seed;
+            uint8 cityId = clan.getAvailableCity();
+            t.cityId = cityId;
+            while (true) {
+                if ((cur_seed & 0xFFFF) % 200 < 1) {
+                    if (clan.getNumDwarfather(cityId) < 1) {
+                        t.alphaIndex = 8;
+                        break;
+                    }
+                } else if ((cur_seed & 0xFFFF) % 200 < 9) {
+                    if (clan.getNumBoss(cityId) < 9) {
+                        t.alphaIndex = 7;
+                        break;
+                    }
+                } else if ((cur_seed & 0xFFFF) % 200 < 40) {
+                    if (clan.getNumDwarfCapos(cityId) < 40) {
+                        t.alphaIndex = 6;
+                        break;
+                    }
+                } else if ((cur_seed & 0xFFFF) % 200 < 150) {
+                    if (clan.getNumDwarfSoldier(cityId) < 150) {
+                        t.alphaIndex = 5;
+                        break;
+                    }
+                }
+                cur_seed = random(cur_seed);
+            }
+        }
+
+        return t;
     }
 
     /**
@@ -301,6 +340,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
                         s.eyes_brows,
                         s.hair_facialhair,
                         s.eyewear,
+                        s.cityId,
                         s.alphaIndex
                     )
                 )
@@ -475,6 +515,24 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         else _unpause();
     }
 
+    /**
+     * @dev Internal function to set the base URI for all token IDs. It is
+     * automatically added as a prefix to the value returned in {tokenURI},
+     * or to the token ID if {tokenURI} is empty.
+     */
+    function setBaseURI(string memory baseURI_) external onlyOwner {
+        baseURI = baseURI_;
+    }
+
+    /**
+     * @dev Returns the base URI set via {_setBaseURI}. This will be
+     * automatically added as a prefix in {tokenURI} to each token's URI, or
+     * to the token ID if no specific URI is set for that token ID.
+     */
+    function getBaseURI() public view returns (string memory) {
+        return baseURI;
+    }
+
     /** RENDER */
     function tokenURI(uint256 tokenId)
         public
@@ -486,6 +544,17 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
             _exists(tokenId),
             "ERC721Metadata: URI query for nonexistent token"
         );
-        return traits.tokenURI(tokenId);
+        string memory _tokenURI = traits.tokenURI(tokenId);
+
+        // If there is no base URI, return the token URI.
+        if (bytes(baseURI).length == 0) {
+            return _tokenURI;
+        }
+        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+        if (bytes(_tokenURI).length > 0) {
+            return string(abi.encodePacked(baseURI, _tokenURI));
+        }
+        // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
+        return string(abi.encodePacked(baseURI, tokenId.toString()));
     }
 }

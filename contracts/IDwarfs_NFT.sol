@@ -14,6 +14,7 @@ interface IDwarfs_NFT {
     uint16 eyes_brows;
     uint16 hair_facialhair;
     uint8 eyewear;  
+    uint8 cityId;
     uint8 alphaIndex;
   }
 
