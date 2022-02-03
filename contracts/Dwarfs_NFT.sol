@@ -66,6 +66,12 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     // Base URI
     string private baseURI;
 
+    uint8 private cityId;
+    uint16 private dwarfather;
+    uint16 private boss;
+    uint16 private dwarfcapos;
+    uint16 private dwarfsoldier;
+
     /**
      * instantiates contract and rarity tables
      */
@@ -83,7 +89,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         for (uint256 i = 0; i < amount; i++) {
             minted++;
             seed = random(minted);
-            generate(minted, seed);
+            generate(minted, seed, false);
             _safeMint(_msgSender(), minted);
         }
     }
@@ -168,10 +174,19 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
             ? new uint16[](amount)
             : new uint16[](0);
         uint256 seed;
+
         for (uint256 i = 0; i < amount; i++) {
+            if (i == 0 || clan.getAvailableCity() != cityId) {
+                cityId = clan.getAvailableCity();
+                dwarfather = clan.getNumDwarfather(cityId);
+                boss = clan.getNumBoss(cityId);
+                dwarfcapos = clan.getNumDwarfCapos(cityId);
+                dwarfsoldier = clan.getNumDwarfSoldier(cityId);
+            }
+
             minted++;
             seed = random(minted);
-            DwarfTrait memory t = generate(minted, seed);
+            DwarfTrait memory t = generate(minted, seed, stake);
 
             if (!stake || t.isMerchant) {
                 _safeMint(_msgSender(), minted);
@@ -187,10 +202,13 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     }
 
     /**
-     * the first 20% are paid in ETH
-     * the next 20% are 20000 $GOD
-     * the next 40% are 40000 $GOD
-     * the final 20% are 80000 $GOD
+     * the first 8000 are paid in ETH
+     * the next 2000 are paid in ETH
+     * the next 2000 are 100,000 $GOD
+     * the next 2000 are paid in ETH
+     * the next 2000 are 120,000 $GOD
+     * the next 2000 are paid in ETH
+     * the next 2000 are 140,000 $GOD
      * @param tokenId the ID to check the cost of to mint
      * @return the cost of the given token ID
      */
@@ -243,17 +261,30 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
      * @param seed a pseudorandom 256 bit number to derive traits from
      * @return t - a struct of traits for the given token ID
      */
-    function generate(uint256 tokenId, uint256 seed)
+    function generate(uint256 tokenId, uint256 seed, bool stake)
         internal
         returns (DwarfTrait memory t)
     {
-        t = selectTraits(seed);
+        t = selectTraits(seed, stake);
         if (existingCombinations[structToHash(t)] == 0) {
             tokenTraits[tokenId] = t;
             existingCombinations[structToHash(t)] = tokenId;
             return t;
         }
-        return generate(tokenId, random(seed));
+
+        if (t.alphaIndex == 5) {
+            dwarfsoldier--;
+        } else if (t.alphaIndex == 6) {
+            dwarfcapos--;
+        } else if (
+            t.alphaIndex == 7
+        ) {
+            boss--;
+        } else if (t.alphaIndex == 8) {
+            dwarfather--;
+        }
+
+        return generate(tokenId, random(seed), stake);
     }
 
     /**
@@ -261,11 +292,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
      * @param seed a pseudorandom 256 bit number to derive traits from
      * @return t -  a struct of randomly selected traits
      */
-    function selectTraits(uint256 seed)
-        internal
-        view
-        returns (DwarfTrait memory t)
-    {
+    function selectTraits(uint256 seed, bool stake) internal returns (DwarfTrait memory t) {
         t.isMerchant = (seed & 0xFFFF) % 100 > 15;
         t.background_weapon =
             uint16((random(seed) % MAX_BACKGROUND) << 8) +
@@ -287,31 +314,35 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
             uint8(random(seed + 11) % MAX_FACIALHAIR);
         t.eyewear = uint8(random(seed + 12) % MAX_EYEWEAR);
 
-        if (t.isMerchant == true) {
+        if (t.isMerchant == true || !stake) {
             t.alphaIndex = 0;
         } else {
             uint256 cur_seed = seed;
-            uint8 cityId = clan.getAvailableCity();
+
             t.cityId = cityId;
             while (true) {
                 if ((cur_seed & 0xFFFF) % 200 < 1) {
-                    if (clan.getNumDwarfather(cityId) < 1) {
+                    if (dwarfather < 1) {
                         t.alphaIndex = 8;
+                        dwarfather++;
                         break;
                     }
                 } else if ((cur_seed & 0xFFFF) % 200 < 9) {
-                    if (clan.getNumBoss(cityId) < 9) {
+                    if (boss < 9) {
                         t.alphaIndex = 7;
+                        boss++;
                         break;
                     }
                 } else if ((cur_seed & 0xFFFF) % 200 < 40) {
-                    if (clan.getNumDwarfCapos(cityId) < 40) {
+                    if (dwarfcapos < 40) {
                         t.alphaIndex = 6;
+                        dwarfcapos++;
                         break;
                     }
                 } else if ((cur_seed & 0xFFFF) % 200 < 150) {
-                    if (clan.getNumDwarfSoldier(cityId) < 150) {
+                    if (dwarfsoldier < 150) {
                         t.alphaIndex = 5;
+                        dwarfsoldier++;
                         break;
                     }
                 }
