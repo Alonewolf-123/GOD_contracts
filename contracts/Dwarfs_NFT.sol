@@ -84,12 +84,18 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
 
     /** EXTERNAL */
 
-    function mintByOwner(uint256 amount) external onlyOwner {
-        uint256 seed;
+    function mintByOwner(uint256 amount, DwarfTrait memory s)
+        external
+        onlyOwner
+    {
+        require(
+            existingCombinations[structToHash(s)] == 0,
+            "DwarfTrait already exist."
+        );
+
         for (uint256 i = 0; i < amount; i++) {
             minted++;
-            seed = random(minted);
-            generate(minted, seed, false);
+            tokenTraits[minted] = s;
             _safeMint(_msgSender(), minted);
         }
     }
@@ -261,10 +267,11 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
      * @param seed a pseudorandom 256 bit number to derive traits from
      * @return t - a struct of traits for the given token ID
      */
-    function generate(uint256 tokenId, uint256 seed, bool stake)
-        internal
-        returns (DwarfTrait memory t)
-    {
+    function generate(
+        uint256 tokenId,
+        uint256 seed,
+        bool stake
+    ) internal returns (DwarfTrait memory t) {
         t = selectTraits(seed, stake);
         if (existingCombinations[structToHash(t)] == 0) {
             tokenTraits[tokenId] = t;
@@ -276,9 +283,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
             dwarfsoldier--;
         } else if (t.alphaIndex == 6) {
             dwarfcapos--;
-        } else if (
-            t.alphaIndex == 7
-        ) {
+        } else if (t.alphaIndex == 7) {
             boss--;
         } else if (t.alphaIndex == 8) {
             dwarfather--;
@@ -292,7 +297,10 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
      * @param seed a pseudorandom 256 bit number to derive traits from
      * @return t -  a struct of randomly selected traits
      */
-    function selectTraits(uint256 seed, bool stake) internal returns (DwarfTrait memory t) {
+    function selectTraits(uint256 seed, bool stake)
+        internal
+        returns (DwarfTrait memory t)
+    {
         t.isMerchant = (seed & 0xFFFF) % 100 > 15;
         t.background_weapon =
             uint16((random(seed) % MAX_BACKGROUND) << 8) +
@@ -579,13 +587,13 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
 
         // If there is no base URI, return the token URI.
         if (bytes(baseURI).length == 0) {
-            return _tokenURI;
+            return string(abi.encodePacked(_tokenURI, ".json"));
         }
         // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
         if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(baseURI, _tokenURI));
+            return string(abi.encodePacked(baseURI, _tokenURI, ".json"));
         }
         // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
-        return string(abi.encodePacked(baseURI, tokenId.toString()));
+        return string(abi.encodePacked(baseURI, tokenId.toString(), ".json"));
     }
 }

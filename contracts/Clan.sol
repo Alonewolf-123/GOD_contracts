@@ -102,9 +102,9 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
                 continue; // there may be gaps in the array for stolen tokens
             }
 
-            if (isMerchant(tokenIds[i]))
+            if (!isMerchant(tokenIds[i]))
                 _addMerchantToClan(account, tokenIds[i]);
-            else _addMobsterToPack(account, tokenIds[i]);
+            // else _addMobsterToPack(account, tokenIds[i]);
         }
     }
 
@@ -118,12 +118,15 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
         whenNotPaused
         _updateEarnings
     {
-        clan[tokenId] = Stake({
-            owner: account,
-            tokenId: uint16(tokenId),
-            value: uint80(block.timestamp)
-        });
-        totalMerchantStaked += 1;
+        uint8 cityId = _cityForMobster(tokenId);
+        cities[cityId].push(
+            Stake({
+                owner: account,
+                tokenId: uint16(tokenId),
+                value: uint80(block.timestamp)
+            })
+        ); // Add the mobster to the Pack
+
         emit TokenStaked(account, tokenId, block.timestamp);
     }
 
@@ -379,6 +382,16 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     function _alphaForMobster(uint256 tokenId) internal view returns (uint8) {
         IDwarfs_NFT.DwarfTrait memory s = dwarfs_nft.getTokenTraits(tokenId);
         return MAX_ALPHA - s.alphaIndex; // alpha index is 0-3
+    }
+
+    /**
+     * gets the city id for a Mobster
+     * @param tokenId the ID of the Mobster to get the alpha score for
+     * @return the city id of the Mobster
+     */
+    function _cityForMobster(uint256 tokenId) internal view returns (uint8) {
+        IDwarfs_NFT.DwarfTrait memory s = dwarfs_nft.getTokenTraits(tokenId);
+        return s.cityId; // alpha index is 0-3
     }
 
     /**
