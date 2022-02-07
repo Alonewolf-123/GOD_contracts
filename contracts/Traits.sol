@@ -12,7 +12,6 @@ contract Traits is Ownable, ITraits {
     constructor() {}
 
     /** ADMIN */
-
     function setDwarfs_NFT(address _dwarfs_nft) external onlyOwner {
         dwarfs_nft = IDwarfs_NFT(_dwarfs_nft);
     }

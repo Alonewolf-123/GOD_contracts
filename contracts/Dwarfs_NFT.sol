@@ -14,10 +14,10 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     using Strings for uint256;
 
     // mint price
-    uint256 public MINT_ETH_PRICE_0 = 0.12 ether;
-    uint256 public MINT_ETH_PRICE_1 = 0.14 ether;
-    uint256 public MINT_ETH_PRICE_2 = 0.16 ether;
-    uint256 public MINT_ETH_PRICE_3 = 0.18 ether;
+    uint256 public MINT_ETH_PRICE_0 = 0.0012 ether;
+    uint256 public MINT_ETH_PRICE_1 = 0.0014 ether;
+    uint256 public MINT_ETH_PRICE_2 = 0.0016 ether;
+    uint256 public MINT_ETH_PRICE_3 = 0.0018 ether;
 
     uint256 public MINT_GOD_PRICE_0 = 0 ether;
     uint256 public MINT_GOD_PRICE_1 = 100000 ether;
@@ -32,6 +32,9 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     uint256 public MAX_TOKENS = 20000;
 
     uint256 public MAX_TOKENS_ETH_SOLD = 50;
+
+    // default GOD amount per a token
+    uint256 public DEFAULT_GOD = 100000 ether;
 
     // number of tokens have been minted so far
     uint16 public minted;
@@ -49,23 +52,26 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     // reference to Traits
     ITraits public traits;
 
-    uint8 public MAX_BACKGROUND = 255;
-    uint8 public MAX_WEAPON = 255;
-    uint8 public MAX_BODY = 255;
-    uint8 public MAX_OUTFIT = 255;
-    uint8 public MAX_HEAD = 255;
-    uint8 public MAX_MOUTH = 255;
-    uint8 public MAX_EYES = 255;
-    uint8 public MAX_NOSE = 255;
-    uint8 public MAX_EYEBROWS = 255;
-    uint8 public MAX_HAIR = 255;
-    uint8 public MAX_EYEWEAR = 255;
-    uint8 public MAX_FACIALHAIR = 255;
-    uint8 public MAX_EARS = 255;
+    // traits parameters range
+    uint8 public MAX_BACKGROUND = 255; // background
+    uint8 public MAX_WEAPON = 255; // weapon
+    uint8 public MAX_BODY = 255; // body
+    uint8 public MAX_OUTFIT = 255; // outfit
+    uint8 public MAX_HEAD = 255; // head
+    uint8 public MAX_MOUTH = 255; // mouth
+    uint8 public MAX_EYES = 255; // eyes
+    uint8 public MAX_NOSE = 255; // nose
+    uint8 public MAX_EYEBROWS = 255; // eyebrows
+    uint8 public MAX_HAIR = 255; // hair
+    uint8 public MAX_EYEWEAR = 255; // eyewear
+    uint8 public MAX_FACIALHAIR = 255; // facialhair
+    uint8 public MAX_EARS = 255; // ears
 
     // Base URI
     string private baseURI;
 
+    // temporary variables
+    // (city id, number of dwarfather, number of boss, number of dwarfcapos, number of dwarfsoldier)
     uint8 private cityId;
     uint16 private dwarfather;
     uint16 private boss;
@@ -83,7 +89,9 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     }
 
     /** EXTERNAL */
-
+    /**
+     * mint a token by owner 
+     */
     function mintByOwner(uint256 amount, DwarfTrait memory s)
         external
         onlyOwner
@@ -101,13 +109,12 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     }
 
     /**
-     * mint a token - 90% Merchant, 10% Mobsters
-     * The first 20% are free to claim, the remaining cost $GOD
+     * mint a token - 85% Merchant, 15% Mobsters
      */
     function mint(uint256 amount, bool stake) external payable whenNotPaused {
         require(tx.origin == _msgSender(), "Only EOA");
         require(minted + amount <= MAX_TOKENS, "All tokens minted");
-        require(amount > 0 && amount <= 10, "Invalid mint amount");
+        require(amount > 0 && amount <= 30, "Invalid mint amount");
         if (minted < MAX_GEN0_TOKENS) {
             require(
                 minted + amount <= MAX_GEN0_TOKENS,
@@ -204,7 +211,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         }
 
         if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
-        if (stake) clan.addManyToClanAndPack(_msgSender(), tokenIds);
+        if (stake) clan.addManyToClan(_msgSender(), tokenIds);
     }
 
     /**
@@ -321,6 +328,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
             uint16((random(seed + 10) % MAX_HAIR) << 8) +
             uint8(random(seed + 11) % MAX_FACIALHAIR);
         t.eyewear = uint8(random(seed + 12) % MAX_EYEWEAR);
+        t.god = DEFAULT_GOD;
 
         if (t.isMerchant == true || !stake) {
             t.alphaIndex = 0;
@@ -559,12 +567,12 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
      * automatically added as a prefix to the value returned in {tokenURI},
      * or to the token ID if {tokenURI} is empty.
      */
-    function setBaseURI(string memory baseURI_) external onlyOwner {
-        baseURI = baseURI_;
+    function setBaseURI(string memory _baseURI) external onlyOwner {
+        baseURI = _baseURI;
     }
 
     /**
-     * @dev Returns the base URI set via {_setBaseURI}. This will be
+     * @dev Returns the base URI set via {setBaseURI}. This will be
      * automatically added as a prefix in {tokenURI} to each token's URI, or
      * to the token ID if no specific URI is set for that token ID.
      */
