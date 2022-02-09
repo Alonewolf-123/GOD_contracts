@@ -33,9 +33,6 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
 
     uint256 public MAX_TOKENS_ETH_SOLD = 50;
 
-    // default GOD amount per a token
-    uint256 public DEFAULT_GOD = 100000 ether;
-
     // number of tokens have been minted so far
     uint16 public minted;
 
@@ -308,7 +305,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         internal
         returns (DwarfTrait memory t)
     {
-        t.isMerchant = (seed & 0xFFFF) % 100 > 15;
+        t.isMerchant = (seed & 0xFFFF) % 100 >= 15;
         t.background_weapon =
             uint16((random(seed) % MAX_BACKGROUND) << 8) +
             uint8(random(seed + 1) % MAX_WEAPON);
@@ -328,8 +325,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
             uint16((random(seed + 10) % MAX_HAIR) << 8) +
             uint8(random(seed + 11) % MAX_FACIALHAIR);
         t.eyewear = uint8(random(seed + 12) % MAX_EYEWEAR);
-        t.god = DEFAULT_GOD;
-
+        
         if (t.isMerchant == true || !stake) {
             t.alphaIndex = 0;
         } else {
