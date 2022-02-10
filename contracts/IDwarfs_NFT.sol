@@ -15,6 +15,7 @@ interface IDwarfs_NFT {
         uint8 eyewear;
         uint8 cityId;
         uint8 alphaIndex;
+        uint8 generation;
     }
 
     function getGen0Tokens() external view returns (uint256);

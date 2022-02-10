@@ -87,7 +87,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
 
     /** EXTERNAL */
     /**
-     * mint a token by owner 
+     * mint a token by owner
      */
     function mintByOwner(uint256 amount, DwarfTrait memory s)
         external
@@ -277,6 +277,17 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         bool stake
     ) internal returns (DwarfTrait memory t) {
         t = selectTraits(seed, stake);
+
+        if (tokenId <= MAX_GEN0_TOKENS) {
+            t.generation = 0;
+        } else if (tokenId > MAX_GEN0_TOKENS && tokenId <= MAX_GEN1_TOKENS) {
+            t.generation = 1;
+        } else if (tokenId > MAX_GEN1_TOKENS && tokenId <= MAX_GEN2_TOKENS) {
+            t.generation = 2;
+        } else {
+            t.generation = 3;
+        }
+
         if (existingCombinations[structToHash(t)] == 0) {
             tokenTraits[tokenId] = t;
             existingCombinations[structToHash(t)] = tokenId;
@@ -325,7 +336,7 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
             uint16((random(seed + 10) % MAX_HAIR) << 8) +
             uint8(random(seed + 11) % MAX_FACIALHAIR);
         t.eyewear = uint8(random(seed + 12) % MAX_EYEWEAR);
-        
+
         if (t.isMerchant == true || !stake) {
             t.alphaIndex = 0;
         } else {

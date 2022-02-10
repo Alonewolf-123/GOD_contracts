@@ -17,11 +17,10 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     struct Stake {
         uint16 tokenId;
         uint80 timestamp;
-        bool isCasinos;
-        uint256 betting;
         address owner;
     }
 
+    // struct to sttore a invest god
     struct InvestGods {
         uint256 value;
         uint80 timestamp;
@@ -38,6 +37,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     GOD god;
 
     mapping(uint8 => Stake[]) public cities;
+    mapping(uint16 => bool) public existingCombinations;
     mapping(uint16 => InvestGods[]) public gods;
     mapping(uint16 => uint256) public mobsterRewards;
 
@@ -50,8 +50,11 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     // casino game max days
     uint256 public constant MAX_TO_EXIT_CASINOS = 10 days;
 
-    // mobsters take a 20% tax on all $GOD claimed
-    uint256 public constant GOD_CLAIM_TAX_PERCENTAGE = 20;
+    // mobsters take a 15% tax on all $GOD claimed
+    uint256 public constant GOD_CLAIM_TAX_PERCENTAGE = 15;
+
+    // casino vault take a 5% tax on all $GOD claimed
+    uint256 public constant CASINO_VAULT_PERCENTAGE = 5;
 
     // there will only ever be (roughly) 2.4 billion $GOD earned through staking
     uint256 public constant MAXIMUM_GLOBAL_GOD = 2400000000 ether;
@@ -59,8 +62,14 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     // default god amount
     uint256 public constant DEFAULT_GODS = 100000 ether;
 
+    // default god amount of casino
+    uint256 public constant DEFAULT_GODS_CASINO = 1000 ether;
+
     // amount of $GOD earned so far
     uint256 public totalGodEarned;
+
+    // amount of casino vault $GOD
+    uint256 public casinoVault;
 
     // profit of dwarfather
     uint256 public profitOfDwarfather = 40;
@@ -95,6 +104,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
             "DONT GIVE YOUR TOKENS AWAY"
         );
         for (uint256 i = 0; i < tokenIds.length; i++) {
+            if (existingCombinations[tokenIds[i]] == true) continue;
             require(getCityId(tokenIds[i]) < MAX_NUM_CITY, "CITY LIMIT ERROR");
 
             if (_msgSender() != address(dwarfs_nft)) {
@@ -111,17 +121,41 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
                 );
             } else if (tokenIds[i] == 0) {
                 continue; // there may be gaps in the array for stolen tokens
-            } else if (_msgSender() == address(dwarfs_nft)) {
-                gods[tokenIds[i]].push(
-                    InvestGods({
-                        value: DEFAULT_GODS,
-                        timestamp: uint80(block.timestamp)
-                    })
-                );
             }
 
             _addToCity(account, tokenIds[i]);
         }
+    }
+
+    /**
+     * adds a single token to the city
+     * @param account the address of the staker
+     * @param tokenId the ID of the Merchant to add to the Clan
+     */
+    function _addToCity(address account, uint16 tokenId)
+        internal
+        whenNotPaused
+    {
+        uint8 cityId = getCityId(tokenId);
+        existingCombinations[tokenId] = true;
+        gods[tokenId].push(
+            InvestGods({
+                value: getGeneration(tokenId) == 0
+                    ? DEFAULT_GODS
+                    : DEFAULT_GODS / 2,
+                timestamp: uint80(block.timestamp)
+            })
+        );
+
+        cities[cityId].push(
+            Stake({
+                owner: account,
+                tokenId: tokenId,
+                timestamp: uint80(block.timestamp)
+            })
+        );
+
+        emit TokenStaked(account, tokenId, block.timestamp);
     }
 
     /**
@@ -133,6 +167,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
             "AINT YO TOKEN"
         );
 
+        god.burn(_msgSender(), godAmount);
         gods[tokenId].push(
             InvestGods({
                 value: gods[tokenId].length > 0
@@ -141,7 +176,6 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
                 timestamp: uint80(block.timestamp)
             })
         );
-        god.burn(_msgSender(), godAmount);
     }
 
     /**
@@ -175,30 +209,20 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     }
 
     /**
-     * adds a single token to the city
-     * @param account the address of the staker
-     * @param tokenId the ID of the Merchant to add to the Clan
+     * get the generation of a token
+     * @param tokenId the ID of the token to get the alpha
+     * @return generation - alpha of merchant
      */
-    function _addToCity(address account, uint256 tokenId)
-        internal
-        whenNotPaused
+    function getGeneration(uint256 tokenId)
+        public
+        view
+        returns (uint8 generation)
     {
-        uint8 cityId = getCityId(tokenId);
-        cities[cityId].push(
-            Stake({
-                owner: account,
-                tokenId: uint16(tokenId),
-                isCasinos: false,
-                betting: 0,
-                timestamp: uint80(block.timestamp)
-            })
-        );
-
-        emit TokenStaked(account, tokenId, block.timestamp);
+        IDwarfs_NFT.DwarfTrait memory t = dwarfs_nft.getTokenTraits(tokenId);
+        return t.generation;
     }
 
-    /** CLAIMING / UNSTAKING */
-
+    /** CLAIMING / RISKY */
     /**
      * realize $GOD earnings and optionally unstake tokens from the Clan (Cities)
      * to unstake a Merchant it will require it has 2 days worth of $GOD unclaimed
@@ -210,6 +234,11 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     {
         uint256 owed = 0;
         for (uint256 i = 0; i < tokenIds.length; i++) {
+            require(
+                existingCombinations[tokenIds[i]] == true,
+                "No existed token"
+            );
+
             if (isMerchant(tokenIds[i]))
                 owed += _claimMerchantFromCity(tokenIds[i], isRisky);
             else owed += _claimMobsterFromCity(tokenIds[i]);
@@ -276,7 +305,13 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
             }
         } else {
             m_mobsterRewards += (owed * GOD_CLAIM_TAX_PERCENTAGE) / 100;
-            owed = (owed * (100 - GOD_CLAIM_TAX_PERCENTAGE)) / 100;
+            casinoVault += (owed * CASINO_VAULT_PERCENTAGE) / 100;
+            owed =
+                (owed *
+                    (100 -
+                        GOD_CLAIM_TAX_PERCENTAGE -
+                        CASINO_VAULT_PERCENTAGE)) /
+                100;
             distributeToMobsters(cityId, m_mobsterRewards);
         }
 
@@ -325,10 +360,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
         internal
         returns (uint256 owed)
     {
-        require(
-            dwarfs_nft.ownerOf(tokenId) == _msgSender(),
-            "AINT A PART OF THE PACK"
-        );
+        require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "Invalid Owner");
 
         owed = mobsterRewards[tokenId];
         mobsterRewards[tokenId] = 0;
@@ -340,64 +372,29 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     /**
      * realize $GOD earnings for a single Mobster and optionally unstake it
      * Mobsters earn $GOD proportional to their Alpha rank
-     * @param tokenIds the IDs of the merchants to claim earnings from casinos
+     * @param tokenId the ID of the merchants to claim earnings from casinos
      */
-    function claimManyFromCasino(uint16[] calldata tokenIds)
-        external
-        whenNotPaused
-    {
+    function claimManyFromCasino(uint16 tokenId) external whenNotPaused {
+        require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "Invalid Owner");
+        
         uint256 owed = 0;
-        uint256 m_mobsterRewards = 0;
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            m_mobsterRewards = 0;
-            uint16 tokenId = tokenIds[i];
-            if (isMerchant(tokenId)) {
-                uint8 cityId = getCityId(tokenId);
-                Stake memory stake = cities[cityId][tokenId];
-                if (stake.isCasinos == true && stake.betting > 0) {
-                    owed += _claimMerchantFromCity(tokenId, false);
-                    if (random(tokenId) & 1 == 1) {
-                        // 50%
-                        m_mobsterRewards += stake.betting;
-                        // burn
-                        owed = 0;
-                    } else {
-                        owed += stake.betting * 2;
-                    }
-                }
-                distributeToMobsters(cityId, owed);
-            }
+        god.burn(_msgSender(), DEFAULT_GODS_CASINO);
+
+        casinoVault += DEFAULT_GODS_CASINO;
+        if ((random(tokenId) & 0xFFFF) % 100 == 0) {
+            // 1%
+            owed = casinoVault;
+            casinoVault = 0;
+        } else {
+            owed = 0;
+            // burn betting amount from the mobsters
         }
 
         if (owed == 0) return;
-
-        totalGodEarned += owed;
         god.mint(_msgSender(), owed);
     }
 
     /** ADMIN */
-    /**
-     * enable/disable the casinos
-     */
-    function setCasinos(
-        uint16 tokenId,
-        uint256 bettingAmount,
-        bool enable
-    ) external view {
-        require(
-            isMerchant(tokenId) == true,
-            "Only Merchant can play the risky game"
-        );
-        if (enable == true) {
-            require(bettingAmount > 0, "Invalid betting value");
-        }
-
-        uint8 cityId = getCityId(tokenId);
-        Stake memory stake = cities[cityId][tokenId];
-        stake.isCasinos = enable;
-        stake.betting = bettingAmount;
-    }
-
     /**
      * enables owner to pause / unpause minting
      */
