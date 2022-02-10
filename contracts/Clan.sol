@@ -374,7 +374,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
      * Mobsters earn $GOD proportional to their Alpha rank
      * @param tokenId the ID of the merchants to claim earnings from casinos
      */
-    function claimManyFromCasino(uint16 tokenId) external whenNotPaused {
+    function claimFromCasino(uint16 tokenId) external whenNotPaused {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "Invalid Owner");
         
         uint256 owed = 0;
