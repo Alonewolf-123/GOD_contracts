@@ -16,10 +16,15 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     // struct to store a stake's token, owner, and earning values
     struct Stake {
         uint16 tokenId;
-        uint80 value;
+        uint80 timestamp;
         bool isCasinos;
         uint256 betting;
         address owner;
+    }
+
+    struct InvestGods {
+        uint256 value;
+        uint80 timestamp;
     }
 
     event TokenStaked(address owner, uint256 tokenId, uint256 value);
@@ -33,7 +38,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     GOD god;
 
     mapping(uint8 => Stake[]) public cities;
-    mapping(uint16 => uint256) public gods;
+    mapping(uint16 => InvestGods[]) public gods;
     mapping(uint16 => uint256) public mobsterRewards;
 
     // merchant earn 10000 $GOD per day
@@ -50,6 +55,9 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
 
     // there will only ever be (roughly) 2.4 billion $GOD earned through staking
     uint256 public constant MAXIMUM_GLOBAL_GOD = 2400000000 ether;
+
+    // default god amount
+    uint256 public constant DEFAULT_GODS = 100000 ether;
 
     // amount of $GOD earned so far
     uint256 public totalGodEarned;
@@ -87,15 +95,13 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
             "DONT GIVE YOUR TOKENS AWAY"
         );
         for (uint256 i = 0; i < tokenIds.length; i++) {
+            require(getCityId(tokenIds[i]) < MAX_NUM_CITY, "CITY LIMIT ERROR");
+
             if (_msgSender() != address(dwarfs_nft)) {
                 // dont do this step if its a mint + stake
                 require(
                     dwarfs_nft.ownerOf(tokenIds[i]) == _msgSender(),
                     "AINT YO TOKEN"
-                );
-                require(
-                    getCityId(tokenIds[i]) < MAX_NUM_CITY,
-                    "CITY LIMIT ERROR"
                 );
 
                 dwarfs_nft.transferFrom(
@@ -105,10 +111,37 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
                 );
             } else if (tokenIds[i] == 0) {
                 continue; // there may be gaps in the array for stolen tokens
+            } else if (_msgSender() == address(dwarfs_nft)) {
+                gods[tokenIds[i]].push(
+                    InvestGods({
+                        value: DEFAULT_GODS,
+                        timestamp: uint80(block.timestamp)
+                    })
+                );
             }
 
             _addToCity(account, tokenIds[i]);
         }
+    }
+
+    /**
+     * Invest GODs
+     */
+    function investGods(uint16 tokenId, uint256 godAmount) external {
+        require(
+            dwarfs_nft.ownerOf(tokenId) == _msgSender() && godAmount > 0,
+            "AINT YO TOKEN"
+        );
+
+        gods[tokenId].push(
+            InvestGods({
+                value: gods[tokenId].length > 0
+                    ? godAmount + gods[tokenId][gods[tokenId].length - 1].value
+                    : godAmount,
+                timestamp: uint80(block.timestamp)
+            })
+        );
+        god.burn(_msgSender(), godAmount);
     }
 
     /**
@@ -157,7 +190,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
                 tokenId: uint16(tokenId),
                 isCasinos: false,
                 betting: 0,
-                value: uint80(block.timestamp)
+                timestamp: uint80(block.timestamp)
             })
         );
 
@@ -205,15 +238,33 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
         require(totalGodEarned < MAXIMUM_GLOBAL_GOD, "LIMIT GOD ERROR");
         if (isRisky == true) {
             require(
-                block.timestamp - stake.value < MIN_TO_EXIT_RISKY,
+                block.timestamp - stake.timestamp < MIN_TO_EXIT_RISKY,
                 "LIMIT EXIT TIME 2DAYS"
             );
         }
 
-        owed =
-            (((block.timestamp - stake.value) * gods[tokenId] * DAILY_GOD_RATE) /
-                100) /
-            1 days;
+        uint80 stake_timestamp = stake.timestamp;
+        uint256 invest_value = 0;
+        uint80 invest_timestamp = 0;
+        for (uint256 i = 0; i < gods[tokenId].length; i++) {
+            invest_timestamp = gods[tokenId][i].timestamp;
+            if (i == gods[tokenId].length - 1) {
+                invest_timestamp = uint80(block.timestamp);
+                invest_value = gods[tokenId][i].value;
+            } else {
+                invest_value = gods[tokenId][i - 1].value;
+            }
+
+            if (invest_timestamp > stake_timestamp) {
+                owed +=
+                    (((invest_timestamp - stake.timestamp) *
+                        invest_value *
+                        DAILY_GOD_RATE) / 100) /
+                    1 days;
+
+                stake_timestamp = invest_timestamp;
+            }
+        }
 
         uint256 m_mobsterRewards = 0;
         if (isRisky == true) {
@@ -231,7 +282,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
 
         cities[cityId][tokenId].owner = _msgSender();
         cities[cityId][tokenId].tokenId = uint16(tokenId);
-        cities[cityId][tokenId].value = uint80(block.timestamp);
+        cities[cityId][tokenId].timestamp = uint80(block.timestamp);
 
         emit MerchantClaimed(tokenId, owed);
     }
@@ -275,7 +326,7 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
         returns (uint256 owed)
     {
         require(
-            dwarfs_nft.ownerOf(tokenId) == address(this),
+            dwarfs_nft.ownerOf(tokenId) == _msgSender(),
             "AINT A PART OF THE PACK"
         );
 
