@@ -2,12 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "./IERC721Receiver.sol";
 import "./Pausable.sol";
 import "./Dwarfs_NFT.sol";
 import "./GOD.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
-contract Clan is Ownable, IERC721Receiver, Pausable {
+contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     // maximum alpha score for a Mobster
     uint8 public constant MAX_ALPHA = 8;
 
@@ -72,19 +73,20 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
     uint256 public casinoVault;
 
     // profit of dwarfather
-    uint256 public profitOfDwarfather = 40;
+    uint256 public profitOfDwarfather = 4;
     // profit of boss
-    uint256 public profitOfBoss = 30;
+    uint256 public profitOfBoss = 7;
     // profit of dwarfcapos
-    uint256 public profitOfDwarfCapos = 20;
+    uint256 public profitOfDwarfCapos = 14;
     // profit of dwarfsoldier
-    uint256 public profitOfDwarfSoldier = 10;
+    uint256 public profitOfDwarfSoldier = 29;
 
     /**
      * @param _dwarfs_nft reference to the Dwarfs_NFT NFT contract
      * @param _god reference to the $GOD token
      */
-    constructor(address _dwarfs_nft, address _god) {
+    // constructor(address _dwarfs_nft, address _god) {
+    function initialize(address _dwarfs_nft, address _god) public virtual initializer {
         dwarfs_nft = Dwarfs_NFT(_dwarfs_nft);
         god = GOD(_god);
     }
@@ -327,26 +329,26 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
         for (uint16 i = 0; i < dwarfathers.length; i++) {
             mobsterRewards[dwarfathers[i]] =
                 (amount * profitOfDwarfather) /
-                100;
+                1000;
         }
 
         uint16[] memory bosses = getMobstersByCityId(cityId, 7);
         for (uint16 i = 0; i < bosses.length; i++) {
-            mobsterRewards[bosses[i]] = (amount * profitOfBoss) / 100;
+            mobsterRewards[bosses[i]] = (amount * profitOfBoss) / 1000;
         }
 
         uint16[] memory dwarfcaposes = getMobstersByCityId(cityId, 6);
         for (uint16 i = 0; i < dwarfcaposes.length; i++) {
             mobsterRewards[dwarfcaposes[i]] =
                 (amount * profitOfDwarfCapos) /
-                100;
+                1000;
         }
 
         uint16[] memory dwarfsoldiers = getMobstersByCityId(cityId, 5);
         for (uint16 i = 0; i < dwarfsoldiers.length; i++) {
             mobsterRewards[dwarfsoldiers[i]] =
                 (amount * profitOfDwarfSoldier) /
-                100;
+                1000;
         }
     }
 
@@ -541,6 +543,6 @@ contract Clan is Ownable, IERC721Receiver, Pausable {
         bytes calldata
     ) external pure override returns (bytes4) {
         require(from == address(0x0), "Cannot send tokens to Clan directly");
-        return IERC721Receiver.onERC721Received.selector;
+        return IERC721ReceiverUpgradeable.onERC721Received.selector;
     }
 }

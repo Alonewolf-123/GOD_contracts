@@ -3,14 +3,14 @@
 pragma solidity ^0.8.0;
 import "./Ownable.sol";
 import "./Pausable.sol";
-import "./ERC721Enumerable.sol";
 import "./IDwarfs_NFT.sol";
 import "./IClan.sol";
-import "./ITraits.sol";
 import "./GOD.sol";
 import "./Strings.sol";
 
-contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+
+contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     using Strings for uint256;
 
     // mint price
@@ -31,7 +31,14 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     // max number of tokens that can be minted - 20000 in production
     uint256 public MAX_TOKENS = 20000;
 
+    // sold amount percent by eth (50%)
     uint256 public MAX_TOKENS_ETH_SOLD = 50;
+
+    // number of mobsters in a city
+    uint8 public MAX_DWARFSOLDIER = 150;
+    uint8 public MAX_DWARFCAPOS = 45;
+    uint8 public MAX_BOSS = 4;
+    uint8 public MAX_DWARFATHER = 1;
 
     // number of tokens have been minted so far
     uint16 public minted;
@@ -46,8 +53,6 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     IClan public clan;
     // reference to $GOD for burning on mint
     GOD public god;
-    // reference to Traits
-    ITraits public traits;
 
     // traits parameters range
     uint8 public MAX_BACKGROUND = 255; // background
@@ -78,11 +83,9 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
     /**
      * instantiates contract and rarity tables
      */
-    constructor(address _god, address _traits)
-        ERC721("Game Of Dwarfs", "DWARF")
-    {
+    function initialize(address _god) public virtual initializer {
+        __ERC721_init("Game Of Dwarfs", "DWARF");
         god = GOD(_god);
-        traits = ITraits(_traits);
     }
 
     /** EXTERNAL */
@@ -317,26 +320,6 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         returns (DwarfTrait memory t)
     {
         t.isMerchant = (seed & 0xFFFF) % 100 >= 15;
-        t.background_weapon =
-            uint16((random(seed) % MAX_BACKGROUND) << 8) +
-            uint8(random(seed + 1) % MAX_WEAPON);
-        t.body_outfit =
-            uint16((random(seed + 2) % MAX_BODY) << 8) +
-            uint8(random(seed + 3) % MAX_OUTFIT);
-        t.head_ears =
-            uint16((random(seed + 4) % MAX_HEAD) << 8) +
-            uint8(random(seed + 5) % MAX_EARS);
-        t.mouth_nose =
-            uint16((random(seed + 6) % MAX_MOUTH) << 8) +
-            uint8(random(seed + 7) % MAX_NOSE);
-        t.eyes_brows =
-            uint16((random(seed + 8) % MAX_EYES) << 8) +
-            uint8(random(seed + 9) % MAX_EYEBROWS);
-        t.hair_facialhair =
-            uint16((random(seed + 10) % MAX_HAIR) << 8) +
-            uint8(random(seed + 11) % MAX_FACIALHAIR);
-        t.eyewear = uint8(random(seed + 12) % MAX_EYEWEAR);
-
         if (t.isMerchant == true || !stake) {
             t.alphaIndex = 0;
         } else {
@@ -344,26 +327,54 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
 
             t.cityId = cityId;
             while (true) {
-                if ((cur_seed & 0xFFFF) % 200 < 1) {
-                    if (dwarfather < 1) {
+                if (
+                    (cur_seed & 0xFFFF) %
+                        (MAX_DWARFATHER +
+                            MAX_BOSS +
+                            MAX_DWARFCAPOS +
+                            MAX_DWARFSOLDIER) <
+                    MAX_DWARFATHER
+                ) {
+                    if (dwarfather < MAX_DWARFATHER) {
                         t.alphaIndex = 8;
                         dwarfather++;
                         break;
                     }
-                } else if ((cur_seed & 0xFFFF) % 200 < 9) {
-                    if (boss < 9) {
+                } else if (
+                    (cur_seed & 0xFFFF) %
+                        (MAX_DWARFATHER +
+                            MAX_BOSS +
+                            MAX_DWARFCAPOS +
+                            MAX_DWARFSOLDIER) <
+                    MAX_BOSS
+                ) {
+                    if (boss < MAX_BOSS) {
                         t.alphaIndex = 7;
                         boss++;
                         break;
                     }
-                } else if ((cur_seed & 0xFFFF) % 200 < 40) {
-                    if (dwarfcapos < 40) {
+                } else if (
+                    (cur_seed & 0xFFFF) %
+                        (MAX_DWARFATHER +
+                            MAX_BOSS +
+                            MAX_DWARFCAPOS +
+                            MAX_DWARFSOLDIER) <
+                    MAX_DWARFCAPOS
+                ) {
+                    if (dwarfcapos < MAX_DWARFCAPOS) {
                         t.alphaIndex = 6;
                         dwarfcapos++;
                         break;
                     }
-                } else if ((cur_seed & 0xFFFF) % 200 < 150) {
-                    if (dwarfsoldier < 150) {
+                } else if (
+                    (cur_seed & 0xFFFF) %
+                        (MAX_DWARFATHER +
+                            MAX_BOSS +
+                            MAX_DWARFCAPOS +
+                            MAX_DWARFSOLDIER) <
+                    MAX_DWARFSOLDIER
+                ) {
+                    if (dwarfsoldier < MAX_DWARFSOLDIER) {
                         t.alphaIndex = 5;
                         dwarfsoldier++;
                         break;
@@ -371,6 +382,38 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
                 }
                 cur_seed = random(cur_seed);
             }
+        }
+
+        // if Boss
+        if (t.alphaIndex == 7) {
+            // set the custom traits
+            t.background_weapon = 0;
+            t.body_outfit = 0;
+            t.head_ears = 0;
+            t.mouth_nose = 0;
+            t.eyes_brows = 0;
+            t.hair_facialhair = 0;
+            t.eyewear = 0;
+        } else {
+            t.background_weapon =
+                uint16((random(seed) % MAX_BACKGROUND) << 8) +
+                uint8(random(seed + 1) % MAX_WEAPON);
+            t.body_outfit =
+                uint16((random(seed + 2) % MAX_BODY) << 8) +
+                uint8(random(seed + 3) % MAX_OUTFIT);
+            t.head_ears =
+                uint16((random(seed + 4) % MAX_HEAD) << 8) +
+                uint8(random(seed + 5) % MAX_EARS);
+            t.mouth_nose =
+                uint16((random(seed + 6) % MAX_MOUTH) << 8) +
+                uint8(random(seed + 7) % MAX_NOSE);
+            t.eyes_brows =
+                uint16((random(seed + 8) % MAX_EYES) << 8) +
+                uint8(random(seed + 9) % MAX_EYEBROWS);
+            t.hair_facialhair =
+                uint16((random(seed + 10) % MAX_HAIR) << 8) +
+                uint8(random(seed + 11) % MAX_FACIALHAIR);
+            t.eyewear = uint8(random(seed + 12) % MAX_EYEWEAR);
         }
 
         return t;
@@ -598,7 +641,32 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
             _exists(tokenId),
             "ERC721Metadata: URI query for nonexistent token"
         );
-        string memory _tokenURI = traits.tokenURI(tokenId);
+
+        IDwarfs_NFT.DwarfTrait memory s = tokenTraits[tokenId];
+        bytes memory t = new bytes(15);
+        t[0] = bytes1((uint8)(s.background_weapon >> 8));
+        t[1] = bytes1((uint8)(s.background_weapon & 0x00FF));
+
+        t[2] = bytes1((uint8)(s.body_outfit >> 8));
+        t[3] = bytes1((uint8)(s.body_outfit & 0x00FF));
+
+        t[4] = bytes1((uint8)(s.head_ears >> 8));
+        t[5] = bytes1((uint8)(s.head_ears & 0x00FF));
+
+        t[6] = bytes1((uint8)(s.mouth_nose >> 8));
+        t[7] = bytes1((uint8)(s.mouth_nose & 0x00FF));
+
+        t[8] = bytes1((uint8)(s.eyes_brows >> 8));
+        t[9] = bytes1((uint8)(s.eyes_brows & 0x00FF));
+
+        t[10] = bytes1((uint8)(s.hair_facialhair >> 8));
+        t[11] = bytes1((uint8)(s.hair_facialhair & 0x00FF));
+
+        t[12] = bytes1(s.eyewear);
+        t[13] = bytes1(s.cityId);
+        t[14] = bytes1(s.alphaIndex);
+
+        string memory _tokenURI = base64(t);
 
         // If there is no base URI, return the token URI.
         if (bytes(baseURI).length == 0) {
@@ -610,5 +678,81 @@ contract Dwarfs_NFT is IDwarfs_NFT, ERC721Enumerable, Ownable, Pausable {
         }
         // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
         return string(abi.encodePacked(baseURI, tokenId.toString(), ".json"));
+    }
+
+    string internal constant TABLE =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    function base64(bytes memory data) internal pure returns (string memory) {
+        if (data.length == 0) return "";
+
+        // load the table into memory
+        string memory table = TABLE;
+
+        // multiply by 4/3 rounded up
+        uint256 encodedLen = 4 * ((data.length + 2) / 3);
+
+        // add some extra buffer at the end required for the writing
+        string memory result = new string(encodedLen + 32);
+
+        assembly {
+            // set the actual output length
+            mstore(result, encodedLen)
+
+            // prepare the lookup table
+            let tablePtr := add(table, 1)
+
+            // input ptr
+            let dataPtr := data
+            let endPtr := add(dataPtr, mload(data))
+
+            // result ptr, jump over length
+            let resultPtr := add(result, 32)
+
+            // run over the input, 3 bytes at a time
+            for {
+
+            } lt(dataPtr, endPtr) {
+
+            } {
+                dataPtr := add(dataPtr, 3)
+
+                // read 3 bytes
+                let input := mload(dataPtr)
+
+                // write 4 characters
+                mstore(
+                    resultPtr,
+                    shl(248, mload(add(tablePtr, and(shr(18, input), 0x3F))))
+                )
+                resultPtr := add(resultPtr, 1)
+                mstore(
+                    resultPtr,
+                    shl(248, mload(add(tablePtr, and(shr(12, input), 0x3F))))
+                )
+                resultPtr := add(resultPtr, 1)
+                mstore(
+                    resultPtr,
+                    shl(248, mload(add(tablePtr, and(shr(6, input), 0x3F))))
+                )
+                resultPtr := add(resultPtr, 1)
+                mstore(
+                    resultPtr,
+                    shl(248, mload(add(tablePtr, and(input, 0x3F))))
+                )
+                resultPtr := add(resultPtr, 1)
+            }
+
+            // padding with '='
+            switch mod(mload(data), 3)
+            case 1 {
+                mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
+            }
+            case 2 {
+                mstore(sub(resultPtr, 1), shl(248, 0x3d))
+            }
+        }
+
+        return result;
     }
 }
