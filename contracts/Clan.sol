@@ -10,9 +10,9 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradea
 
 contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     // maximum alpha score for a Mobster
-    uint8 public constant MAX_ALPHA = 8;
+    uint8 private constant MAX_ALPHA = 8;
 
-    uint8 public MAX_NUM_CITY = 6;
+    uint8 private MAX_NUM_CITY = 6;
 
     // struct to store a stake's token, owner, and earning values
     struct Stake {
@@ -416,6 +416,10 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         }
 
         return 0;
+    }
+
+    function getMaxNumCity() external view returns (uint8) {
+        return MAX_NUM_CITY;
     }
 
     /**
