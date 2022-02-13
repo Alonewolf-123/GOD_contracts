@@ -7,8 +7,5 @@ interface IClan {
   function randomMobsterOwner(uint256 seed) external view returns (address);
   function getMaxNumCity() external view returns (uint8);
   function getAvailableCity() external view returns (uint8);
-  function getNumDwarfather(uint8 cityId) external view returns (uint16);
-  function getNumBoss(uint8 cityId) external view returns (uint16);
-  function getNumDwarfCapos(uint8 cityId) external view returns (uint16);
-  function getNumDwarfSoldier(uint8 cityId) external view returns (uint16);
+  function getNumMobstersByCityId(uint8 cityId) external view returns (uint16[] memory);
 }

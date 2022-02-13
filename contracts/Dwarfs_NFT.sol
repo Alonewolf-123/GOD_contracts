@@ -200,10 +200,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         for (uint16 i = 0; i < amount; i++) {
             if (i == 0 || clan.getAvailableCity() != cityId) {
                 cityId = clan.getAvailableCity();
-                count_mobsters[3] = clan.getNumDwarfather(cityId);
-                count_mobsters[2] = clan.getNumBoss(cityId);
-                count_mobsters[1] = clan.getNumDwarfCapos(cityId);
-                count_mobsters[0] = clan.getNumDwarfSoldier(cityId);
+                count_mobsters = clan.getNumMobstersByCityId(cityId);
             }
             minted++;
             seed = random(minted);
@@ -605,12 +602,20 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         return MAX_MOBSTERS;
     }
 
-    function setBossTraits(DwarfTrait[] memory traits) external onlyOwner {
+    function setBossTraits(DwarfTrait memory traits, uint8 index)
+        external
+        onlyOwner
+    {
         require(
-            traits.length == MAX_MOBSTERS[2] * clan.getMaxNumCity(),
+            index < MAX_MOBSTERS[2] * clan.getMaxNumCity(),
             "Invalid parameter"
         );
-        bossTraits = traits;
+
+        if (index >= bossTraits.length) {
+            bossTraits.push(traits);
+        } else {
+            bossTraits[index] = traits;
+        }
     }
 
     function getBossTraits()
