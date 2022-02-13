@@ -1,0 +1,36 @@
+Dwarfs_NFT Fixing Course
+1. mint(): 125
+    it must be 'minted >= MAX_GEN0_TOKENS'
+2. mint(): It should sell NFT by GOD or ETH. So require GOD or ETH. 
+            It doesn't check GOD amount. So burn GOD first, and then _safeMint.
+3. mint(): The 'stake' param isn't needed. A merchant should be added to clan, but no city. A mobster should be added to a city.
+4. mintCost(): 'if' statement must be 'else if'.
+5. generate(): 300
+    '--' must be when it succeeds. So 'SelectTraits()' should implement a mobster counting algorithm.
+6. SelectTraits(): Each Boss traits must be custom.
+7. structToHash(): Remove 'isMerchant', 'city', 'alpha'.
+8. getGen0Tokens(): 476
+    Is this function needed? Then these variable must be private.
+9. setPrices(), setMaxTraits(), setGenTokens(): These functions should be array.
+10. tokenURI(): Remove cityId, alphaIndex
+11. The description of the source code on etherscan must follow the 'NatSpec'.
+        ref: https://etherscan.io/address/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d#readContract
+            https://docs.soliditylang.org/en/v0.8.11/natspec-format.html
+
+________________
+
+New issue on the Dwarfs_NFT
+
+1. Add comments in detail for every array.
+    i.e. line 55
+2. line 77: make an array, change variable name. and check line 204
+3. Mint(): line 120: '<=' must be '<'
+4. line 96: mintByOwner() parameter must be an array.
+5. line 313: array
+6. line 352: mobster comments
+7. selectTraits(): line 350: while() ?
+8. line 385: Boss Traits
+9. make public arrays to private. Add 'get' functions.
+10. The description of the source code on etherscan must follow the 'NatSpec'.
+        ref: https://etherscan.io/address/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d#readContract
+            https://docs.soliditylang.org/en/v0.8.11/natspec-format.html
