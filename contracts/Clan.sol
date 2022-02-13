@@ -121,6 +121,8 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
                     address(this),
                     tokenIds[i]
                 );
+            } if (_msgSender() == address(dwarfs_nft)) {
+                require(isMerchant(tokenIds[i]) == false, "Can not add the merchant directly");
             } else if (tokenIds[i] == 0) {
                 continue; // there may be gaps in the array for stolen tokens
             }

@@ -18,8 +18,6 @@ interface IDwarfs_NFT {
         uint8 generation;
     }
 
-    function getGen0Tokens() external view returns (uint256);
-
     function getTokenTraits(uint256 tokenId)
         external
         view
