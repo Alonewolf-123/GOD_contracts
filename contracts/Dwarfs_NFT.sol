@@ -126,8 +126,8 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
                 "Invalid payment amount"
             );
         } else if (
-            minted > MAX_GEN_TOKENS[0] &&
-            minted <=
+            minted >= MAX_GEN_TOKENS[0] &&
+            minted <
             MAX_GEN_TOKENS[0] +
                 ((MAX_GEN_TOKENS[1] - MAX_GEN_TOKENS[0]) *
                     MAX_TOKENS_ETH_SOLD) /
@@ -146,8 +146,8 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
                 "Invalid payment amount"
             );
         } else if (
-            minted > MAX_GEN_TOKENS[1] &&
-            minted <=
+            minted >= MAX_GEN_TOKENS[1] &&
+            minted <
             MAX_GEN_TOKENS[1] +
                 ((MAX_GEN_TOKENS[2] - MAX_GEN_TOKENS[1]) *
                     MAX_TOKENS_ETH_SOLD) /
@@ -166,8 +166,8 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
                 "Invalid payment amount"
             );
         } else if (
-            minted > MAX_GEN_TOKENS[2] &&
-            minted <=
+            minted >= MAX_GEN_TOKENS[2] &&
+            minted <
             MAX_GEN_TOKENS[2] +
                 ((MAX_GEN_TOKENS[3] - MAX_GEN_TOKENS[2]) *
                     MAX_TOKENS_ETH_SOLD) /
@@ -289,11 +289,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         if (tokenId <= MAX_GEN_TOKENS[0]) {
             t.generation = 0;
         } else if (
-            tokenId > MAX_GEN_TOKENS[0] && tokenId <= MAX_GEN_TOKENS[1]
+            tokenId <= MAX_GEN_TOKENS[1]
         ) {
             t.generation = 1;
         } else if (
-            tokenId > MAX_GEN_TOKENS[1] && tokenId <= MAX_GEN_TOKENS[2]
+            tokenId <= MAX_GEN_TOKENS[2]
         ) {
             t.generation = 2;
         } else {
