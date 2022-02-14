@@ -196,13 +196,19 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
 
         uint16[] memory tokenIds = new uint16[](amount);
+        uint16[] memory tmp_dwarfs_count;
         uint256 seed;
         minted = minted - amount;
         for (uint16 i = 0; i < amount; i++) {
             if (i == 0 || clan.getAvailableCity() != cityId) {
                 cityId = clan.getAvailableCity();
-                count_dwarfs = clan.getNumMobstersByCityId(cityId);
+                tmp_dwarfs_count = clan.getNumMobstersByCityId(cityId);
+                count_dwarfs[1] = tmp_dwarfs_count[0];
+                count_dwarfs[2] = tmp_dwarfs_count[1];
+                count_dwarfs[3] = tmp_dwarfs_count[2];
+                count_dwarfs[4] = tmp_dwarfs_count[3];
             }
+            
             minted++;
             if (minted > MAX_GEN_TOKENS[generationOfNft]) {
                 generationOfNft++;
@@ -214,7 +220,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
             tokenIds[i] = minted;
         }
 
-        clan.addManyToClan(_msgSender(), tokenIds);
+        clan.addManyToClan(_msgSender(), tokenIds, 0);
     }
 
     /**
@@ -310,8 +316,8 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
             t = selectTraits(seed, alphaIndex);
             if (existingCombinations[structToHash(t)] == 0) {
                 t.generation = generationOfNft;
-                t.cityId = cityId;
                 t.isMerchant = (alphaIndex == 0);
+                t.cityId = (alphaIndex == 0) ? 0 : cityId;
                 t.alphaIndex = alphaIndex;
 
                 tokenTraits[tokenId] = t;
