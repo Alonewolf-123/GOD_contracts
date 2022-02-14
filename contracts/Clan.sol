@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
 contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
-    uint8 private MAX_NUM_CITY = 6;
+    uint8 private MAX_NUM_CITY = 15;
 
     // struct to store a stake's token, owner, and earning values
     struct Stake {
@@ -18,7 +18,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         address owner;
     }
 
-    // struct to sttore a invest god
+    // struct to store a invest god
     struct InvestGods {
         uint256 value;
         uint80 timestamp;
@@ -39,7 +39,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     mapping(uint16 => InvestGods[]) private gods;
     mapping(uint16 => uint256) private mobsterRewards;
 
-    // merchant earn 10000 $GOD per day
+    // merchant earn 1% of investment of $GOD per day
     uint256 private constant DAILY_GOD_RATE = 1;
 
     // riskygame merchant must have 2 days worth of $GOD to unstake or else it's too cold
