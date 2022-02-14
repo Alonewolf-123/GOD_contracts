@@ -98,9 +98,9 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
             "DONT GIVE YOUR TOKENS AWAY"
         );
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            if (existingCombinations[tokenIds[i]] == true) continue;
-            require(getCityId(tokenIds[i]) < MAX_NUM_CITY, "CITY LIMIT ERROR");
-
+            require(tokenIds[i] > 0, "Invalid token id");
+            require(existingCombinations[tokenIds[i]] == false, "Existed token");
+            
             if (_msgSender() != address(dwarfs_nft)) {
                 // dont do this step if its a mint + stake
                 require(
@@ -113,8 +113,6 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
                     isMerchant(tokenIds[i]) == false,
                     "Can not add the merchant directly"
                 );
-            } else if (tokenIds[i] == 0) {
-                continue; // there may be gaps in the array for stolen tokens
             }
 
             _addToCity(account, tokenIds[i]);

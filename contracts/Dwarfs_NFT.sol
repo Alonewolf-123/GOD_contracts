@@ -36,7 +36,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     uint256 private MAX_TOKENS_ETH_SOLD = 50;
 
     // number of mobsters in a city
-    uint8[] private MAX_MOBSTERS = [150, 45, 4, 1];
+    uint16[] private MAX_DWARFS_CITY = [1133, 150, 45, 4, 1];
 
     // number of tokens have been minted so far
     uint16 public minted;
@@ -75,10 +75,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     // temporary variables
     uint8 private cityId;
 
-    uint16[] private count_mobsters = [0, 0, 0, 0];
+    uint16[] private count_dwarfs = [0, 0, 0, 0, 0];
     uint8 private totalBosses = 1;
-    uint256 totalMobstersPerCity = 200;
+    uint256 totalDwarfsPerCity = 1333;
     DwarfTrait[] private bossTraits;
+    uint8 generationOfNft = 0;
 
     /**
      * instantiates contract and rarity tables
@@ -200,9 +201,12 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         for (uint16 i = 0; i < amount; i++) {
             if (i == 0 || clan.getAvailableCity() != cityId) {
                 cityId = clan.getAvailableCity();
-                count_mobsters = clan.getNumMobstersByCityId(cityId);
+                count_dwarfs = clan.getNumMobstersByCityId(cityId);
             }
             minted++;
+            if (minted > MAX_GEN_TOKENS[generationOfNft]) {
+                generationOfNft++;
+            }
             seed = random(minted);
             generate(minted, seed);
 
@@ -275,6 +279,16 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /** INTERNAL */
+    function isConstantMerchant(uint256 tokenId) internal view returns (bool) {
+        if (
+            tokenId > getMaxDwarfsPerCity() * (clan.getMaxNumCity()) &&
+            tokenId <= MAX_GEN_TOKENS[generationOfNft]
+        ) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * generates traits for a specific token, checking to make sure it's unique
@@ -286,38 +300,35 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         internal
         returns (DwarfTrait memory t)
     {
-        if (tokenId <= MAX_GEN_TOKENS[0]) {
-            t.generation = 0;
-        } else if (
-            tokenId <= MAX_GEN_TOKENS[1]
-        ) {
-            t.generation = 1;
-        } else if (
-            tokenId <= MAX_GEN_TOKENS[2]
-        ) {
-            t.generation = 2;
-        } else {
-            t.generation = 3;
+        // check the merchant and mobster
+        uint8 alphaIndex = 0;
+        bool bConstantMerchant = isConstantMerchant(tokenId);
+        if (bConstantMerchant == false) {
+            alphaIndex = selectDwarfType(seed);
         }
-
         while (true) {
-            uint8 alphaIndex = selectDwarfType(seed);
             t = selectTraits(seed, alphaIndex);
             if (existingCombinations[structToHash(t)] == 0) {
+                t.generation = generationOfNft;
                 t.cityId = cityId;
                 t.isMerchant = (alphaIndex == 0);
                 t.alphaIndex = alphaIndex;
 
                 tokenTraits[tokenId] = t;
                 existingCombinations[structToHash(t)] = tokenId;
-                count_mobsters[t.alphaIndex - 5]++;
-                totalMobstersPerCity--;
-                if (totalMobstersPerCity == 0) {
-                    totalMobstersPerCity =
-                        MAX_MOBSTERS[0] +
-                        MAX_MOBSTERS[1] +
-                        MAX_MOBSTERS[2] +
-                        MAX_MOBSTERS[3];
+
+                count_dwarfs[t.alphaIndex < 5 ? 0 : t.alphaIndex - 4]++;
+                if (bConstantMerchant == false) {
+                    totalDwarfsPerCity--;
+                }
+
+                if (totalDwarfsPerCity == 0) {
+                    totalDwarfsPerCity =
+                        MAX_DWARFS_CITY[0] +
+                        MAX_DWARFS_CITY[1] +
+                        MAX_DWARFS_CITY[2] +
+                        MAX_DWARFS_CITY[3] +
+                        MAX_DWARFS_CITY[4];
                 }
                 return t;
             }
@@ -338,33 +349,44 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
             cur_seed = random(cur_seed);
 
             if (
-                (cur_seed & 0xFFFF) % totalMobstersPerCity <
-                (MAX_MOBSTERS[3] - count_mobsters[3])
+                (cur_seed & 0xFFFF) % totalDwarfsPerCity <
+                (MAX_DWARFS_CITY[4] - count_dwarfs[4])
             ) {
                 return 8;
             } else if (
-                (cur_seed & 0xFFFF) % totalMobstersPerCity <
-                (MAX_MOBSTERS[2] +
-                    MAX_MOBSTERS[3] -
-                    count_mobsters[3] -
-                    count_mobsters[2])
+                (cur_seed & 0xFFFF) % totalDwarfsPerCity <
+                (MAX_DWARFS_CITY[3] +
+                    MAX_DWARFS_CITY[4] -
+                    count_dwarfs[3] -
+                    count_dwarfs[4])
             ) {
                 return 7;
             } else if (
-                (cur_seed & 0xFFFF) % totalMobstersPerCity <
-                (MAX_MOBSTERS[1] +
-                    MAX_MOBSTERS[2] +
-                    MAX_MOBSTERS[3] -
-                    count_mobsters[3] -
-                    count_mobsters[2] -
-                    count_mobsters[1])
+                (cur_seed & 0xFFFF) % totalDwarfsPerCity <
+                (MAX_DWARFS_CITY[2] +
+                    MAX_DWARFS_CITY[3] +
+                    MAX_DWARFS_CITY[4] -
+                    count_dwarfs[2] -
+                    count_dwarfs[3] -
+                    count_dwarfs[4])
             ) {
                 return 6;
             } else if (
-                (cur_seed & 0xFFFF) % totalMobstersPerCity <
-                totalMobstersPerCity
+                (cur_seed & 0xFFFF) % totalDwarfsPerCity <
+                (MAX_DWARFS_CITY[1] +
+                    MAX_DWARFS_CITY[2] +
+                    MAX_DWARFS_CITY[3] +
+                    MAX_DWARFS_CITY[4] -
+                    count_dwarfs[1] -
+                    count_dwarfs[2] -
+                    count_dwarfs[3] -
+                    count_dwarfs[4])
             ) {
                 return 5;
+            } else if (
+                (cur_seed & 0xFFFF) % totalDwarfsPerCity < totalDwarfsPerCity
+            ) {
+                return 0;
             } else {
                 return 0;
             }
@@ -585,21 +607,34 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         return MAX_TRAITS;
     }
 
-    function setMaxMobsters(uint8[] memory maxValues) external onlyOwner {
+    function getMaxDwarfsPerCity() internal view returns (uint16) {
+        return
+            MAX_DWARFS_CITY[0] +
+            MAX_DWARFS_CITY[1] +
+            MAX_DWARFS_CITY[2] +
+            MAX_DWARFS_CITY[3] +
+            MAX_DWARFS_CITY[4];
+    }
+
+    function setMaxDwarfsPerCity(uint8[] memory maxValues) external onlyOwner {
         require(
-            maxValues.length == MAX_MOBSTERS.length,
+            maxValues.length == MAX_DWARFS_CITY.length,
             "Invalid input parameter"
         );
 
-        totalMobstersPerCity = 0;
+        totalDwarfsPerCity = 0;
         for (uint8 i = 0; i < maxValues.length; i++) {
-            MAX_MOBSTERS[i] = maxValues[i];
-            totalMobstersPerCity += MAX_MOBSTERS[i];
+            MAX_DWARFS_CITY[i] = maxValues[i];
+            totalDwarfsPerCity += MAX_DWARFS_CITY[i];
         }
     }
 
-    function getMaxMobsters() external view returns (uint8[] memory maxValues) {
-        return MAX_MOBSTERS;
+    function getMaxMobsters()
+        external
+        view
+        returns (uint16[] memory maxValues)
+    {
+        return MAX_DWARFS_CITY;
     }
 
     function setBossTraits(DwarfTrait memory traits, uint8 index)
@@ -607,7 +642,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         onlyOwner
     {
         require(
-            index < MAX_MOBSTERS[2] * clan.getMaxNumCity(),
+            index < MAX_DWARFS_CITY[3] * clan.getMaxNumCity(),
             "Invalid parameter"
         );
 
