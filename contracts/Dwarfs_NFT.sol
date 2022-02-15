@@ -29,27 +29,27 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         140000 ether
     ];
 
-    // max number of tokens that can be minted - 20000 in production
+    // max number of tokens that can be minted in each phase- 20000 in production
     uint256[] private MAX_GEN_TOKENS = [8000, 12000, 16000, 20000];
 
     // sold amount percent by eth (50%)
     uint256 private MAX_TOKENS_ETH_SOLD = 50;
 
-    // number of mobsters in a city
+    // number of dwarfs in a city
     uint16[] private MAX_DWARFS_CITY = [1133, 150, 45, 4, 1];
 
     // number of tokens have been minted so far
     uint16 public minted;
 
     // mapping from tokenId to a struct containing the token's traits
-    mapping(uint256 => DwarfTrait) private tokenTraits;
+    mapping(uint256 => DwarfTrait) private mapTokenTraits;
     // mapping from hashed(tokenTrait) to the tokenId it's associated with
     // used to ensure there are no duplicates
-    mapping(uint256 => uint256) private existingCombinations;
+    mapping(uint256 => uint256) private mapTraithashToken;
 
-    // reference to the Clan for choosing random Mobster thieves
+    // reference to the Clan
     IClan public clan;
-    // reference to $GOD for burning on mint
+    // reference to $GOD for burning in mint
     GOD public god;
 
     // traits parameters range
@@ -72,13 +72,22 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     // Base URI
     string private baseURI;
 
-    // temporary variables
+    // current chosen city ID
     uint8 private cityId;
 
+    // number of dwarfs in the current city
     uint16[] private count_dwarfs = [0, 0, 0, 0, 0];
+
+    // current number of boss
     uint8 private totalBosses = 1;
+
+    // the rest number of dwarfs in the current city
     uint256 totalDwarfsPerCity = 1333;
+
+    // static boss traits
     DwarfTrait[] private bossTraits;
+
+    // current generation number of NFT
     uint8 generationOfNft = 0;
 
     /**
@@ -99,10 +108,10 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     {
         require(s.length == amount, "Invalid parameter");
         for (uint256 i = 0; i < amount; i++) {
-            if (existingCombinations[structToHash(s[i])] == 0) {
+            if (mapTraithashToken[getTraitHash(s[i])] == 0) {
                 minted++;
-                tokenTraits[minted] = s[i];
-                existingCombinations[structToHash(s[i])] = minted;
+                mapTokenTraits[minted] = s[i];
+                mapTraithashToken[getTraitHash(s[i])] = minted;
 
                 _safeMint(_msgSender(), minted);
             }
@@ -120,11 +129,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         if (minted < MAX_GEN_TOKENS[0]) {
             require(
                 minted + amount <= MAX_GEN_TOKENS[0],
-                "All tokens on-sale already sold"
+                "All tokens of generation 0 on-sale already sold"
             );
             require(
                 amount * MINT_ETH_PRICES[0] <= msg.value,
-                "Invalid payment amount"
+                "Invalid ETH payment amount"
             );
         } else if (
             minted >= MAX_GEN_TOKENS[0] &&
@@ -140,11 +149,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
                         ((MAX_GEN_TOKENS[1] - MAX_GEN_TOKENS[0]) *
                             MAX_TOKENS_ETH_SOLD) /
                         100,
-                "All tokens on-sale already sold"
+                "All tokens of generation 1 on-sale already sold"
             );
             require(
                 amount * MINT_ETH_PRICES[1] <= msg.value,
-                "Invalid payment amount"
+                "Invalid ETH payment amount"
             );
         } else if (
             minted >= MAX_GEN_TOKENS[1] &&
@@ -160,11 +169,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
                         ((MAX_GEN_TOKENS[2] - MAX_GEN_TOKENS[1]) *
                             MAX_TOKENS_ETH_SOLD) /
                         100,
-                "All tokens on-sale already sold"
+                "All tokens of generation 2 on-sale already sold"
             );
             require(
                 amount * MINT_ETH_PRICES[2] <= msg.value,
-                "Invalid payment amount"
+                "Invalid ETH payment amount"
             );
         } else if (
             minted >= MAX_GEN_TOKENS[2] &&
@@ -180,11 +189,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
                         ((MAX_GEN_TOKENS[3] - MAX_GEN_TOKENS[2]) *
                             MAX_TOKENS_ETH_SOLD) /
                         100,
-                "All tokens on-sale already sold"
+                "All tokens of generation 3 on-sale already sold"
             );
             require(
                 amount * MINT_ETH_PRICES[3] <= msg.value,
-                "Invalid payment amount"
+                "Invalid ETH payment amount"
             );
         }
 
@@ -196,17 +205,12 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
 
         uint16[] memory tokenIds = new uint16[](amount);
-        uint16[] memory tmp_dwarfs_count;
         uint256 seed;
         minted = minted - amount;
         for (uint16 i = 0; i < amount; i++) {
             if (i == 0 || clan.getAvailableCity() != cityId) {
                 cityId = clan.getAvailableCity();
-                tmp_dwarfs_count = clan.getNumMobstersByCityId(cityId);
-                count_dwarfs[1] = tmp_dwarfs_count[0];
-                count_dwarfs[2] = tmp_dwarfs_count[1];
-                count_dwarfs[3] = tmp_dwarfs_count[2];
-                count_dwarfs[4] = tmp_dwarfs_count[3];
+                count_dwarfs = clan.getNumDwarfsByCityId(cityId);
             }
             
             minted++;
@@ -232,7 +236,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      * the next 2000 are paid in ETH
      * the next 2000 are 140,000 $GOD
      * @param tokenId the ID to check the cost of to mint
-     * @return the cost of the given token ID
+     * @return the GOD cost of the given token ID
      */
     function mintCost(uint256 tokenId) public view returns (uint256) {
         if (tokenId <= MAX_GEN_TOKENS[0]) return MINT_GOD_PRICES[0];
@@ -261,7 +265,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         ) return 0;
         else if (tokenId <= MAX_GEN_TOKENS[3]) return MINT_GOD_PRICES[3];
 
-        return 0 ether;
+        return 0;
     }
 
     /**
@@ -275,19 +279,19 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         address to,
         uint256 tokenId
     ) public virtual override {
-        // Hardcode the Clan's approval so that users don't have to waste gas approving
-        if (_msgSender() != address(clan))
-            require(
-                _isApprovedOrOwner(_msgSender(), tokenId),
-                "ERC721: transfer caller is not owner nor approved"
-            );
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId),
+            "ERC721: transfer caller is not owner nor approved"
+        );
         _transfer(from, to, tokenId);
     }
 
-    /** INTERNAL */
+    /** 
+     * The rest of Dwarfs will be Merchant in each generation
+     */
     function isConstantMerchant(uint256 tokenId) internal view returns (bool) {
         if (
-            tokenId > getMaxDwarfsPerCity() * (clan.getMaxNumCity()) &&
+            tokenId > getMaxDwarfsPerCity() * (clan.getMaxNumCityOfGen()[generationOfNft]) &&
             tokenId <= MAX_GEN_TOKENS[generationOfNft]
         ) {
             return true;
@@ -306,7 +310,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         internal
         returns (DwarfTrait memory t)
     {
-        // check the merchant and mobster
+        // check the merchant or mobster
         uint8 alphaIndex = 0;
         bool bConstantMerchant = isConstantMerchant(tokenId);
         if (bConstantMerchant == false) {
@@ -314,33 +318,38 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         }
         while (true) {
             t = selectTraits(seed, alphaIndex);
-            if (existingCombinations[structToHash(t)] == 0) {
+            if (mapTraithashToken[getTraitHash(t)] == 0) {
                 t.generation = generationOfNft;
-                t.isMerchant = (alphaIndex == 0);
-                t.cityId = (alphaIndex == 0) ? 0 : cityId;
+                t.isMerchant = (alphaIndex < 5);
+                t.cityId = (alphaIndex < 5) ? 0 : cityId;   // if Merchant, cityId should be 0 (no city)
                 t.alphaIndex = alphaIndex;
 
-                tokenTraits[tokenId] = t;
-                existingCombinations[structToHash(t)] = tokenId;
+                mapTokenTraits[tokenId] = t;
+                mapTraithashToken[getTraitHash(t)] = tokenId;
 
                 count_dwarfs[t.alphaIndex < 5 ? 0 : t.alphaIndex - 4]++;
                 if (bConstantMerchant == false) {
                     totalDwarfsPerCity--;
+                    if (totalDwarfsPerCity == 0) {
+                        totalDwarfsPerCity =
+                            MAX_DWARFS_CITY[0] +
+                            MAX_DWARFS_CITY[1] +
+                            MAX_DWARFS_CITY[2] +
+                            MAX_DWARFS_CITY[3] +
+                            MAX_DWARFS_CITY[4];
+                    }
                 }
-
-                if (totalDwarfsPerCity == 0) {
-                    totalDwarfsPerCity =
-                        MAX_DWARFS_CITY[0] +
-                        MAX_DWARFS_CITY[1] +
-                        MAX_DWARFS_CITY[2] +
-                        MAX_DWARFS_CITY[3] +
-                        MAX_DWARFS_CITY[4];
-                }
+                
                 return t;
             }
         }
     }
 
+    /**
+     * select Dwarf Type 
+     * Merchant : alphaIndex = 0 ~ 4
+     * Mobster : alphaIndex = 5 ~ 8
+     */
     function selectDwarfType(uint256 seed)
         internal
         view
@@ -389,10 +398,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
                     count_dwarfs[4])
             ) {
                 return 5;
-            } else if (
-                (cur_seed & 0xFFFF) % totalDwarfsPerCity < totalDwarfsPerCity
-            ) {
-                return 0;
             } else {
                 return 0;
             }
@@ -412,13 +417,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         // if Boss
         if (alphaIndex == 7) {
             // set the custom traits
-            t.background_weapon = bossTraits[totalBosses].background_weapon;
-            t.body_outfit = bossTraits[totalBosses].body_outfit;
-            t.head_ears = bossTraits[totalBosses].head_ears;
-            t.mouth_nose = bossTraits[totalBosses].mouth_nose;
-            t.eyes_brows = bossTraits[totalBosses].eyes_brows;
-            t.hair_facialhair = bossTraits[totalBosses].hair_facialhair;
-            t.eyewear = bossTraits[totalBosses].eyewear;
+            t = bossTraits[totalBosses];
         } else {
             t.background_weapon =
                 uint16((random(seed) % MAX_TRAITS[0]) << 8) +
@@ -449,7 +448,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      * @param s the struct to pack into a hash
      * @return the 256 bit hash of the struct
      */
-    function structToHash(DwarfTrait memory s) internal pure returns (uint256) {
+    function getTraitHash(DwarfTrait memory s) internal pure returns (uint256) {
         return
             uint256(
                 keccak256(
@@ -497,7 +496,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         override
         returns (DwarfTrait memory)
     {
-        return tokenTraits[tokenId];
+        return mapTokenTraits[tokenId];
     }
 
     /** ADMIN */
@@ -549,6 +548,8 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         }
     }
 
+    /**
+    */
     function getMintETHPrices()
         external
         view
@@ -647,11 +648,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         external
         onlyOwner
     {
-        require(
-            index < MAX_DWARFS_CITY[3] * clan.getMaxNumCity(),
-            "Invalid parameter"
-        );
-
         if (index >= bossTraits.length) {
             bossTraits.push(traits);
         } else {
@@ -705,7 +701,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        IDwarfs_NFT.DwarfTrait memory s = tokenTraits[tokenId];
+        IDwarfs_NFT.DwarfTrait memory s = mapTokenTraits[tokenId];
         bytes memory t = new bytes(13);
         t[0] = bytes1((uint8)(s.background_weapon >> 8));
         t[1] = bytes1((uint8)(s.background_weapon & 0x00FF));
