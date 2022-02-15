@@ -41,7 +41,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     ]; // number of tokens in Gen3
 
     // sold amount percent by eth (50%)
-    uint256 private MAX_TOKENS_ETH_SOLD = 50;
+    uint16 private MAX_TOKENS_ETH_SOLD = 50;
 
     // number of dwarfs in a city
     uint16[] private MAX_MOBSTERS_CITY = [
@@ -219,13 +219,13 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         }
         if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
 
-        uint16[] memory tokenIds = new uint16[](amount);
+        uint32[] memory tokenIds = new uint32[](amount);
         uint256 seed;
         minted = minted - amount;
         for (uint16 i = 0; i < amount; i++) {
             if (i == 0 || clan.getAvailableCity() != cityId) {
                 cityId = clan.getAvailableCity();
-                count_mobsters = clan.getNumMobstersOfCity(cityId);
+                count_mobsters = clan.getNumMobstersByCityId(cityId);
             }
 
             minted++;
@@ -287,7 +287,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         address from,
         address to,
         uint32 tokenId
-    ) public virtual override {
+    ) public virtual {
         require(
             _isApprovedOrOwner(_msgSender(), tokenId),
             "ERC721: transfer caller is not owner nor approved"
@@ -488,7 +488,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      * @param tokenId the token id
      * @return DwarfTrait memory
      */
-    function getTokenTraits(uint256 tokenId)
+    function getTokenTraits(uint32 tokenId)
         external
         view
         override
@@ -769,7 +769,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
             return string(abi.encodePacked(baseURI, _tokenURI, ".json"));
         }
         // If there is a baseURI but no tokenURI, concatenate the tokenId to the baseURI.
-        return string(abi.encodePacked(baseURI, tokenId.toString(), ".json"));
+        return string(abi.encodePacked(baseURI, (uint256(tokenId)).toString(), ".json"));
     }
 
     // base string for base64 encoding

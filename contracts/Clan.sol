@@ -8,8 +8,10 @@ import "./GOD.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
+/// @title Clan
+/// @author Bounyavong
+/// @dev Clan logic is implemented and this is the updradeable
 contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
-
     // number of cities in each generation status
     uint8[] private MAX_NUM_CITY = [6, 9, 12, 15];
 
@@ -22,8 +24,15 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         uint80 lastInvestedTime;
     }
 
-    event TokenInvested(uint32 tokenId, uint256 investedAmount, uint80 lastInvestedTime);
+    // event when token invested
+    event TokenInvested(
+        uint32 tokenId,
+        uint256 investedAmount,
+        uint80 lastInvestedTime
+    );
+    // event when merchant claimed
     event MerchantClaimed(uint32 tokenId, uint256 earned);
+    // event when mobster claimed
     event MobsterClaimed(uint32 tokenId, uint256 earned);
 
     // reference to the Dwarfs_NFT NFT contract
@@ -32,8 +41,10 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     // reference to the $GOD contract for minting $GOD earnings
     GOD god;
 
+    // token information map
     mapping(uint32 => TokenInfo) private mapTokenInfo;
-    mapping(uint32 => bool) private mapTokenExisted; 
+    // map to check the existed token
+    mapping(uint32 => bool) private mapTokenExisted;
 
     // total number of tokens in the clan
     uint32 private totalNumberOfTokens = 0;
@@ -42,25 +53,25 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     mapping(uint8 => uint32[]) private mapCityMobsters;
 
     // merchant earn 1% of investment of $GOD per day
-    uint8 private constant DAILY_GOD_RATE = 1;
+    uint8 private DAILY_GOD_RATE = 1;
 
     // mobsters take 15% on all $GOD claimed
-    uint8 private constant TAX_PERCENT = 15;
+    uint8 private TAX_PERCENT = 15;
 
     // casino vault take 5% on all $GOD claimed
-    uint8 private constant CASINO_VAULT_PERCENT = 5;
+    uint8 private CASINO_VAULT_PERCENT = 5;
 
     // there will only ever be (roughly) 2.4 billion $GOD earned through staking
-    uint256 private constant MAXIMUM_GLOBAL_GOD = 2400000000 ether;
+    uint256 private MAXIMUM_GLOBAL_GOD = 2400000000 ether;
 
     // initial Balance of a new Merchant
-    uint256 private constant INITIAL_GOD_AMOUNT = 100000 ether;
+    uint256 private INITIAL_GOD_AMOUNT = 100000 ether;
 
     // minimum GOD invested amount
-    uint256 private constant MIN_INVESTED_AMOUNT = 1000 ether;
+    uint256 private MIN_INVESTED_AMOUNT = 1000 ether;
 
     // requested god amount for casino play
-    uint256 private constant REQUESTED_GOD_CASINO = 1000 ether;
+    uint256 private REQUESTED_GOD_CASINO = 1000 ether;
 
     // amount of $GOD earned so far
     uint256 private remainingGodAmount = MAXIMUM_GLOBAL_GOD;
@@ -75,10 +86,10 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     bool private bMerchantGamePlaying = true;
 
     /**
+     * @dev initialize function
      * @param _dwarfs_nft reference to the Dwarfs_NFT NFT contract
      * @param _god reference to the $GOD token
      */
-    // constructor(address _dwarfs_nft, address _god) {
     function initialize(address _dwarfs_nft, address _god)
         public
         virtual
@@ -91,13 +102,10 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     /** STAKING */
 
     /**
-     * adds Merchant and Mobsters to the Clan and Pack
-     * @param account the address of the staker
-     * @param tokenIds the IDs of the Merchant and Mobsters to stake
+     * @dev adds Merchant and Mobsters to the Clan and Pack
+     * @param tokenIds the IDs of the Merchant and Mobsters to add to the clan
      */
-    function addManyToClan(
-        uint32[] calldata tokenIds
-    ) external {
+    function addManyToClan(uint32[] calldata tokenIds) external {
         require(
             _msgSender() == address(dwarfs_nft),
             "Caller Must Be Dwarfs NFT Contract"
@@ -108,14 +116,14 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     }
 
     /**
-     * adds a single token to the city
-     * @param account the address of the staker
-     * @param tokenId the ID of the Merchant to add to the Clan
+     * @dev adds a single token to the city
+     * @param tokenId the ID of the Merchant to add to the city
      */
-    function _addToCity(
-        uint32 tokenId
-    ) internal whenNotPaused {
-        require(mapTokenExisted[tokenId] == false, "The token has been added to the clan already");
+    function _addToCity(uint32 tokenId) internal whenNotPaused {
+        require(
+            mapTokenExisted[tokenId] == false,
+            "The token has been added to the clan already"
+        );
 
         IDwarfs_NFT.DwarfTrait memory t = dwarfs_nft.getTokenTraits(tokenId);
 
@@ -135,40 +143,74 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         totalNumberOfTokens++;
 
         remainingGodAmount += _tokenInfo.currentInvestedAmount;
-        emit TokenInvested(tokenId, _tokenInfo.currentInvestedAmount, _tokenInfo.lastInvestedTime);
+        emit TokenInvested(
+            tokenId,
+            _tokenInfo.currentInvestedAmount,
+            _tokenInfo.lastInvestedTime
+        );
     }
 
     /**
+     * @dev add the single merchant to the city
+     * @param tokenId the ID of the merchant token to add to the city
+     * @param cityId the city id
      */
-
     function addMerchantToCity(uint32 tokenId, uint8 cityId) external view {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
-        require(dwarfs_nft.getTokenTraits(tokenId).isMerchant == true, "The token must be a Merchant");
-        require(mapTokenInfo[tokenId].cityId == 0, "The Merchant must be out of a city");
+        require(
+            dwarfs_nft.getTokenTraits(tokenId).isMerchant == true,
+            "The token must be a Merchant"
+        );
+        require(
+            mapTokenInfo[tokenId].cityId == 0,
+            "The Merchant must be out of a city"
+        );
 
         mapTokenInfo[tokenId].cityId = cityId;
     }
-    
-    /**
-     * Calcualte the current available balance to claim
-     */
-     function calcAvailableBalance(uint32 tokenId) internal view returns (uint256 availableBalance) {
-         TokenInfo memory _tokenInfo = mapTokenInfo[tokenId];
-         availableBalance = _tokenInfo.availableBalance;
-         uint8 cityId = _tokenInfo.cityId;
-         uint8 playingGame = (_tokenInfo.cityId > 0 && bMerchantGamePlaying == true) ? 1 : 0;
-         uint256 addedBalance = _tokenInfo.currentInvestedAmount * playingGame * (block.timestamp - _tokenInfo.lastInvestedTime) * DAILY_GOD_RATE / 100 / 1 days;
-         availableBalance += addedBalance;
 
-         return availableBalance;
-     }
     /**
-     * Invest GODs
+     * @dev Calcualte the current available balance to claim
+     * @param tokenId the token id to calculate the available balance
+     */
+    function calcAvailableBalance(uint32 tokenId)
+        internal
+        view
+        returns (uint256 availableBalance)
+    {
+        TokenInfo memory _tokenInfo = mapTokenInfo[tokenId];
+        availableBalance = _tokenInfo.availableBalance;
+        uint8 cityId = _tokenInfo.cityId;
+        uint8 playingGame = (_tokenInfo.cityId > 0 &&
+            bMerchantGamePlaying == true)
+            ? 1
+            : 0;
+        uint256 addedBalance = (_tokenInfo.currentInvestedAmount *
+            playingGame *
+            (block.timestamp - _tokenInfo.lastInvestedTime) *
+            DAILY_GOD_RATE) /
+            100 /
+            1 days;
+        availableBalance += addedBalance;
+
+        return availableBalance;
+    }
+
+    /**
+     * @dev Invest GODs
+     * @param tokenId the token id to invest god
+     * @param godAmount the invest amount
      */
     function investGods(uint32 tokenId, uint256 godAmount) external {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
-        require(dwarfs_nft.getTokenTraits(tokenId).isMerchant == true, "The token must be a Merchant");
-        require(godAmount >= MIN_INVESTED_AMOUNT, "The GOD investing amount is too small.");
+        require(
+            dwarfs_nft.getTokenTraits(tokenId).isMerchant == true,
+            "The token must be a Merchant"
+        );
+        require(
+            godAmount >= MIN_INVESTED_AMOUNT,
+            "The GOD investing amount is too small."
+        );
 
         god.burn(_msgSender(), godAmount);
         mapTokenInfo[tokenId].availableBalance = calcAvailableBalance(tokenId);
@@ -176,14 +218,19 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         mapTokenInfo[tokenId].lastInvestedTime = block.timestamp;
 
         remainingGodAmount += godAmount;
-        emit TokenInvested(tokenId, godAmount, mapTokenInfo[tokenId].lastInvestedTime);
+        emit TokenInvested(
+            tokenId,
+            godAmount,
+            mapTokenInfo[tokenId].lastInvestedTime
+        );
     }
 
     /** CLAIMING / RISKY */
     /**
-     * realize $GOD earnings and optionally unstake tokens from the Clan (Cities)
+     * @dev realize $GOD earnings and optionally unstake tokens from the Clan (Cities)
      * to unstake a Merchant it will require it has 2 days worth of $GOD unclaimed
      * @param tokenIds the IDs of the tokens to claim earnings from
+     * @param bRisk the risky game flag (enable/disable)
      */
     function claimManyFromClan(uint32[] calldata tokenIds, bool bRisk)
         external
@@ -219,10 +266,11 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     }
 
     /**
-     * realize $GOD earnings for a single Merchant and optionally unstake it
+     * @dev realize $GOD earnings for a single Merchant and optionally unstake it
      * if not unstaking, pay a 20% tax to the staked Mobsters
      * if unstaking, there is a 50% chance all $GOD is stolen
      * @param tokenId the ID of the Merchant to claim earnings from
+     * @param bRisk the risky game flag
      * @return owed - the amount of $GOD earned
      */
     function _claimMerchantFromCity(uint32 tokenId, bool bRisk)
@@ -236,7 +284,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         if (mapTokenInfo[tokenId].cityId == 0) {
             // This token is out of city.
             return owed;
-        } 
+        }
 
         if (bRisk == true) {
             // risky game
@@ -246,21 +294,24 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
                 owed = 0;
             }
         } else {
-            _distributeTaxes(mapTokenInfo[tokenId].cityId, (owed * TAX_PERCENT) / 100);
+            _distributeTaxes(
+                mapTokenInfo[tokenId].cityId,
+                (owed * TAX_PERCENT) / 100
+            );
             casinoVault += (owed * CASINO_VAULT_PERCENT) / 100;
-            owed =
-                (owed *
-                    (100 -
-                        TAX_PERCENT -
-                        CASINO_VAULT_PERCENT)) /
-                100;
+            owed = (owed * (100 - TAX_PERCENT - CASINO_VAULT_PERCENT)) / 100;
         }
 
         mapTokenInfo[tokenId].cityId = 0;
-        
+
         emit MerchantClaimed(tokenId, owed);
     }
 
+    /**
+     * @dev distribute the taxes to mobsters in city
+     * @param cityId the city id
+     * @param amount the tax amount to distribute
+     */
     function _distributeTaxes(uint8 cityId, uint256 amount) internal {
         for (uint16 i = 0; i < mapCityMobsters[cityId].length; i++) {
             uint32 mobsterId = mapCityMobsters[cityId][i];
@@ -275,7 +326,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     }
 
     /**
-     * realize $GOD earnings for a single Mobster and optionally unstake it
+     * @dev realize $GOD earnings for a single Mobster
      * Mobsters earn $GOD proportional to their Alpha rank
      * @param tokenId the ID of the Mobster to claim earnings from
      * @return owed - the amount of $GOD earned
@@ -293,9 +344,8 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     }
 
     /**
-     * realize $GOD earnings for a single Mobster and optionally unstake it
-     * Mobsters earn $GOD proportional to their Alpha rank
-     * @param tokenId the ID of the merchants to claim earnings from casinos
+     * @dev realize $GOD earnings by casino game
+     * @param tokenId the token id to play the casino game
      */
     function claimFromCasino(uint32 tokenId) external whenNotPaused {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "Invalid Owner");
@@ -317,39 +367,61 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
 
     /** ADMIN */
     /**
-     * enables owner to pause / unpause minting
+     * @dev enables owner to pause / unpause minting
+     * @param _paused the flag to pause or unpause
      */
     function setPaused(bool _paused) external onlyOwner {
         if (_paused) _pause();
         else _unpause();
     }
 
+    /**
+     * @dev get max number of cities of each generation
+     * @return number of city array
+     */
     function getMaxNumCityOfGen() external view returns (uint8[] memory) {
         return MAX_NUM_CITY;
     }
 
+    /**
+     * @dev set max number of cities of each generation
+     * @param maxCity the number of city array
+     */
     function setMaxNumCityOfGen(uint8[] memory maxCity) external onlyOwner {
         require(maxCity.length == MAX_NUM_CITY.length, "Invalid parameters");
         for (uint8 i = 0; i < maxCity.length; i++) {
-             MAX_NUM_CITY[i] = maxCity[i];
+            MAX_NUM_CITY[i] = maxCity[i];
         }
     }
 
-    /* Get the available city id */
+    /**
+     * @dev Get the available city id
+     * @return the available city id
+     */
     function getAvailableCity() internal view returns (uint8) {
         uint8 cityId = 1;
-        while(true) {
-            uint16[] memory _maxDwarfsPerCity = dwarfs_nft.setMaxDwarfsPerCity();
-            if (mapCityMobsters[cityId].length < (_maxDwarfsPerCity[1] + _maxDwarfsPerCity[2] + _maxDwarfsPerCity[3] + _maxDwarfsPerCity[4])) {
+        while (true) {
+            uint16[] memory _maxDwarfsPerCity = dwarfs_nft
+                .setMaxDwarfsPerCity();
+            if (
+                mapCityMobsters[cityId].length <
+                (_maxDwarfsPerCity[1] +
+                    _maxDwarfsPerCity[2] +
+                    _maxDwarfsPerCity[3] +
+                    _maxDwarfsPerCity[4])
+            ) {
                 return cityId;
             }
             cityId++;
         }
-        
+
         return cityId;
     }
 
-    /* Get the number of mobsters in city */
+    /**
+     * @dev Get the number of mobsters in city
+     * @return the number of mobsters array
+     */
     function getNumMobstersOfCity(uint8 cityId)
         public
         view
@@ -361,14 +433,182 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
             alphaIndex = dwarfs_nft
                 .getTokenTraits(mapCityMobsters[cityId][i])
                 .alphaIndex;
-            _numOfMobstersOfCity[alphaIndex - 5]++; 
+            _numOfMobstersOfCity[alphaIndex - 5]++;
         }
 
         return _numOfMobstersOfCity;
     }
 
     /**
-     * generates a pseudorandom number
+     * @dev Get the daily god earning rate
+     * @return the daily god earning rate
+     */
+    function getDailyGodRate() public returns (uint8) {
+        return DAILY_GOD_RATE;
+    }
+
+    /**
+     * @dev set the daily god earning rate
+     * @param _dailyGodRate the daily god earning rate
+     */
+    function setDailyGodRate(uint8 _dailyGodRate) public {
+        DAILY_GOD_RATE = _dailyGodRate;
+    }
+
+    /**
+     * @dev Get the tax percent of a merchant
+     * @return the tax percent
+     */
+    function getTaxPercent() public returns (uint8) {
+        return TAX_PERCENT;
+    }
+
+    /**
+     * @dev set the tax percent of a merchant
+     * @param _taxPercent the tax percent
+     */
+    function setTaxPercent(uint8 _taxPercent) public {
+        TAX_PERCENT = _taxPercent;
+    }
+
+    /**
+     * @dev Get the casino vault percent of a merchant
+     * @return the vault percent
+     */
+    function getCasinoVaultPercent() public returns (uint8) {
+        return CASINO_VAULT_PERCENT;
+    }
+
+    /**
+     * @dev set the casino vault percent of a merchant
+     * @param _casinoVaultPercent the vault percent
+     */
+    function setCasinoVaultPercent(uint8 _casinoVaultPercent) public {
+        CASINO_VAULT_PERCENT = _casinoVaultPercent;
+    }
+
+    /**
+     * @dev Get the max global god amount
+     * @return the god amount
+     */
+    function getMaxGlobalGodAmount() public returns (uint256) {
+        return MAXIMUM_GLOBAL_GOD;
+    }
+
+    /**
+     * @dev set the max global god amount
+     * @param _maxGlobalGod the god amount
+     */
+    function setMaxGlobalGodAmount(uint8 _maxGlobalGod) public {
+        MAXIMUM_GLOBAL_GOD = _maxGlobalGod;
+    }
+
+    /**
+     * @dev Get the initial god amount of a merchant
+     * @return the god amount
+     */
+    function getInitialGodAmount() public returns (uint256) {
+        return INITIAL_GOD_AMOUNT;
+    }
+
+    /**
+     * @dev set the initial god amount of a merchant
+     * @param _initialGodAmount the god amount
+     */
+    function setInitialGodAmount(uint8 _initialGodAmount) public {
+        INITIAL_GOD_AMOUNT = _initialGodAmount;
+    }
+
+    /**
+     * @dev Get the min god amount for investing
+     * @return the god amount
+     */
+    function getMinInvestedAmount() public returns (uint256) {
+        return MIN_INVESTED_AMOUNT;
+    }
+
+    /**
+     * @dev set the min god amount for investing
+     * @param _minInvestedAmount the god amount
+     */
+    function setMinInvestedAmount(uint256 _minInvestedAmount) public {
+        MIN_INVESTED_AMOUNT = _minInvestedAmount;
+    }
+
+    /**
+     * @dev Get the requested god in casino
+     * @return the god amount
+     */
+    function getRequestedGodCasino() public returns (uint256) {
+        return REQUESTED_GOD_CASINO;
+    }
+
+    /**
+     * @dev set the requested god in casino
+     * @param _requestedGodCasino the god amount
+     */
+    function setRequestedGodCasino(uint256 _requestedGodCasino) public {
+        REQUESTED_GOD_CASINO = _requestedGodCasino;
+    }
+
+    /**
+     * @dev Get the mobster profit percent (dwarfsoldier, dwarfcapos, boss and dwarfather)
+     * @return the percent array
+     */
+    function getMobsterProfitPercent() public returns (uint8[] memory) {
+        return mobsterProfitPercent;
+    }
+
+    /**
+     * @dev set the mobster profit percent (dwarfsoldier, dwarfcapos, boss and dwarfather)
+     * @param _mobsterProfits the percent array
+     */
+    function setMobsterProfitPercent(uint8[] memory _mobsterProfits) public {
+        mobsterProfitPercent = _mobsterProfits;
+    }
+
+    /**
+     * @dev Get the total number of tokens
+     * @return the number of tokens
+     */
+    function getTotalNumberOfTokens() public returns (uint256) {
+        return totalNumberOfTokens;
+    }
+
+    /**
+     * @dev get the Dwarf NFT address
+     * @return the Dwarf NFT address
+     */
+    function getDwarfNFT() external returns (address) {
+        return dwarfs_nft;
+    }
+
+    /**
+     * @dev set the Dwarf NFT address
+     * @param _dwarfNFT the Dwarf NFT address
+     */
+    function setDwarfNFT(address _dwarfNFT) external onlyOwner {
+        dwarfs_nft = IDwarfs_NFT(_dwarfNFT);
+    }
+
+    /**
+     * @dev get the GOD address
+     * @return the GOD address
+     */
+    function getGod() external returns (address) {
+        return god;
+    }
+
+    /**
+     * @dev set the GOD address
+     * @param _god the GOD address
+     */
+    function setGod(address _god) external onlyOwner {
+        god = GOD(_god);
+    }
+
+    /**
+     * @dev generates a pseudorandom number
      * @param seed a value ensure different outcomes for different sources in the same block
      * @return a pseudorandom value
      */
