@@ -725,7 +725,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         if (bytes(_tokenURI).length > 0) {
             return string(abi.encodePacked(baseURI, _tokenURI, ".json"));
         }
-        // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
+        // If there is a baseURI but no tokenURI, concatenate the tokenId to the baseURI.
         return string(abi.encodePacked(baseURI, tokenId.toString(), ".json"));
     }
 

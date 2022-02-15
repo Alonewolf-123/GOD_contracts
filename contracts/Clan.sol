@@ -15,15 +15,16 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
 
     // struct to store a token information
     struct TokenInfo {
-        uint16 tokenId;
+        uint32 tokenId;
+        uint8 cityId;
         uint256 availableBalance;
         uint256 currentInvestedAmount;
         uint80 lastInvestedTime;
     }
 
-    event TokenInvested(uint256 tokenId, uint256 lastInvestedTime);
-    event MerchantClaimed(uint256 tokenId, uint256 earned);
-    event MobsterClaimed(uint256 tokenId, uint256 earned);
+    event TokenInvested(uint32 tokenId, uint256 investedAmount, uint80 lastInvestedTime);
+    event MerchantClaimed(uint32 tokenId, uint256 earned);
+    event MobsterClaimed(uint32 tokenId, uint256 earned);
 
     // reference to the Dwarfs_NFT NFT contract
     Dwarfs_NFT dwarfs_nft;
@@ -35,22 +36,22 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     mapping(uint32 => bool) private mapTokenExisted;
 
     // merchant earn 1% of investment of $GOD per day
-    uint256 private constant DAILY_GOD_RATE = 1;
-
-    // riskygame merchant must have 2 days worth of $GOD to unstake or else it's too cold
-    uint256 private constant MIN_TO_EXIT_RISKY = 2 days;
+    uint8 private constant DAILY_GOD_RATE = 1;
 
     // mobsters take 15% on all $GOD claimed
-    uint256 private constant GOD_CLAIM_TAX_PERCENTAGE = 15;
+    uint8 private constant GOD_CLAIM_TAX_PERCENTAGE = 15;
 
     // casino vault take 5% on all $GOD claimed
-    uint256 private constant CASINO_VAULT_PERCENTAGE = 5;
+    uint8 private constant CASINO_VAULT_PERCENTAGE = 5;
 
     // there will only ever be (roughly) 2.4 billion $GOD earned through staking
     uint256 private constant MAXIMUM_GLOBAL_GOD = 2400000000 ether;
 
     // initial Balance of a new Merchant
     uint256 private constant INITIAL_GOD_AMOUNT = 100000 ether;
+
+    // minimum GOD invested amount
+    uint256 private constant MIN_INVESTED_AMOUNT = 1000 ether;
 
     // requested god amount for casino play
     uint256 private constant REQUESTED_GOD_CASINO = 1000 ether;
@@ -62,7 +63,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     uint256 private casinoVault = 0;
 
     // profit percent of each mobster; x 0.1 %
-    uint256[] private mobsterProfits = [29, 14, 7, 4];
+    uint8[] private mobsterProfits = [29, 14, 7, 4];
 
     /**
      * @param _dwarfs_nft reference to the Dwarfs_NFT NFT contract
@@ -92,7 +93,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
             _msgSender() == address(dwarfs_nft),
             "Caller Must Be Dwarfs NFT Contract"
         );
-        for (uint256 i = 0; i < tokenIds.length; i++) {
+        for (uint16 i = 0; i < tokenIds.length; i++) {
             _addToCity(tokenIds[i]);
         }
     }
@@ -103,61 +104,47 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @param tokenId the ID of the Merchant to add to the Clan
      */
     function _addToCity(
-        uint16 tokenId
+        uint32 tokenId
     ) internal whenNotPaused {
+        require(mapTokenExisted[tokenId] == false, "The token has been added to the clan already");
+
         IDwarfs_NFT.DwarfTrait memory t = dwarfs_nft.getTokenTraits(tokenId);
-        if (mapTokenExisted[tokenId] == false) {
-            mapTokenInfo[tokenId].push(
-                TokenInfo({
-                    tokenId: tokenId,
-                    availableBalance: 
-                    timestamp: uint80(block.timestamp)
-                })
-            );
-            mapTokenExisted[tokenId] = true;
-        }
-        
-        
 
-        emit TokenInvested(tokenId, block.timestamp);
-    }
+        TokenInfo memory _tokenInfo;
+        _tokenInfo.tokenId = tokenId;
+        _tokenInfo.cityId = t.cityId;
+        _tokenInfo.availableBalance = t.isMerchant ? INITIAL_GOD_AMOUNT : 0;
+        _tokenInfo.currentInvestedAmount = _tokenInfo.availableBalance;
+        _tokenInfo.lastInvestedTime = block.timestamp;
+        mapTokenInfo[tokenId] = _tokenInfo;
+        mapTokenExisted[tokenId] = true;
 
-    function getStackIndexByTokenId(uint16 tokenId, uint8 cityId)
-        internal
-        view
-        returns (uint256 index)
-    {
-        require(mapTokenExisted[tokenId] == true, "No existed token");
-        for (uint256 i = 0; i < mapTokenInfo[cityId].length; i++) {
-            if (mapTokenInfo[cityId][i].tokenId == tokenId) {
-                return index;
-            }
-        }
+        emit TokenInvested(tokenId, _tokenInfo.currentInvestedAmount, block.timestamp);
     }
 
     /**
+     * Calcualte the current available balance to claim
+     */
+     function calcAvailableBalance(uint32 tokenId) internal view returns (uint256 availableBalance) {
+         TokenInfo memory _tokenInfo = mapTokenInfo[tokenId];
+         availableBalance = _tokenInfo.availableBalance;
+         uint256 addedBalance = _tokenInfo.currentInvestedAmount * (block.timestamp - _tokenInfo.lastInvestedTime) * DAILY_GOD_RATE / 100 / 1 days;
+         availableBalance += addedBalance;
+
+         return availableBalance;
+     }
+    /**
      * Invest GODs
      */
-    function investGods(uint16 tokenId, uint256 godAmount) external {
+    function investGods(uint32 tokenId, uint256 godAmount) external {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
+        require(dwarfs_nft.getTokenTraits(tokenId).isMerchant == true, "The token must be a Merchant");
+        require(godAmount >= MIN_INVESTED_AMOUNT, "The GOD investing amount is too small.");
 
         god.burn(_msgSender(), godAmount);
-        uint8 cityId = dwarfs_nft.getTokenTraits(tokenId).cityId;
-        Stake memory stake = mapTokenInfo[cityId][
-            getStackIndexByTokenId(tokenId, cityId)
-        ];
-        dwarfsRewards[tokenId] +=
-            ((
-                (uint80(block.timestamp) - stake.timestamp) * gods[tokenId] == 0
-                    ? INITIAL_GOD_AMOUNT
-                    : gods[tokenId] * DAILY_GOD_RATE
-            ) / 100) /
-            1 days;
-
-        stake.timestamp = uint80(block.timestamp);
-        gods[tokenId] == 0
-            ? gods[tokenId] = INITIAL_GOD_AMOUNT + godAmount
-            : gods[tokenId] += godAmount;
+        mapTokenInfo[tokenId].availableBalance = calcAvailableBalance(tokenId);
+        mapTokenInfo[tokenId].currentInvestedAmount += godAmount;
+        mapTokenInfo[tokenId].lastInvestedTime = block.timestamp;
     }
 
     /** CLAIMING / RISKY */
@@ -166,7 +153,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * to unstake a Merchant it will require it has 2 days worth of $GOD unclaimed
      * @param tokenIds the IDs of the tokens to claim earnings from
      */
-    function claimManyFromClan(uint16[] calldata tokenIds, bool isRisky)
+    function claimManyFromClan(uint32[] calldata tokenIds, bool bRisk)
         external
         whenNotPaused
     {
@@ -174,17 +161,18 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         for (uint256 i = 0; i < tokenIds.length; i++) {
             require(
                 mapTokenExisted[tokenIds[i]] == true,
-                "No existed token"
+                "The token isn't existed in the clan"
             );
 
             if (dwarfs_nft.getTokenTraits(tokenIds[i]).isMerchant)
-                owed += _claimMerchantFromCity(tokenIds[i], isRisky);
+                owed += _claimMerchantFromCity(tokenIds[i], bRisk);
             else owed += _claimMobsterFromCity(tokenIds[i]);
         }
 
         if (owed == 0) return;
 
         totalGodEarned += owed;
+        require(totalGodEarned <= MAXIMUM_GLOBAL_GOD, "LIMIT GOD ERROR");
         god.mint(_msgSender(), owed);
     }
 
@@ -195,21 +183,11 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @param tokenId the ID of the Merchant to claim earnings from
      * @return owed - the amount of $GOD earned
      */
-    function _claimMerchantFromCity(uint16 tokenId, bool isRisky)
+    function _claimMerchantFromCity(uint32 tokenId, bool bRisk)
         internal
         returns (uint256 owed)
     {
-        uint8 cityId = dwarfs_nft.getTokenTraits(tokenId).cityId;
-        uint256 index = getStackIndexByTokenId(tokenId, cityId);
-        Stake memory stake = mapTokenInfo[cityId][index];
-        require(stake.owner == _msgSender(), "SWIPER, NO SWIPING");
-        require(totalGodEarned < MAXIMUM_GLOBAL_GOD, "LIMIT GOD ERROR");
-        if (isRisky == true) {
-            require(
-                block.timestamp - stake.timestamp < MIN_TO_EXIT_RISKY,
-                "LIMIT EXIT TIME 2DAYS"
-            );
-        }
+        require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
 
         owed +=
             ((
@@ -222,7 +200,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         dwarfsRewards[tokenId] = 0;
 
         uint256 m_dwarfsRewards = 0;
-        if (isRisky == true) {
+        if (bRisk == true) {
             // risky game
             if (random(tokenId) & 1 == 1) {
                 // 50%
