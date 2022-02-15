@@ -31,8 +31,8 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     // reference to the $GOD contract for minting $GOD earnings
     GOD god;
 
-    mapping(uint16 => TokenInfo) private mapTokenInfo;
-    mapping(uint16 => bool) private mapTokenExisted;
+    mapping(uint32 => TokenInfo) private mapTokenInfo;
+    mapping(uint32 => bool) private mapTokenExisted;
 
     // merchant earn 1% of investment of $GOD per day
     uint256 private constant DAILY_GOD_RATE = 1;
@@ -93,7 +93,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
             "Caller Must Be Dwarfs NFT Contract"
         );
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            _addToCity(account, tokenIds[i], cityId);
+            _addToCity(tokenIds[i]);
         }
     }
 
@@ -103,21 +103,23 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @param tokenId the ID of the Merchant to add to the Clan
      */
     function _addToCity(
-        address account,
-        uint16 tokenId,
-        uint8 cityId
+        uint16 tokenId
     ) internal whenNotPaused {
         IDwarfs_NFT.DwarfTrait memory t = dwarfs_nft.getTokenTraits(tokenId);
-        mapTokenExisted[tokenId] = true;
-        mapTokenInfo[t.isMerchant ? cityId : t.cityId].push(
-            Stake({
-                owner: account,
-                tokenId: tokenId,
-                timestamp: uint80(block.timestamp)
-            })
-        );
+        if (mapTokenExisted[tokenId] == false) {
+            mapTokenInfo[tokenId].push(
+                TokenInfo({
+                    tokenId: tokenId,
+                    availableBalance: 
+                    timestamp: uint80(block.timestamp)
+                })
+            );
+            mapTokenExisted[tokenId] = true;
+        }
+        
+        
 
-        emit TokenStaked(account, tokenId, block.timestamp);
+        emit TokenInvested(tokenId, block.timestamp);
     }
 
     function getStackIndexByTokenId(uint16 tokenId, uint8 cityId)

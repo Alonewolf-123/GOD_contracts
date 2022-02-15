@@ -30,22 +30,22 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     ];
 
     // max number of tokens that can be minted in each phase- 20000 in production
-    uint256[] private MAX_GEN_TOKENS = [8000, 12000, 16000, 20000];
+    uint32[] private MAX_GEN_TOKENS = [8000, 12000, 16000, 20000];
 
     // sold amount percent by eth (50%)
-    uint256 private MAX_TOKENS_ETH_SOLD = 50;
+    uint16 private MAX_TOKENS_ETH_SOLD = 50;
 
     // number of dwarfs in a city
     uint16[] private MAX_DWARFS_CITY = [1133, 150, 45, 4, 1];
 
     // number of tokens have been minted so far
-    uint16 public minted;
+    uint32 public minted;
 
     // mapping from tokenId to a struct containing the token's traits
-    mapping(uint256 => DwarfTrait) private mapTokenTraits;
+    mapping(uint32 => DwarfTrait) private mapTokenTraits;
     // mapping from hashed(tokenTrait) to the tokenId it's associated with
     // used to ensure there are no duplicates
-    mapping(uint256 => uint256) private mapTraithashToken;
+    mapping(uint256 => uint32) private mapTraithashToken;
 
     // reference to the Clan
     IClan public clan;
@@ -82,7 +82,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     uint8 private totalBosses = 1;
 
     // the rest number of dwarfs in the current city
-    uint256 totalDwarfsPerCity = 1333;
+    uint16 totalDwarfsPerCity = 1333;
 
     // static boss traits
     DwarfTrait[] private bossTraits;
@@ -102,12 +102,12 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     /**
      * mint a token by owner
      */
-    function mintByOwner(uint256 amount, DwarfTrait[] memory s)
+    function mintByOwner(uint16 amount, DwarfTrait[] memory s)
         external
         onlyOwner
     {
         require(s.length == amount, "Invalid parameter");
-        for (uint256 i = 0; i < amount; i++) {
+        for (uint16 i = 0; i < amount; i++) {
             if (mapTraithashToken[getTraitHash(s[i])] == 0) {
                 minted++;
                 mapTokenTraits[minted] = s[i];
@@ -238,7 +238,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      * @param tokenId the ID to check the cost of to mint
      * @return the GOD cost of the given token ID
      */
-    function mintCost(uint256 tokenId) public view returns (uint256) {
+    function mintCost(uint32 tokenId) public view returns (uint256) {
         if (tokenId <= MAX_GEN_TOKENS[0]) return MINT_GOD_PRICES[0];
         else if (
             tokenId <=
@@ -277,7 +277,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     function transferFrom(
         address from,
         address to,
-        uint256 tokenId
+        uint32 tokenId
     ) public virtual override {
         require(
             _isApprovedOrOwner(_msgSender(), tokenId),
@@ -289,7 +289,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     /** 
      * The rest of Dwarfs will be Merchant in each generation
      */
-    function isConstantMerchant(uint256 tokenId) internal view returns (bool) {
+    function isConstantMerchant(uint32 tokenId) internal view returns (bool) {
         if (
             tokenId > getMaxDwarfsPerCity() * (clan.getMaxNumCityOfGen()[generationOfNft]) &&
             tokenId <= MAX_GEN_TOKENS[generationOfNft]
@@ -306,7 +306,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      * @param seed a pseudorandom 256 bit number to derive traits from
      * @return t - a struct of traits for the given token ID
      */
-    function generate(uint256 tokenId, uint256 seed)
+    function generate(uint32 tokenId, uint256 seed)
         internal
         returns (DwarfTrait memory t)
     {
@@ -584,11 +584,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      * set the ETH percent
      * @param _percent the percent of ETH
      */
-    function setEthSoldPercent(uint256 _percent) external onlyOwner {
+    function setEthSoldPercent(uint16 _percent) external onlyOwner {
         MAX_TOKENS_ETH_SOLD = _percent;
     }
 
-    function getEthSoldPercent() external view returns (uint256 _percent) {
+    function getEthSoldPercent() external view returns (uint16 _percent) {
         return MAX_TOKENS_ETH_SOLD;
     }
 
@@ -614,7 +614,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         return MAX_TRAITS;
     }
 
-    function getMaxDwarfsPerCity() internal view returns (uint16) {
+    function getMaxDwarfsPerCity() internal view returns (uint32) {
         return
             MAX_DWARFS_CITY[0] +
             MAX_DWARFS_CITY[1] +
@@ -636,7 +636,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         }
     }
 
-    function setBossTraits(DwarfTrait memory traits, uint8 index)
+    function setBossTraits(DwarfTrait memory traits, uint16 index)
         external
         onlyOwner
     {
@@ -682,7 +682,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /** RENDER */
-    function tokenURI(uint256 tokenId)
+    function tokenURI(uint32 tokenId)
         public
         view
         override
