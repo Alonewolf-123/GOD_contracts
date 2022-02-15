@@ -636,14 +636,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         }
     }
 
-    function getMaxMobsters()
-        external
-        view
-        returns (uint16[] memory maxValues)
-    {
-        return MAX_DWARFS_CITY;
-    }
-
     function setBossTraits(DwarfTrait memory traits, uint8 index)
         external
         onlyOwner

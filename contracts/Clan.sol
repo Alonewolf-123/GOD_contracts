@@ -331,7 +331,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         else _unpause();
     }
 
-    function getMaxNumCity() external view returns (uint8) {
+    function getMaxNumCityOfGen() external view returns (uint8) {
         return MAX_NUM_CITY;
     }
 
