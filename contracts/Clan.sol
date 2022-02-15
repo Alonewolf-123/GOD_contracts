@@ -33,16 +33,22 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     GOD god;
 
     mapping(uint32 => TokenInfo) private mapTokenInfo;
-    mapping(uint32 => bool) private mapTokenExisted;
+    mapping(uint32 => bool) private mapTokenExisted; 
+
+    // total number of tokens in the clan
+    uint32 private totalNumberOfTokens = 0;
+
+    // map of mobster IDs for cityId
+    mapping(uint8 => uint32[]) private mapCityMobsters;
 
     // merchant earn 1% of investment of $GOD per day
     uint8 private constant DAILY_GOD_RATE = 1;
 
     // mobsters take 15% on all $GOD claimed
-    uint8 private constant GOD_CLAIM_TAX_PERCENTAGE = 15;
+    uint8 private constant TAX_PERCENT = 15;
 
     // casino vault take 5% on all $GOD claimed
-    uint8 private constant CASINO_VAULT_PERCENTAGE = 5;
+    uint8 private constant CASINO_VAULT_PERCENT = 5;
 
     // there will only ever be (roughly) 2.4 billion $GOD earned through staking
     uint256 private constant MAXIMUM_GLOBAL_GOD = 2400000000 ether;
@@ -57,13 +63,16 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     uint256 private constant REQUESTED_GOD_CASINO = 1000 ether;
 
     // amount of $GOD earned so far
-    uint256 private totalGodEarned = 0;
+    uint256 private remainingGodAmount = MAXIMUM_GLOBAL_GOD;
 
     // amount of casino vault $GOD
     uint256 private casinoVault = 0;
 
     // profit percent of each mobster; x 0.1 %
-    uint8[] private mobsterProfits = [29, 14, 7, 4];
+    uint8[] private mobsterProfitPercent = [4, 7, 14, 29];
+
+    // playing merchant game enabled
+    bool private bMerchantGamePlaying = true;
 
     /**
      * @param _dwarfs_nft reference to the Dwarfs_NFT NFT contract
@@ -87,7 +96,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @param tokenIds the IDs of the Merchant and Mobsters to stake
      */
     function addManyToClan(
-        uint16[] calldata tokenIds
+        uint32[] calldata tokenIds
     ) external {
         require(
             _msgSender() == address(dwarfs_nft),
@@ -110,25 +119,45 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
 
         IDwarfs_NFT.DwarfTrait memory t = dwarfs_nft.getTokenTraits(tokenId);
 
+        // Add a mobster to a city
+        if (t.isMerchant == false) {
+            mapCityMobsters[t.cityId].push(tokenId);
+        }
+
         TokenInfo memory _tokenInfo;
         _tokenInfo.tokenId = tokenId;
         _tokenInfo.cityId = t.cityId;
-        _tokenInfo.availableBalance = t.isMerchant ? INITIAL_GOD_AMOUNT : 0;
+        _tokenInfo.availableBalance = (t.isMerchant ? INITIAL_GOD_AMOUNT : 0);
         _tokenInfo.currentInvestedAmount = _tokenInfo.availableBalance;
         _tokenInfo.lastInvestedTime = block.timestamp;
         mapTokenInfo[tokenId] = _tokenInfo;
         mapTokenExisted[tokenId] = true;
+        totalNumberOfTokens++;
 
-        emit TokenInvested(tokenId, _tokenInfo.currentInvestedAmount, block.timestamp);
+        remainingGodAmount += _tokenInfo.currentInvestedAmount;
+        emit TokenInvested(tokenId, _tokenInfo.currentInvestedAmount, _tokenInfo.lastInvestedTime);
     }
 
+    /**
+     */
+
+    function addMerchantToCity(uint32 tokenId, uint8 cityId) external view {
+        require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
+        require(dwarfs_nft.getTokenTraits(tokenId).isMerchant == true, "The token must be a Merchant");
+        require(mapTokenInfo[tokenId].cityId == 0, "The Merchant must be out of a city");
+
+        mapTokenInfo[tokenId].cityId = cityId;
+    }
+    
     /**
      * Calcualte the current available balance to claim
      */
      function calcAvailableBalance(uint32 tokenId) internal view returns (uint256 availableBalance) {
          TokenInfo memory _tokenInfo = mapTokenInfo[tokenId];
          availableBalance = _tokenInfo.availableBalance;
-         uint256 addedBalance = _tokenInfo.currentInvestedAmount * (block.timestamp - _tokenInfo.lastInvestedTime) * DAILY_GOD_RATE / 100 / 1 days;
+         uint8 cityId = _tokenInfo.cityId;
+         uint8 playingGame = (_tokenInfo.cityId > 0 && bMerchantGamePlaying == true) ? 1 : 0;
+         uint256 addedBalance = _tokenInfo.currentInvestedAmount * playingGame * (block.timestamp - _tokenInfo.lastInvestedTime) * DAILY_GOD_RATE / 100 / 1 days;
          availableBalance += addedBalance;
 
          return availableBalance;
@@ -145,6 +174,9 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         mapTokenInfo[tokenId].availableBalance = calcAvailableBalance(tokenId);
         mapTokenInfo[tokenId].currentInvestedAmount += godAmount;
         mapTokenInfo[tokenId].lastInvestedTime = block.timestamp;
+
+        remainingGodAmount += godAmount;
+        emit TokenInvested(tokenId, godAmount, mapTokenInfo[tokenId].lastInvestedTime);
     }
 
     /** CLAIMING / RISKY */
@@ -158,7 +190,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         whenNotPaused
     {
         uint256 owed = 0;
-        for (uint256 i = 0; i < tokenIds.length; i++) {
+        for (uint16 i = 0; i < tokenIds.length; i++) {
             require(
                 mapTokenExisted[tokenIds[i]] == true,
                 "The token isn't existed in the clan"
@@ -169,10 +201,20 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
             else owed += _claimMobsterFromCity(tokenIds[i]);
         }
 
-        if (owed == 0) return;
+        require(owed > 0, "There is no balance to claim");
 
-        totalGodEarned += owed;
-        require(totalGodEarned <= MAXIMUM_GLOBAL_GOD, "LIMIT GOD ERROR");
+        if (remainingGodAmount < owed) {
+            bMerchantGamePlaying = false;
+            remainingGodAmount = 0;
+        } else {
+            remainingGodAmount -= owed;
+        }
+
+        for (uint16 i = 0; i < tokenIds.length; i++) {
+            mapTokenInfo[tokenIds[i]].availableBalance = 0;
+            mapTokenInfo[tokenIds[i]].currentInvestedAmount = 0;
+            mapTokenInfo[tokenIds[i]].lastInvestedTime = block.timestamp;
+        }
         god.mint(_msgSender(), owed);
     }
 
@@ -189,48 +231,44 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
 
-        owed +=
-            ((
-                (uint80(block.timestamp) - stake.timestamp) * gods[tokenId] == 0
-                    ? INITIAL_GOD_AMOUNT
-                    : gods[tokenId] * DAILY_GOD_RATE
-            ) / 100) /
-            1 days +
-            dwarfsRewards[tokenId];
-        dwarfsRewards[tokenId] = 0;
+        owed = calcAvailableBalance(tokenId);
 
-        uint256 m_dwarfsRewards = 0;
+        if (mapTokenInfo[tokenId].cityId == 0) {
+            // This token is out of city.
+            return owed;
+        } 
+
         if (bRisk == true) {
             // risky game
-            if (random(tokenId) & 1 == 1) {
+            if (random(random(block.timestamp)) & 1 == 1) {
                 // 50%
-                m_dwarfsRewards += owed;
+                _distributeTaxes(mapTokenInfo[tokenId].cityId, owed);
                 owed = 0;
             }
         } else {
-            m_dwarfsRewards += (owed * GOD_CLAIM_TAX_PERCENTAGE) / 100;
-            casinoVault += (owed * CASINO_VAULT_PERCENTAGE) / 100;
+            _distributeTaxes(mapTokenInfo[tokenId].cityId, (owed * TAX_PERCENT) / 100);
+            casinoVault += (owed * CASINO_VAULT_PERCENT) / 100;
             owed =
                 (owed *
                     (100 -
-                        GOD_CLAIM_TAX_PERCENTAGE -
-                        CASINO_VAULT_PERCENTAGE)) /
+                        TAX_PERCENT -
+                        CASINO_VAULT_PERCENT)) /
                 100;
-            distributeToMobsters(cityId, m_dwarfsRewards);
         }
 
-        delete mapTokenInfo[cityId][index];
+        mapTokenInfo[tokenId].cityId = 0;
         
         emit MerchantClaimed(tokenId, owed);
     }
 
-    function distributeToMobsters(uint8 cityId, uint256 amount) internal {
-        uint16[] memory mobsters = getMobstersByCityId(cityId);
-        for (uint16 i = 0; i < mobsters.length; i++) {
-            dwarfsRewards[mobsters[i]] =
+    function _distributeTaxes(uint8 cityId, uint256 amount) internal {
+        for (uint16 i = 0; i < mapCityMobsters[cityId].length; i++) {
+            uint32 mobsterId = mapCityMobsters[cityId][i];
+
+            mapTokenInfo[mobsterId].availableBalance +=
                 (amount *
-                    mobsterProfits[
-                        dwarfs_nft.getTokenTraits(mobsters[i]).alphaIndex - 5
+                    mobsterProfitPercent[
+                        dwarfs_nft.getTokenTraits(mobsterId).alphaIndex - 5
                     ]) /
                 1000;
         }
@@ -242,14 +280,13 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @param tokenId the ID of the Mobster to claim earnings from
      * @return owed - the amount of $GOD earned
      */
-    function _claimMobsterFromCity(uint16 tokenId)
+    function _claimMobsterFromCity(uint32 tokenId)
         internal
         returns (uint256 owed)
     {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "Invalid Owner");
 
-        owed = dwarfsRewards[tokenId];
-        dwarfsRewards[tokenId] = 0;
+        owed = mapTokenInfo[tokenId].availableBalance;
 
         // Not implemented yet
         emit MobsterClaimed(tokenId, owed);
@@ -260,23 +297,21 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * Mobsters earn $GOD proportional to their Alpha rank
      * @param tokenId the ID of the merchants to claim earnings from casinos
      */
-    function claimFromCasino(uint16 tokenId) external whenNotPaused {
+    function claimFromCasino(uint32 tokenId) external whenNotPaused {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "Invalid Owner");
 
         uint256 owed = 0;
         god.burn(_msgSender(), REQUESTED_GOD_CASINO);
 
         casinoVault += REQUESTED_GOD_CASINO;
-        if ((random(tokenId) & 0xFFFF) % 100 == 0) {
-            // 1%
+        if ((random(random(block.timestamp)) & 0xFFFF) % 100 == 0) {
+            // 1% winning percent
             owed = casinoVault;
             casinoVault = 0;
         } else {
-            owed = 0;
-            // burn betting amount from the mobsters
+            return;
         }
 
-        if (owed == 0) return;
         god.mint(_msgSender(), owed);
     }
 
@@ -289,11 +324,11 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         else _unpause();
     }
 
-    function getMaxNumCityOfGen() external view returns (uint8) {
+    function getMaxNumCityOfGen() external view returns (uint8[] memory) {
         return MAX_NUM_CITY;
     }
 
-    function setMaxNumCityOfGen(uint8[] maxCity) external onlyOwner {
+    function setMaxNumCityOfGen(uint8[] memory maxCity) external onlyOwner {
         require(maxCity.length == MAX_NUM_CITY.length, "Invalid parameters");
         for (uint8 i = 0; i < maxCity.length; i++) {
              MAX_NUM_CITY[i] = maxCity[i];
@@ -302,60 +337,34 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
 
     /* Get the available city id */
     function getAvailableCity() internal view returns (uint8) {
-        for (uint8 i = 0; i < MAX_NUM_CITY; i++) {
-            if (mapTokenInfo[i].length < 200) {
-                return i;
+        uint8 cityId = 1;
+        while(true) {
+            uint16[] memory _maxDwarfsPerCity = dwarfs_nft.setMaxDwarfsPerCity();
+            if (mapCityMobsters[cityId].length < (_maxDwarfsPerCity[1] + _maxDwarfsPerCity[2] + _maxDwarfsPerCity[3] + _maxDwarfsPerCity[4])) {
+                return cityId;
             }
+            cityId++;
         }
-
-        return 0;
+        
+        return cityId;
     }
 
-    /**
-     * Get the mobster tokenIds by the city Id and alpha
-     */
-    function getMobstersByCityId(uint8 cityId)
+    /* Get the number of mobsters in city */
+    function getNumMobstersOfCity(uint8 cityId)
         public
         view
         returns (uint16[] memory)
     {
-        uint16[] memory numMobsters = getNumMobstersByCityId(cityId);
-        uint16[] memory tokenIds = new uint16[](
-            numMobsters[0] + numMobsters[1] + numMobsters[2] + numMobsters[3]
-        );
-        uint16 index = 0;
-        for (uint256 i = 0; i < mapTokenInfo[cityId].length; i++) {
-            if (
-                dwarfs_nft
-                    .getTokenTraits(mapTokenInfo[cityId][i].tokenId)
-                    .isMerchant == false
-            ) {
-                tokenIds[index] = mapTokenInfo[cityId][i].tokenId;
-                index++;
-            }
-        }
-
-        return tokenIds;
-    }
-
-    /* Get the number of boss in city */
-    function getNumMobstersByCityId(uint8 cityId)
-        public
-        view
-        returns (uint16[] memory)
-    {
-        uint16[] memory res = new uint16[](4);
-        uint8 alpha = 0;
-        for (uint16 i = 0; i < mapTokenInfo[cityId].length; i++) {
-            alpha = dwarfs_nft
-                .getTokenTraits(mapTokenInfo[cityId][i].tokenId)
+        uint16[] memory _numOfMobstersOfCity = new uint16[](4);
+        uint8 alphaIndex = 0;
+        for (uint32 i = 0; i < mapCityMobsters[cityId]; i++) {
+            alphaIndex = dwarfs_nft
+                .getTokenTraits(mapCityMobsters[cityId][i])
                 .alphaIndex;
-            if (alpha >= 5 && alpha <= 8) {
-                res[alpha - 5]++;
-            }
+            _numOfMobstersOfCity[alphaIndex - 5]++; 
         }
 
-        return res;
+        return _numOfMobstersOfCity;
     }
 
     /**

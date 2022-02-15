@@ -44,8 +44,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     uint256 private MAX_TOKENS_ETH_SOLD = 50;
 
     // number of dwarfs in a city
-    uint16[] private MAX_DWARFS_CITY = [
-        1133, // max merchants in a city
+    uint16[] private MAX_MOBSTERS_CITY = [
         150, // max dwarfsoldiers in a city
         45, // max dwarfcapos in a city
         4, // max boss in a city
@@ -90,13 +89,13 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     uint8 private cityId;
 
     // number of dwarfs in the current city
-    uint16[] private count_dwarfs = [0, 0, 0, 0, 0];
+    uint16[] private count_mobsters = [0, 0, 0, 0, 0];
 
     // current number of boss
     uint8 private totalBosses = 1;
 
     // the rest number of dwarfs in the current city
-    uint16 totalDwarfsPerCity = 1333;
+    uint16 remainMobstersOfCity = 1333;
 
     // static boss traits
     DwarfTrait[] private bossTraits;
@@ -226,7 +225,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         for (uint16 i = 0; i < amount; i++) {
             if (i == 0 || clan.getAvailableCity() != cityId) {
                 cityId = clan.getAvailableCity();
-                count_dwarfs = clan.getNumDwarfsByCityId(cityId);
+                count_mobsters = clan.getNumMobstersOfCity(cityId);
             }
 
             minted++;
@@ -302,12 +301,8 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      * @return if contant merchant, true or false
      */
     function isConstantMerchant(uint32 tokenId) internal view returns (bool) {
-        if (
-            tokenId >
-            getMaxDwarfsPerCity() *
-                (clan.getMaxNumCityOfGen()[generationOfNft]) &&
-            tokenId <= MAX_GEN_TOKENS[generationOfNft]
-        ) {
+        if (cityId > clan.getMaxNumCityOfGen()[generationOfNft] && tokenId <= MAX_GEN_TOKENS[generationOfNft])
+        {
             return true;
         }
 
@@ -341,16 +336,17 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
                 mapTokenTraits[tokenId] = t;
                 mapTraithashToken[getTraitHash(t)] = tokenId;
 
-                count_dwarfs[t.alphaIndex < 5 ? 0 : t.alphaIndex - 4]++;
+                if (t.isMerchant == false)
+                    count_mobsters[t.alphaIndex - 5]++;
+
                 if (bConstantMerchant == false) {
-                    totalDwarfsPerCity--;
-                    if (totalDwarfsPerCity == 0) {
-                        totalDwarfsPerCity =
-                            MAX_DWARFS_CITY[0] + // merchant
-                            MAX_DWARFS_CITY[1] + // dwarfsoldier
-                            MAX_DWARFS_CITY[2] + // dwarfcapos
-                            MAX_DWARFS_CITY[3] + // boss
-                            MAX_DWARFS_CITY[4]; // dwarfather
+                    remainMobstersOfCity--;
+                    if (remainMobstersOfCity <= 0) {
+                        remainMobstersOfCity =
+                            MAX_MOBSTERS_CITY[0] + // dwarfsoldier
+                            MAX_MOBSTERS_CITY[1] + // dwarfcapos
+                            MAX_MOBSTERS_CITY[2] + // boss
+                            MAX_MOBSTERS_CITY[3]; // dwarfather
                     }
                 }
 
@@ -370,7 +366,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         returns (uint8 alphaIndex)
     {
         uint256 cur_seed = random(seed);
-        bool isMerchant = (seed & 0xFFFF) % 100 >= 15;
+        bool isMerchant = (cur_seed & 0xFFFF) % 100 > 15;
 
         if (isMerchant == true) {
             return 0;
@@ -378,42 +374,30 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
             cur_seed = random(cur_seed);
 
             if (
-                (cur_seed & 0xFFFF) % totalDwarfsPerCity <
-                (MAX_DWARFS_CITY[4] - count_dwarfs[4]) // checking the dwarfather
+                (cur_seed & 0xFFFF) % remainMobstersOfCity <
+                (MAX_MOBSTERS_CITY[3] - count_mobsters[3]) // checking the dwarfather
             ) {
                 return 8;
             } else if (
-                (cur_seed & 0xFFFF) % totalDwarfsPerCity <
-                (MAX_DWARFS_CITY[3] +
-                    MAX_DWARFS_CITY[4] -
-                    count_dwarfs[3] -
-                    count_dwarfs[4]) // checking the boss
+                (cur_seed & 0xFFFF) % remainMobstersOfCity <
+                (MAX_MOBSTERS_CITY[2] +
+                    MAX_MOBSTERS_CITY[3] -
+                    count_mobsters[2] -
+                    count_mobsters[3]) // checking the boss
             ) {
                 return 7;
             } else if (
-                (cur_seed & 0xFFFF) % totalDwarfsPerCity <
-                (MAX_DWARFS_CITY[2] +
-                    MAX_DWARFS_CITY[3] +
-                    MAX_DWARFS_CITY[4] -
-                    count_dwarfs[2] -
-                    count_dwarfs[3] -
-                    count_dwarfs[4]) // checking the dwarfcapos
+                (cur_seed & 0xFFFF) % remainMobstersOfCity <
+                (MAX_MOBSTERS_CITY[1] +
+                    MAX_MOBSTERS_CITY[2] +
+                    MAX_MOBSTERS_CITY[3] -
+                    count_mobsters[1] -
+                    count_mobsters[2] -
+                    count_mobsters[3]) // checking the dwarfcapos
             ) {
                 return 6;
-            } else if (
-                (cur_seed & 0xFFFF) % totalDwarfsPerCity <
-                (MAX_DWARFS_CITY[1] +
-                    MAX_DWARFS_CITY[2] +
-                    MAX_DWARFS_CITY[3] +
-                    MAX_DWARFS_CITY[4] -
-                    count_dwarfs[1] -
-                    count_dwarfs[2] -
-                    count_dwarfs[3] -
-                    count_dwarfs[4]) // checking the dwarfsoldier
-            ) {
-                return 5;
             } else {
-                return 0;
+                return 5;   // dwarfsoldier
             }
         }
     }
@@ -654,29 +638,25 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      * @dev get the max number of dwarfs per city
      * @return the number of dwarfs
      */
-    function getMaxDwarfsPerCity() internal view returns (uint32) {
+    function getMaxDwarfsPerCity() external view returns (uint16[] memory) {
         return
-            MAX_DWARFS_CITY[0] + // merchants
-            MAX_DWARFS_CITY[1] + // dwarfsolider
-            MAX_DWARFS_CITY[2] + // dwarfcapos
-            MAX_DWARFS_CITY[3] + // boss
-            MAX_DWARFS_CITY[4]; // dwarfather
+            MAX_MOBSTERS_CITY;
     }
 
     /**
      * @dev set the max dwarfs per city
      * @param maxValues the max dwarfs
      */
-    function setMaxDwarfsPerCity(uint8[] memory maxValues) external onlyOwner {
+    function setMaxDwarfsPerCity(uint16[] memory maxValues) external onlyOwner {
         require(
-            maxValues.length == MAX_DWARFS_CITY.length,
+            maxValues.length == MAX_MOBSTERS_CITY.length,
             "Invalid input parameter"
         );
 
-        totalDwarfsPerCity = 0;
+        remainMobstersOfCity = 0;
         for (uint8 i = 0; i < maxValues.length; i++) {
-            MAX_DWARFS_CITY[i] = maxValues[i];
-            totalDwarfsPerCity += MAX_DWARFS_CITY[i];
+            MAX_MOBSTERS_CITY[i] = maxValues[i];
+            remainMobstersOfCity += MAX_MOBSTERS_CITY[i];
         }
     }
 
