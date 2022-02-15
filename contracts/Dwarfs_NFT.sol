@@ -224,7 +224,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
             tokenIds[i] = minted;
         }
 
-        clan.addManyToClan(_msgSender(), tokenIds, 0);
+        clan.addManyToClan(tokenIds);
     }
 
     /**

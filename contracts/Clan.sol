@@ -9,16 +9,19 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
 contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
-    uint8 private MAX_NUM_CITY = 15;
 
-    // struct to store a stake's token, owner, and earning values
-    struct Stake {
+    // number of cities in each generation status
+    uint8[] private MAX_NUM_CITY = [6, 9, 12, 15];
+
+    // struct to store a token information
+    struct TokenInfo {
         uint16 tokenId;
-        uint80 timestamp;
-        address owner;
+        uint256 availableBalance;
+        uint256 currentInvestedAmount;
+        uint80 lastInvestedTime;
     }
 
-    event TokenStaked(address owner, uint256 tokenId, uint256 value);
+    event TokenInvested(uint256 tokenId, uint256 lastInvestedTime);
     event MerchantClaimed(uint256 tokenId, uint256 earned);
     event MobsterClaimed(uint256 tokenId, uint256 earned);
 
@@ -28,10 +31,8 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     // reference to the $GOD contract for minting $GOD earnings
     GOD god;
 
-    mapping(uint8 => Stake[]) private cities;
-    mapping(uint16 => bool) private existingCombinations;
-    mapping(uint16 => uint256) private gods;
-    mapping(uint16 => uint256) private dwarfsRewards;
+    mapping(uint16 => TokenInfo) private mapTokenInfo;
+    mapping(uint16 => bool) private mapTokenExisted;
 
     // merchant earn 1% of investment of $GOD per day
     uint256 private constant DAILY_GOD_RATE = 1;
@@ -39,28 +40,28 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     // riskygame merchant must have 2 days worth of $GOD to unstake or else it's too cold
     uint256 private constant MIN_TO_EXIT_RISKY = 2 days;
 
-    // mobsters take a 15% tax on all $GOD claimed
+    // mobsters take 15% on all $GOD claimed
     uint256 private constant GOD_CLAIM_TAX_PERCENTAGE = 15;
 
-    // casino vault take a 5% tax on all $GOD claimed
+    // casino vault take 5% on all $GOD claimed
     uint256 private constant CASINO_VAULT_PERCENTAGE = 5;
 
     // there will only ever be (roughly) 2.4 billion $GOD earned through staking
     uint256 private constant MAXIMUM_GLOBAL_GOD = 2400000000 ether;
 
-    // default god amount
-    uint256 private constant DEFAULT_GODS = 100000 ether;
+    // initial Balance of a new Merchant
+    uint256 private constant INITIAL_GOD_AMOUNT = 100000 ether;
 
-    // default god amount of casino
-    uint256 private constant DEFAULT_GODS_CASINO = 1000 ether;
+    // requested god amount for casino play
+    uint256 private constant REQUESTED_GOD_CASINO = 1000 ether;
 
     // amount of $GOD earned so far
-    uint256 private totalGodEarned;
+    uint256 private totalGodEarned = 0;
 
     // amount of casino vault $GOD
-    uint256 private casinoVault;
+    uint256 private casinoVault = 0;
 
-    // profit of dwarfather
+    // profit percent of each mobster; x 0.1 %
     uint256[] private mobsterProfits = [29, 14, 7, 4];
 
     /**
@@ -85,36 +86,13 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @param tokenIds the IDs of the Merchant and Mobsters to stake
      */
     function addManyToClan(
-        address account,
-        uint16[] calldata tokenIds,
-        uint8 cityId
+        uint16[] calldata tokenIds
     ) external {
         require(
-            account == _msgSender() || _msgSender() == address(dwarfs_nft),
-            "DONT GIVE YOUR TOKENS AWAY"
+            _msgSender() == address(dwarfs_nft),
+            "Caller Must Be Dwarfs NFT Contract"
         );
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            require(tokenIds[i] > 0, "Invalid token id");
-            require(
-                existingCombinations[tokenIds[i]] == false,
-                "Existed token"
-            );
-
-            if (_msgSender() != address(dwarfs_nft)) {
-                // dont do this step if its a mint + stake
-                require(
-                    dwarfs_nft.ownerOf(tokenIds[i]) == _msgSender(),
-                    "AINT YO TOKEN"
-                );
-            }
-
-            if (_msgSender() == address(dwarfs_nft)) {
-                require(
-                    dwarfs_nft.getTokenTraits(tokenIds[i]).isMerchant == false,
-                    "Can not add the merchant directly"
-                );
-            }
-
             _addToCity(account, tokenIds[i], cityId);
         }
     }
@@ -130,8 +108,8 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         uint8 cityId
     ) internal whenNotPaused {
         IDwarfs_NFT.DwarfTrait memory t = dwarfs_nft.getTokenTraits(tokenId);
-        existingCombinations[tokenId] = true;
-        cities[t.isMerchant ? cityId : t.cityId].push(
+        mapTokenExisted[tokenId] = true;
+        mapTokenInfo[t.isMerchant ? cityId : t.cityId].push(
             Stake({
                 owner: account,
                 tokenId: tokenId,
@@ -147,9 +125,9 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         view
         returns (uint256 index)
     {
-        require(existingCombinations[tokenId] == true, "No existed token");
-        for (uint256 i = 0; i < cities[cityId].length; i++) {
-            if (cities[cityId][i].tokenId == tokenId) {
+        require(mapTokenExisted[tokenId] == true, "No existed token");
+        for (uint256 i = 0; i < mapTokenInfo[cityId].length; i++) {
+            if (mapTokenInfo[cityId][i].tokenId == tokenId) {
                 return index;
             }
         }
@@ -163,20 +141,20 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
 
         god.burn(_msgSender(), godAmount);
         uint8 cityId = dwarfs_nft.getTokenTraits(tokenId).cityId;
-        Stake memory stake = cities[cityId][
+        Stake memory stake = mapTokenInfo[cityId][
             getStackIndexByTokenId(tokenId, cityId)
         ];
         dwarfsRewards[tokenId] +=
             ((
                 (uint80(block.timestamp) - stake.timestamp) * gods[tokenId] == 0
-                    ? DEFAULT_GODS
+                    ? INITIAL_GOD_AMOUNT
                     : gods[tokenId] * DAILY_GOD_RATE
             ) / 100) /
             1 days;
 
         stake.timestamp = uint80(block.timestamp);
         gods[tokenId] == 0
-            ? gods[tokenId] = DEFAULT_GODS + godAmount
+            ? gods[tokenId] = INITIAL_GOD_AMOUNT + godAmount
             : gods[tokenId] += godAmount;
     }
 
@@ -193,7 +171,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         uint256 owed = 0;
         for (uint256 i = 0; i < tokenIds.length; i++) {
             require(
-                existingCombinations[tokenIds[i]] == true,
+                mapTokenExisted[tokenIds[i]] == true,
                 "No existed token"
             );
 
@@ -221,7 +199,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     {
         uint8 cityId = dwarfs_nft.getTokenTraits(tokenId).cityId;
         uint256 index = getStackIndexByTokenId(tokenId, cityId);
-        Stake memory stake = cities[cityId][index];
+        Stake memory stake = mapTokenInfo[cityId][index];
         require(stake.owner == _msgSender(), "SWIPER, NO SWIPING");
         require(totalGodEarned < MAXIMUM_GLOBAL_GOD, "LIMIT GOD ERROR");
         if (isRisky == true) {
@@ -234,7 +212,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         owed +=
             ((
                 (uint80(block.timestamp) - stake.timestamp) * gods[tokenId] == 0
-                    ? DEFAULT_GODS
+                    ? INITIAL_GOD_AMOUNT
                     : gods[tokenId] * DAILY_GOD_RATE
             ) / 100) /
             1 days +
@@ -261,7 +239,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
             distributeToMobsters(cityId, m_dwarfsRewards);
         }
 
-        delete cities[cityId][index];
+        delete mapTokenInfo[cityId][index];
         
         emit MerchantClaimed(tokenId, owed);
     }
@@ -306,9 +284,9 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "Invalid Owner");
 
         uint256 owed = 0;
-        god.burn(_msgSender(), DEFAULT_GODS_CASINO);
+        god.burn(_msgSender(), REQUESTED_GOD_CASINO);
 
-        casinoVault += DEFAULT_GODS_CASINO;
+        casinoVault += REQUESTED_GOD_CASINO;
         if ((random(tokenId) & 0xFFFF) % 100 == 0) {
             // 1%
             owed = casinoVault;
@@ -335,14 +313,17 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         return MAX_NUM_CITY;
     }
 
-    function setMaxNumCity(uint8 maxCity) external onlyOwner {
-        MAX_NUM_CITY = maxCity;
+    function setMaxNumCityOfGen(uint8[] maxCity) external onlyOwner {
+        require(maxCity.length == MAX_NUM_CITY.length, "Invalid parameters");
+        for (uint8 i = 0; i < maxCity.length; i++) {
+             MAX_NUM_CITY[i] = maxCity[i];
+        }
     }
 
     /* Get the available city id */
     function getAvailableCity() internal view returns (uint8) {
         for (uint8 i = 0; i < MAX_NUM_CITY; i++) {
-            if (cities[i].length < 200) {
+            if (mapTokenInfo[i].length < 200) {
                 return i;
             }
         }
@@ -363,13 +344,13 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
             numMobsters[0] + numMobsters[1] + numMobsters[2] + numMobsters[3]
         );
         uint16 index = 0;
-        for (uint256 i = 0; i < cities[cityId].length; i++) {
+        for (uint256 i = 0; i < mapTokenInfo[cityId].length; i++) {
             if (
                 dwarfs_nft
-                    .getTokenTraits(cities[cityId][i].tokenId)
+                    .getTokenTraits(mapTokenInfo[cityId][i].tokenId)
                     .isMerchant == false
             ) {
-                tokenIds[index] = cities[cityId][i].tokenId;
+                tokenIds[index] = mapTokenInfo[cityId][i].tokenId;
                 index++;
             }
         }
@@ -385,9 +366,9 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     {
         uint16[] memory res = new uint16[](4);
         uint8 alpha = 0;
-        for (uint16 i = 0; i < cities[cityId].length; i++) {
+        for (uint16 i = 0; i < mapTokenInfo[cityId].length; i++) {
             alpha = dwarfs_nft
-                .getTokenTraits(cities[cityId][i].tokenId)
+                .getTokenTraits(mapTokenInfo[cityId][i].tokenId)
                 .alphaIndex;
             if (alpha >= 5 && alpha <= 8) {
                 res[alpha - 5]++;
