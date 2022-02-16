@@ -93,7 +93,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     uint16[] private count_mobsters = [0, 0, 0, 0];
 
     // current number of boss
-    uint8 private totalBosses = 1;
+    uint8 private totalBosses = 0;
 
     // the rest number of dwarfs in the current city
     uint16 remainMobstersOfCity = 1333;
@@ -417,6 +417,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         if (alphaIndex == 7) {
             // set the custom traits
             t = bossTraits[totalBosses];
+            totalBosses++;
         } else {
             t.background_weapon =
                 uint16((random(seed) % MAX_TRAITS[0]) << 8) + // background
