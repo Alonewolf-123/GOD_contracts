@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradea
 
 /// @title Clan
 /// @author Bounyavong
-/// @dev Clan logic is implemented and this is the updradeable
+/// @dev Clan logic is implemented and this is the upgradable
 contract Clan is Ownable, IERC721ReceiverUpgradeable, Pausable {
     // number of cities in each generation status
     uint8[] private MAX_NUM_CITY = [6, 9, 12, 15];
