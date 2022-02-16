@@ -35,3 +35,10 @@ New issue on the Dwarfs_NFT
         ref: https://etherscan.io/address/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d#readContract
             https://docs.soliditylang.org/en/v0.8.11/natspec-format.html
 
+________________
+New issue
+1. getNumMobstersOfCity function issue
+2. count_mobsters array size 5
+3. remainMobstersOfCity
+4. Clan 252 line
+

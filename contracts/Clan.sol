@@ -137,7 +137,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         _tokenInfo.cityId = t.cityId;
         _tokenInfo.availableBalance = (t.isMerchant ? INITIAL_GOD_AMOUNT : 0);
         _tokenInfo.currentInvestedAmount = _tokenInfo.availableBalance;
-        _tokenInfo.lastInvestedTime = block.timestamp;
+        _tokenInfo.lastInvestedTime = uint80(block.timestamp);
         mapTokenInfo[tokenId] = _tokenInfo;
         mapTokenExisted[tokenId] = true;
         totalNumberOfTokens++;
@@ -155,7 +155,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @param tokenId the ID of the merchant token to add to the city
      * @param cityId the city id
      */
-    function addMerchantToCity(uint32 tokenId, uint8 cityId) external view {
+    function addMerchantToCity(uint32 tokenId, uint8 cityId) external {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
         require(
             dwarfs_nft.getTokenTraits(tokenId).isMerchant == true,
@@ -180,14 +180,13 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     {
         TokenInfo memory _tokenInfo = mapTokenInfo[tokenId];
         availableBalance = _tokenInfo.availableBalance;
-        uint8 cityId = _tokenInfo.cityId;
         uint8 playingGame = (_tokenInfo.cityId > 0 &&
             bMerchantGamePlaying == true)
             ? 1
             : 0;
         uint256 addedBalance = (_tokenInfo.currentInvestedAmount *
             playingGame *
-            (block.timestamp - _tokenInfo.lastInvestedTime) *
+            (uint80(block.timestamp) - _tokenInfo.lastInvestedTime) *
             DAILY_GOD_RATE) /
             100 /
             1 days;
@@ -215,7 +214,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         god.burn(_msgSender(), godAmount);
         mapTokenInfo[tokenId].availableBalance = calcAvailableBalance(tokenId);
         mapTokenInfo[tokenId].currentInvestedAmount += godAmount;
-        mapTokenInfo[tokenId].lastInvestedTime = block.timestamp;
+        mapTokenInfo[tokenId].lastInvestedTime = uint80(block.timestamp);
 
         remainingGodAmount += godAmount;
         emit TokenInvested(
@@ -260,7 +259,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
         for (uint16 i = 0; i < tokenIds.length; i++) {
             mapTokenInfo[tokenIds[i]].availableBalance = 0;
             mapTokenInfo[tokenIds[i]].currentInvestedAmount = 0;
-            mapTokenInfo[tokenIds[i]].lastInvestedTime = block.timestamp;
+            mapTokenInfo[tokenIds[i]].lastInvestedTime = uint80(block.timestamp);
         }
         god.mint(_msgSender(), owed);
     }
@@ -401,8 +400,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     function getAvailableCity() internal view returns (uint8) {
         uint8 cityId = 1;
         while (true) {
-            uint16[] memory _maxDwarfsPerCity = dwarfs_nft
-                .setMaxDwarfsPerCity();
+            uint16[] memory _maxDwarfsPerCity = dwarfs_nft.getMaxDwarfsPerCity();
             if (
                 mapCityMobsters[cityId].length <
                 (_maxDwarfsPerCity[1] +
@@ -429,7 +427,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
     {
         uint16[] memory _numOfMobstersOfCity = new uint16[](4);
         uint8 alphaIndex = 0;
-        for (uint32 i = 0; i < mapCityMobsters[cityId]; i++) {
+        for (uint32 i = 0; i < mapCityMobsters[cityId].length; i++) {
             alphaIndex = dwarfs_nft
                 .getTokenTraits(mapCityMobsters[cityId][i])
                 .alphaIndex;
@@ -443,7 +441,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @dev Get the daily god earning rate
      * @return the daily god earning rate
      */
-    function getDailyGodRate() public returns (uint8) {
+    function getDailyGodRate() public view returns (uint8) {
         return DAILY_GOD_RATE;
     }
 
@@ -459,7 +457,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @dev Get the tax percent of a merchant
      * @return the tax percent
      */
-    function getTaxPercent() public returns (uint8) {
+    function getTaxPercent() public view returns (uint8) {
         return TAX_PERCENT;
     }
 
@@ -475,7 +473,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @dev Get the casino vault percent of a merchant
      * @return the vault percent
      */
-    function getCasinoVaultPercent() public returns (uint8) {
+    function getCasinoVaultPercent() public view returns (uint8) {
         return CASINO_VAULT_PERCENT;
     }
 
@@ -491,7 +489,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @dev Get the max global god amount
      * @return the god amount
      */
-    function getMaxGlobalGodAmount() public returns (uint256) {
+    function getMaxGlobalGodAmount() public view returns (uint256) {
         return MAXIMUM_GLOBAL_GOD;
     }
 
@@ -507,7 +505,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @dev Get the initial god amount of a merchant
      * @return the god amount
      */
-    function getInitialGodAmount() public returns (uint256) {
+    function getInitialGodAmount() public view returns (uint256) {
         return INITIAL_GOD_AMOUNT;
     }
 
@@ -523,7 +521,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @dev Get the min god amount for investing
      * @return the god amount
      */
-    function getMinInvestedAmount() public returns (uint256) {
+    function getMinInvestedAmount() public view returns (uint256) {
         return MIN_INVESTED_AMOUNT;
     }
 
@@ -539,7 +537,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @dev Get the requested god in casino
      * @return the god amount
      */
-    function getRequestedGodCasino() public returns (uint256) {
+    function getRequestedGodCasino() public view returns (uint256) {
         return REQUESTED_GOD_CASINO;
     }
 
@@ -555,7 +553,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @dev Get the mobster profit percent (dwarfsoldier, dwarfcapos, boss and dwarfather)
      * @return the percent array
      */
-    function getMobsterProfitPercent() public returns (uint8[] memory) {
+    function getMobsterProfitPercent() public view returns (uint8[] memory) {
         return mobsterProfitPercent;
     }
 
@@ -571,7 +569,7 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @dev Get the total number of tokens
      * @return the number of tokens
      */
-    function getTotalNumberOfTokens() public returns (uint256) {
+    function getTotalNumberOfTokens() public view returns (uint256) {
         return totalNumberOfTokens;
     }
 
@@ -579,8 +577,8 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @dev get the Dwarf NFT address
      * @return the Dwarf NFT address
      */
-    function getDwarfNFT() external returns (address) {
-        return dwarfs_nft;
+    function getDwarfNFT() public view returns (address) {
+        return address(dwarfs_nft);
     }
 
     /**
@@ -588,15 +586,15 @@ contract Clan is Initializable, Ownable, IERC721ReceiverUpgradeable, Pausable {
      * @param _dwarfNFT the Dwarf NFT address
      */
     function setDwarfNFT(address _dwarfNFT) external onlyOwner {
-        dwarfs_nft = IDwarfs_NFT(_dwarfNFT);
+        dwarfs_nft = Dwarfs_NFT(_dwarfNFT);
     }
 
     /**
      * @dev get the GOD address
      * @return the GOD address
      */
-    function getGod() external returns (address) {
-        return god;
+    function getGod() public view returns (address) {
+        return address(god);
     }
 
     /**

@@ -15,6 +15,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 /// @dev Dwarfs NFT logic is implemented and this is the updradeable
 contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     using Strings for uint256;
+    using Strings for bytes;
 
     // eth prices for mint
     uint256[] private MINT_ETH_PRICES = [
@@ -89,7 +90,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     uint8 private cityId;
 
     // number of dwarfs in the current city
-    uint16[] private count_mobsters = [0, 0, 0, 0, 0];
+    uint16[] private count_mobsters = [0, 0, 0, 0];
 
     // current number of boss
     uint8 private totalBosses = 1;
@@ -225,7 +226,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         for (uint16 i = 0; i < amount; i++) {
             if (i == 0 || clan.getAvailableCity() != cityId) {
                 cityId = clan.getAvailableCity();
-                count_mobsters = clan.getNumMobstersByCityId(cityId);
+                count_mobsters = clan.getNumMobstersOfCity(cityId);
             }
 
             minted++;
@@ -728,7 +729,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     function tokenURI(uint32 tokenId)
         public
         view
-        override
         returns (string memory)
     {
         require(
@@ -758,7 +758,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
 
         t[12] = bytes1(s.eyewear); // add the eyewear into bytes
 
-        string memory _tokenURI = base64(t);
+        string memory _tokenURI = t.base64();
 
         // If there is no base URI, return the token URI.
         if (bytes(baseURI).length == 0) {
@@ -770,87 +770,5 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         }
         // If there is a baseURI but no tokenURI, concatenate the tokenId to the baseURI.
         return string(abi.encodePacked(baseURI, (uint256(tokenId)).toString(), ".json"));
-    }
-
-    // base string for base64 encoding
-    string internal constant TABLE =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-    /**
-     * @dev Convert the bytes to base64 string
-     * @param data the bytes. it will be converted to base64 string
-     * @return base64 string
-     */
-    function base64(bytes memory data) internal pure returns (string memory) {
-        if (data.length == 0) return "";
-
-        // load the table into memory
-        string memory table = TABLE;
-
-        // multiply by 4/3 rounded up
-        uint256 encodedLen = 4 * ((data.length + 2) / 3);
-
-        // add some extra buffer at the end required for the writing
-        string memory result = new string(encodedLen + 32);
-
-        assembly {
-            // set the actual output length
-            mstore(result, encodedLen)
-
-            // prepare the lookup table
-            let tablePtr := add(table, 1)
-
-            // input ptr
-            let dataPtr := data
-            let endPtr := add(dataPtr, mload(data))
-
-            // result ptr, jump over length
-            let resultPtr := add(result, 32)
-
-            // run over the input, 3 bytes at a time
-            for {
-
-            } lt(dataPtr, endPtr) {
-
-            } {
-                dataPtr := add(dataPtr, 3)
-
-                // read 3 bytes
-                let input := mload(dataPtr)
-
-                // write 4 characters
-                mstore(
-                    resultPtr,
-                    shl(248, mload(add(tablePtr, and(shr(18, input), 0x3F))))
-                )
-                resultPtr := add(resultPtr, 1)
-                mstore(
-                    resultPtr,
-                    shl(248, mload(add(tablePtr, and(shr(12, input), 0x3F))))
-                )
-                resultPtr := add(resultPtr, 1)
-                mstore(
-                    resultPtr,
-                    shl(248, mload(add(tablePtr, and(shr(6, input), 0x3F))))
-                )
-                resultPtr := add(resultPtr, 1)
-                mstore(
-                    resultPtr,
-                    shl(248, mload(add(tablePtr, and(input, 0x3F))))
-                )
-                resultPtr := add(resultPtr, 1)
-            }
-
-            // padding with '='
-            switch mod(mload(data), 3)
-            case 1 {
-                mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
-            }
-            case 2 {
-                mstore(sub(resultPtr, 1), shl(248, 0x3d))
-            }
-        }
-
-        return result;
     }
 }

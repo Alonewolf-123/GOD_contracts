@@ -18,7 +18,7 @@ interface IDwarfs_NFT {
         uint8 generation;
     }
 
-    function getTokenTraits(uint256 tokenId)
+    function getTokenTraits(uint32 tokenId)
         external
         view
         returns (DwarfTrait memory);
