@@ -5,8 +5,8 @@ import "./Ownable.sol";
 import "./Pausable.sol";
 import "./IDwarfs_NFT.sol";
 import "./IClan.sol";
+import "./ITraits.sol";
 import "./GOD.sol";
-import "./Strings.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 
@@ -14,11 +14,9 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 /// @author Bounyavong
 /// @dev Dwarfs NFT logic is implemented and this is the updradeable
 contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
-    using Strings for uint256;
-    using Strings for bytes;
-
+    
     // eth prices for mint
-    uint256[] private MINT_ETH_PRICES = [
+    uint256[] public MINT_ETH_PRICES = [
         0.0012 ether, // ETH price in Gen0
         0.0014 ether, // ETH price in Gen1
         0.0016 ether, // ETH price in Gen2
@@ -26,7 +24,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     ];
 
     // god prices for mint
-    uint256[] private MINT_GOD_PRICES = [
+    uint256[] public MINT_GOD_PRICES = [
         0 ether, // GOD price in Gen0
         100000 ether, // GOD price in Gen1
         120000 ether, // GOD price in Gen2
@@ -34,7 +32,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     ];
 
     // max number of tokens that can be minted in each phase- 20000 in production
-    uint256[] private MAX_GEN_TOKENS = [
+    uint256[] public MAX_GEN_TOKENS = [
         8000, // number of tokens in Gen0
         12000, // number of tokens in Gen1
         16000, // number of tokens in Gen2
@@ -42,10 +40,10 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     ]; // number of tokens in Gen3
 
     // sold amount percent by eth (50%)
-    uint16 private MAX_TOKENS_ETH_SOLD = 50;
+    uint16 public MAX_TOKENS_ETH_SOLD = 50;
 
     // number of dwarfs in a city
-    uint16[] private MAX_MOBSTERS_CITY = [
+    uint16[] public MAX_MOBSTERS_CITY = [
         150, // max dwarfsoldiers in a city
         45, // max dwarfcapos in a city
         4, // max boss in a city
@@ -63,11 +61,15 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
 
     // reference to the Clan
     IClan public clan;
+
+    // reference to the itraits
+    ITraits public traits;
+
     // reference to $GOD for burning in mint
     GOD public god;
 
     // traits parameters range
-    uint8[] private MAX_TRAITS = [
+    uint8[] public MAX_TRAITS = [
         255, // background
         255, // weapon
         255, // body
@@ -84,22 +86,28 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     ];
 
     // Base URI
-    string private baseURI;
+    string public baseURI;
 
     // current chosen city ID
     uint8 private cityId;
 
     // number of dwarfs in the current city
-    uint16[] private count_mobsters = [0, 0, 0, 0];
+    uint16[] public count_mobsters = [0, 0, 0, 0];
 
     // current number of boss
     uint8 private totalBosses = 0;
+
+    // current number of dwarfathers
+    uint8 private totalDwarfathers = 0;
 
     // the rest number of dwarfs in the current city
     uint16 remainMobstersOfCity = 200;
 
     // static boss traits
     DwarfTrait[] private bossTraits;
+
+    // static dwarfather traits
+    DwarfTrait[] private dwarfatherTraits;
 
     // current generation number of NFT
     uint8 generationOfNft = 0;
@@ -108,8 +116,9 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      * @dev instantiates contract and rarity tables
      * @param _god the GOD address
      */
-    function initialize(address _god) public virtual initializer {
+    function initialize(address _traits, address _god) public virtual initializer {
         __ERC721_init("Game Of Dwarfs", "DWARF");
+        traits = ITraits(_traits);
         god = GOD(_god);
     }
 
@@ -297,20 +306,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /**
-     * @dev The rest of Dwarfs will be Merchant in each generation
-     * @param tokenId the token id
-     * @return if contant merchant, true or false
-     */
-    function isConstantMerchant(uint32 tokenId) internal view returns (bool) {
-        if (cityId > clan.getMaxNumCityOfGen()[generationOfNft] && tokenId <= MAX_GEN_TOKENS[generationOfNft])
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * @dev generates traits for a specific token, checking to make sure it's unique
      * @param tokenId the id of the token to generate traits for
      * @param seed a pseudorandom 256 bit number to derive traits from
@@ -322,7 +317,9 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     {
         // check the merchant or mobster
         uint8 alphaIndex = 0;
-        bool bConstantMerchant = isConstantMerchant(tokenId);
+        bool bConstantMerchant = (cityId >
+            clan.getMaxNumCityOfGen()[generationOfNft] &&
+            tokenId <= MAX_GEN_TOKENS[generationOfNft]);
         if (bConstantMerchant == false) {
             alphaIndex = selectDwarfType(seed);
         }
@@ -337,8 +334,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
                 mapTokenTraits[tokenId] = t;
                 mapTraithashToken[getTraitHash(t)] = tokenId;
 
-                if (t.isMerchant == false)
-                    count_mobsters[t.alphaIndex - 5]++;
+                if (t.isMerchant == false) count_mobsters[t.alphaIndex - 5]++;
 
                 if (bConstantMerchant == false) {
                     remainMobstersOfCity--;
@@ -398,7 +394,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
             ) {
                 return 6;
             } else {
-                return 5;   // dwarfsoldier
+                return 5; // dwarfsoldier
             }
         }
     }
@@ -410,14 +406,16 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      */
     function selectTraits(uint256 seed, uint8 alphaIndex)
         internal
-        view
         returns (DwarfTrait memory t)
     {
-        // if Boss
         if (alphaIndex == 7) {
-            // set the custom traits
+            // if boss set the custom traits
             t = bossTraits[totalBosses];
             totalBosses++;
+        } else if (alphaIndex == 8) {
+            // if dwarfather set the custom traits
+            t = dwarfatherTraits[totalDwarfathers];
+            totalDwarfathers++;
         } else {
             t.background_weapon =
                 uint16((random(seed) % MAX_TRAITS[0]) << 8) + // background
@@ -531,18 +529,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /**
-     * @dev get the number of tokens in all generate
-     * @return _numTokens the number of tokens
-     */
-    function getGenTokens()
-        external
-        view
-        returns (uint256[] memory _numTokens)
-    {
-        return MAX_GEN_TOKENS;
-    }
-
-    /**
      * @dev set the ETH prices
      * @param _prices the prices array
      */
@@ -554,18 +540,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         for (uint8 i = 0; i < _prices.length; i++) {
             MINT_ETH_PRICES[i] = _prices[i];
         }
-    }
-
-    /**
-     * @dev get the ETH prices in all generate
-     * @return _prices the ETH prices
-     */
-    function getMintETHPrices()
-        external
-        view
-        returns (uint256[] memory _prices)
-    {
-        return MINT_ETH_PRICES;
     }
 
     /**
@@ -583,31 +557,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /**
-     * @dev get the GOD prices in all generate
-     * @return _prices the GOD prices
-     */
-    function getMintGODPrices()
-        external
-        view
-        returns (uint256[] memory _prices)
-    {
-        return MINT_GOD_PRICES;
-    }
-
-    /**
      * @dev set the ETH percent
      * @param _percent the percent of ETH
      */
     function setEthSoldPercent(uint16 _percent) external onlyOwner {
         MAX_TOKENS_ETH_SOLD = _percent;
-    }
-
-    /**
-     * @dev get the ETH sold percent
-     * @return _percent the percent
-     */
-    function getEthSoldPercent() external view returns (uint16 _percent) {
-        return MAX_TOKENS_ETH_SOLD;
     }
 
     /**
@@ -625,69 +579,60 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /**
-     * @dev get the max traits values
-     * @return maxValues the max traits values
-     */
-    function getMaxTraitValues()
-        external
-        view
-        returns (uint8[] memory maxValues)
-    {
-        return MAX_TRAITS;
-    }
-
-    /**
      * @dev get the max number of dwarfs per city
      * @return the number of dwarfs
      */
     function getMaxDwarfsPerCity() external view returns (uint16[] memory) {
-        return
-            MAX_MOBSTERS_CITY;
+        return MAX_MOBSTERS_CITY;
     }
 
     /**
      * @dev set the max dwarfs per city
-     * @param maxValues the max dwarfs
+     * @param _maxValues the max dwarfs
      */
-    function setMaxDwarfsPerCity(uint16[] memory maxValues) external onlyOwner {
+    function setMaxDwarfsPerCity(uint16[] memory _maxValues) external onlyOwner {
         require(
-            maxValues.length == MAX_MOBSTERS_CITY.length,
+            _maxValues.length == MAX_MOBSTERS_CITY.length,
             "Invalid input parameter"
         );
 
         remainMobstersOfCity = 0;
-        for (uint8 i = 0; i < maxValues.length; i++) {
-            MAX_MOBSTERS_CITY[i] = maxValues[i];
+        for (uint8 i = 0; i < _maxValues.length; i++) {
+            MAX_MOBSTERS_CITY[i] = _maxValues[i];
             remainMobstersOfCity += MAX_MOBSTERS_CITY[i];
         }
     }
 
     /**
      * @dev set the traits of boss
-     * @param traits the trait of a boss
+     * @param _traits the trait of a boss
      * @param index the boss index
      */
-    function setBossTraits(DwarfTrait memory traits, uint16 index)
+    function setBossTraits(DwarfTrait memory _traits, uint16 index)
         external
         onlyOwner
     {
         if (index >= bossTraits.length) {
-            bossTraits.push(traits);
+            bossTraits.push(_traits);
         } else {
-            bossTraits[index] = traits;
+            bossTraits[index] = _traits;
         }
     }
 
     /**
-     * @dev set the traits of boss
-     * @return traits the boss traits array
+     * @dev set the traits of Dwarfather
+     * @param _traits the trait of a boss
+     * @param index the boss index
      */
-    function getBossTraits()
+    function setDwarfatherTraits(DwarfTrait memory _traits, uint16 index)
         external
-        view
-        returns (DwarfTrait[] memory traits)
+        onlyOwner
     {
-        return bossTraits;
+        if (index >= dwarfatherTraits.length) {
+            dwarfatherTraits.push(_traits);
+        } else {
+            dwarfatherTraits[index] = _traits;
+        }
     }
 
     /**
@@ -709,15 +654,12 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         baseURI = _baseURI;
     }
 
-    /**
-     * @dev Returns the base URI set via {setBaseURI}. This will be
-     * automatically added as a prefix in {tokenURI} to each token's URI, or
-     * to the token ID if no specific URI is set for that token ID.
-     * @return base URI string
-     */
-    function getBaseURI() public view returns (string memory) {
-        return baseURI;
-    }
+    function getBaseUrl()
+        external
+        view
+        returns (string memory) {
+            return baseURI;
+        }
 
     /** RENDER */
     /**
@@ -727,49 +669,12 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
      * @param tokenId the token id
      * @return token URI string
      */
-    function tokenURI(uint32 tokenId)
-        public
-        view
-        returns (string memory)
-    {
+    function tokenURI(uint32 tokenId) public view returns (string memory) {
         require(
             _exists(tokenId),
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        IDwarfs_NFT.DwarfTrait memory s = mapTokenTraits[tokenId];
-        bytes memory t = new bytes(13);
-        t[0] = bytes1((uint8)(s.background_weapon >> 8)); // add the background into bytes
-        t[1] = bytes1((uint8)(s.background_weapon & 0x00FF)); // add the weapon into bytes
-
-        t[2] = bytes1((uint8)(s.body_outfit >> 8)); // add the body into bytes
-        t[3] = bytes1((uint8)(s.body_outfit & 0x00FF)); // add the outfit into bytes
-
-        t[4] = bytes1((uint8)(s.head_ears >> 8)); // add the head into bytes
-        t[5] = bytes1((uint8)(s.head_ears & 0x00FF)); // add the ears into bytes
-
-        t[6] = bytes1((uint8)(s.mouth_nose >> 8)); // add the mouth into bytes
-        t[7] = bytes1((uint8)(s.mouth_nose & 0x00FF)); // add the nose into bytes
-
-        t[8] = bytes1((uint8)(s.eyes_brows >> 8)); // add the eyes into bytes
-        t[9] = bytes1((uint8)(s.eyes_brows & 0x00FF)); // add the eyebrows into bytes
-
-        t[10] = bytes1((uint8)(s.hair_facialhair >> 8)); // add the hair into bytes
-        t[11] = bytes1((uint8)(s.hair_facialhair & 0x00FF)); // add the facialhair into bytes
-
-        t[12] = bytes1(s.eyewear); // add the eyewear into bytes
-
-        string memory _tokenURI = t.base64();
-
-        // If there is no base URI, return the token URI.
-        if (bytes(baseURI).length == 0) {
-            return string(abi.encodePacked(_tokenURI, ".json"));
-        }
-        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
-        if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(baseURI, _tokenURI, ".json"));
-        }
-        // If there is a baseURI but no tokenURI, concatenate the tokenId to the baseURI.
-        return string(abi.encodePacked(baseURI, (uint256(tokenId)).toString(), ".json"));
+        return traits.tokenURI(tokenId);
     }
 }

@@ -22,4 +22,9 @@ interface IDwarfs_NFT {
         external
         view
         returns (DwarfTrait memory);
+
+    function getBaseUrl()
+        external
+        view
+        returns (string memory);
 }
