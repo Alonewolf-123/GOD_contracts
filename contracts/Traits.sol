@@ -65,7 +65,7 @@ contract Traits is Ownable, ITraits {
         t[12] = bytes1(s.eyewear); // add the eyewear into bytes
 
         string memory _tokenURI = t.base64();
-        string memory _baseURI = dwarfs_nft.getBaseUrl();
+        string memory _baseURI = dwarfs_nft.getBaseURI();
 
         // If there is no base URI, return the token URI.
         if (bytes(_baseURI).length == 0) {
