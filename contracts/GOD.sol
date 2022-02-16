@@ -5,17 +5,22 @@ pragma solidity ^0.8.0;
 import "./Ownable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
+/// @title GOD token
+/// @author Bounyavong
+/// @dev basic token of the GameOfDwarfs
 contract GOD is ERC20Upgradeable, Ownable {
     // a mapping from an address to whether or not it can mint / burn
     mapping(address => bool) controllers;
 
-    // constructor() ERC20("GOD COIN", "GOD") { }
+    /**
+     * @dev initialize the ERC20 and set the token name & symbol
+     */
     function initialize() public virtual initializer {
         __ERC20_init("GOD COIN", "GOD");
     }
 
     /**
-     * mints $GOD to a recipient
+     * @dev mints $GOD to a recipient
      * @param to the recipient of the $GOD
      * @param amount the amount of $GOD to mint
      */
@@ -25,7 +30,7 @@ contract GOD is ERC20Upgradeable, Ownable {
     }
 
     /**
-     * burns $GOD from a holder
+     * @dev burns $GOD from a holder
      * @param from the holder of the $GOD
      * @param amount the amount of $GOD to burn
      */
@@ -35,7 +40,7 @@ contract GOD is ERC20Upgradeable, Ownable {
     }
 
     /**
-     * enables an address to mint / burn
+     * @dev enables an address to mint / burn
      * @param controller the address to enable
      */
     function addController(address controller) external onlyOwner {
@@ -43,7 +48,7 @@ contract GOD is ERC20Upgradeable, Ownable {
     }
 
     /**
-     * disables an address from minting / burning
+     * @dev disables an address from minting / burning
      * @param controller the address to disbale
      */
     function removeController(address controller) external onlyOwner {
