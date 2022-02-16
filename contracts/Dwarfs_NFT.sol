@@ -96,7 +96,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     uint8 private totalBosses = 0;
 
     // the rest number of dwarfs in the current city
-    uint16 remainMobstersOfCity = 1333;
+    uint16 remainMobstersOfCity = 200;
 
     // static boss traits
     DwarfTrait[] private bossTraits;
