@@ -2,21 +2,46 @@
 
 pragma solidity ^0.8.0;
 
-import "./Ownable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
 /// @title GOD token
 /// @author Bounyavong
 /// @dev basic token of the GameOfDwarfs
-contract GOD is ERC20Upgradeable, Ownable {
+contract GOD is ERC20Upgradeable {
     // a mapping from an address to whether or not it can mint / burn
     mapping(address => bool) controllers;
+
+    // owner address
+    address private _owner;
 
     /**
      * @dev initialize the ERC20 and set the token name & symbol
      */
     function initialize() public virtual initializer {
         __ERC20_init("GOD COIN", "GOD");
+        _setOwner(_msgSender());
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+        _;
+    }
+
+    /**
+     * @dev set the address of the new owner.
+     */
+    function _setOwner(address newOwner) private {
+        _owner = newOwner;
     }
 
     /**

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT LICENSE
 
 pragma solidity ^0.8.0;
-import "./Ownable.sol";
-import "./Pausable.sol";
 import "./IDwarfs_NFT.sol";
 import "./IClan.sol";
 import "./ITraits.sol";
@@ -14,44 +12,21 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 /// @title Dwarfs NFT
 /// @author Bounyavong
 /// @dev Dwarfs NFT logic is implemented and this is the updradeable
-contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
-    using Strings for uint256;
-    using Strings for bytes;
-
+contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
     // eth prices for mint
-    uint256[] private MINT_ETH_PRICES = [
-        0.0012 ether, // ETH price in Gen0
-        0.0014 ether, // ETH price in Gen1
-        0.0016 ether, // ETH price in Gen2
-        0.0018 ether // ETH price in Gen3
-    ];
+    uint256[] public MINT_ETH_PRICES;
 
     // god prices for mint
-    uint256[] private MINT_GOD_PRICES = [
-        0 ether, // GOD price in Gen0
-        100000 ether, // GOD price in Gen1
-        120000 ether, // GOD price in Gen2
-        140000 ether // GOD price in Gen3
-    ];
+    uint256[] public MINT_GOD_PRICES;
 
     // max number of tokens that can be minted in each phase- 20000 in production
-    uint256[] private MAX_GEN_TOKENS = [
-        8000, // number of tokens in Gen0
-        12000, // number of tokens in Gen1
-        16000, // number of tokens in Gen2
-        20000
-    ]; // number of tokens in Gen3
+    uint256[] public MAX_GEN_TOKENS;
 
     // sold amount percent by eth (50%)
-    uint16 private MAX_TOKENS_ETH_SOLD = 50;
+    uint16 public MAX_TOKENS_ETH_SOLD;
 
     // number of dwarfs in a city
-    uint16[] private MAX_MOBSTERS_CITY = [
-        150, // max dwarfsoldiers in a city
-        45, // max dwarfcapos in a city
-        4, // max boss in a city
-        1
-    ]; // max dwarfather in a city
+    uint16[] public MAX_MOBSTERS_CITY;
 
     // number of tokens have been minted so far
     uint32 private minted;
@@ -70,21 +45,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     GOD private god;
 
     // traits parameters range
-    uint8[] private MAX_TRAITS = [
-        255, // background
-        255, // weapon
-        255, // body
-        255, // outfit
-        255, // head
-        255, // ears
-        255, // mouth
-        255, // nose
-        255, // eyes
-        255, // brows
-        255, // hair
-        255, // facialhair
-        255 // eyewear
-    ];
+    uint8[] public MAX_TRAITS;
 
     // Base URI
     string private baseURI;
@@ -93,25 +54,31 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     uint8 private cityId;
 
     // number of dwarfs in the current city
-    uint16[] private count_mobsters = [0, 0, 0, 0];
+    uint16[] private count_mobsters;
 
     // current number of boss
-    uint8 private totalBosses = 0;
+    uint8 private totalBosses;
 
     // current number of dwarfathers
-    uint8 private totalDwarfathers = 0;
+    uint8 private totalDwarfathers;
 
     // the rest number of dwarfs in the current city
-    uint16 remainMobstersOfCity = 200;
+    uint16 remainMobstersOfCity;
 
     // static boss traits
-    DwarfTrait[] private bossTraits;
+    DwarfTrait[] public bossTraits;
 
     // static dwarfather traits
-    DwarfTrait[] private dwarfatherTraits;
+    DwarfTrait[] public dwarfatherTraits;
 
     // current generation number of NFT
-    uint8 private generationOfNft = 0;
+    uint8 private generationOfNft;
+
+    // owner address
+    address private _owner;
+
+    // paused flag
+    bool private _paused;
 
     /**
      * @dev instantiates contract and rarity tables
@@ -125,6 +92,141 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         __ERC721_init("Game Of Dwarfs", "DWARF");
         god = GOD(_god);
         nft_traits = ITraits(_traits);
+        _setOwner(_msgSender());
+        _paused = false;
+
+        // eth prices for mint
+        MINT_ETH_PRICES = [
+            0.0012 ether, // ETH price in Gen0
+            0.0014 ether, // ETH price in Gen1
+            0.0016 ether, // ETH price in Gen2
+            0.0018 ether // ETH price in Gen3
+        ];
+
+        // god prices for mint
+        MINT_GOD_PRICES = [
+            0 ether, // GOD price in Gen0
+            100000 ether, // GOD price in Gen1
+            120000 ether, // GOD price in Gen2
+            140000 ether // GOD price in Gen3
+        ];
+
+        // max number of tokens that can be minted in each phase- 20000 in production
+        MAX_GEN_TOKENS = [
+            8000, // number of tokens in Gen0
+            12000, // number of tokens in Gen1
+            16000, // number of tokens in Gen2
+            20000
+        ]; // number of tokens in Gen3
+
+        // sold amount percent by eth (50%)
+        MAX_TOKENS_ETH_SOLD = 50;
+
+        // number of dwarfs in a city
+        MAX_MOBSTERS_CITY = [
+            150, // max dwarfsoldiers in a city
+            45, // max dwarfcapos in a city
+            4, // max boss in a city
+            1
+        ]; // max dwarfather in a city
+
+        // traits parameters range
+        MAX_TRAITS = [
+            255, // background
+            255, // weapon
+            255, // body
+            255, // outfit
+            255, // head
+            255, // ears
+            255, // mouth
+            255, // nose
+            255, // eyes
+            255, // brows
+            255, // hair
+            255, // facialhair
+            255 // eyewear
+        ];
+
+        // number of dwarfs in the current city
+        count_mobsters = [0, 0, 0, 0];
+
+        // the rest number of dwarfs in the current city
+        remainMobstersOfCity = 200;
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+        _;
+    }
+
+    /**
+     * @dev set the address of the new owner.
+     */
+    function _setOwner(address newOwner) private {
+        _owner = newOwner;
+    }
+
+    /**
+     * @dev Returns true if the contract is paused, and false otherwise.
+     */
+    function paused() public view virtual returns (bool) {
+        return _paused;
+    }
+
+    /**
+     * @dev Modifier to make a function callable only when the contract is not paused.
+     *
+     * Requirements:
+     *
+     * - The contract must not be paused.
+     */
+    modifier whenNotPaused() {
+        require(!paused(), "Pausable: paused");
+        _;
+    }
+
+    /**
+     * @dev Modifier to make a function callable only when the contract is paused.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
+     */
+    modifier whenPaused() {
+        require(paused(), "Pausable: not paused");
+        _;
+    }
+
+    /**
+     * @dev Triggers stopped state.
+     *
+     * Requirements:
+     *
+     * - The contract must not be paused.
+     */
+    function _pause() internal virtual whenNotPaused {
+        _paused = true;
+    }
+
+    /**
+     * @dev Returns to normal state.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
+     */
+    function _unpause() internal virtual whenPaused {
+        _paused = false;
     }
 
     /**
@@ -155,7 +257,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     function mint(uint16 amount) external payable whenNotPaused {
         require(tx.origin == _msgSender(), "Only EOA");
         require(minted + amount <= MAX_GEN_TOKENS[3], "All tokens minted");
-        require(amount > 0 && amount <= 30, "Invalid mint amount");
+        require(amount > 0 && amount <= 10, "Invalid mint amount");
         if (minted < MAX_GEN_TOKENS[0]) {
             require(
                 minted + amount <= MAX_GEN_TOKENS[0],
@@ -258,7 +360,7 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /**
-     * @dev the calculate the cost of mint by the Generation
+     * @dev the calculate the cost of mint by the generating
      * @param tokenId the ID to check the cost of to mint
      * @return the GOD cost of the given token ID
      */
@@ -311,22 +413,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /**
-     * @dev The rest of Dwarfs will be Merchant in each generation
-     * @param tokenId the token id
-     * @return if contant merchant, true or false
-     */
-    function isConstantMerchant(uint32 tokenId) internal view returns (bool) {
-        if (
-            cityId > clan.getMaxNumCityOfGen()[generationOfNft] &&
-            tokenId <= MAX_GEN_TOKENS[generationOfNft]
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * @dev generates traits for a specific token, checking to make sure it's unique
      * @param tokenId the id of the token to generate traits for
      * @param seed a pseudorandom 256 bit number to derive traits from
@@ -338,7 +424,9 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     {
         // check the merchant or mobster
         uint8 alphaIndex = 0;
-        bool bConstantMerchant = isConstantMerchant(tokenId);
+        bool bConstantMerchant = (cityId >
+            clan.getMaxNumCityOfGen()[generationOfNft] &&
+            tokenId <= MAX_GEN_TOKENS[generationOfNft]);
         if (bConstantMerchant == false) {
             alphaIndex = selectDwarfType(seed);
         }
@@ -548,18 +636,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /**
-     * @dev get the number of tokens in all generate
-     * @return _numTokens the number of tokens
-     */
-    function getGenTokens()
-        external
-        view
-        returns (uint256[] memory _numTokens)
-    {
-        return MAX_GEN_TOKENS;
-    }
-
-    /**
      * @dev set the ETH prices
      * @param _prices the prices array
      */
@@ -571,18 +647,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         for (uint8 i = 0; i < _prices.length; i++) {
             MINT_ETH_PRICES[i] = _prices[i];
         }
-    }
-
-    /**
-     * @dev get the ETH prices in all generate
-     * @return _prices the ETH prices
-     */
-    function getMintETHPrices()
-        external
-        view
-        returns (uint256[] memory _prices)
-    {
-        return MINT_ETH_PRICES;
     }
 
     /**
@@ -600,31 +664,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /**
-     * @dev get the GOD prices in all generate
-     * @return _prices the GOD prices
-     */
-    function getMintGODPrices()
-        external
-        view
-        returns (uint256[] memory _prices)
-    {
-        return MINT_GOD_PRICES;
-    }
-
-    /**
      * @dev set the ETH percent
      * @param _percent the percent of ETH
      */
     function setEthSoldPercent(uint16 _percent) external onlyOwner {
         MAX_TOKENS_ETH_SOLD = _percent;
-    }
-
-    /**
-     * @dev get the ETH sold percent
-     * @return _percent the percent
-     */
-    function getEthSoldPercent() external view returns (uint16 _percent) {
-        return MAX_TOKENS_ETH_SOLD;
     }
 
     /**
@@ -639,18 +683,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
         for (uint8 i = 0; i < maxValues.length; i++) {
             MAX_TRAITS[i] = maxValues[i];
         }
-    }
-
-    /**
-     * @dev get the max traits values
-     * @return maxValues the max traits values
-     */
-    function getMaxTraitValues()
-        external
-        view
-        returns (uint8[] memory maxValues)
-    {
-        return MAX_TRAITS;
     }
 
     /**
@@ -711,23 +743,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT, Ownable, Pausable {
     }
 
     /**
-     * @dev set the traits of boss
-     * @return traits the boss traits array
-     */
-    function getBossTraits()
-        external
-        view
-        returns (DwarfTrait[] memory traits)
-    {
-        return bossTraits;
-    }
-
-    /**
      * @dev enables owner to pause / unpause minting
-     * @param _paused the flag to pause / unpause
+     * @param _bPaused the flag to pause / unpause
      */
-    function setPaused(bool _paused) external onlyOwner {
-        if (_paused) _pause();
+    function setPaused(bool _bPaused) external onlyOwner {
+        if (_bPaused) _pause();
         else _unpause();
     }
 

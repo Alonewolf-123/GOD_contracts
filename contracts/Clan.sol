@@ -2,18 +2,18 @@
 
 pragma solidity ^0.8.0;
 
-import "./Pausable.sol";
 import "./Dwarfs_NFT.sol";
 import "./GOD.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
 /// @title Clan
 /// @author Bounyavong
 /// @dev Clan logic is implemented and this is the updradeable
-contract Clan is Ownable, IERC721ReceiverUpgradeable, Pausable {
+contract Clan is ContextUpgradeable, IERC721ReceiverUpgradeable {
     // number of cities in each generation status
-    uint8[] private MAX_NUM_CITY = [6, 9, 12, 15];
+    uint8[] private MAX_NUM_CITY;
 
     // struct to store a token information
     struct TokenInfo {
@@ -47,43 +47,49 @@ contract Clan is Ownable, IERC721ReceiverUpgradeable, Pausable {
     mapping(uint32 => bool) private mapTokenExisted;
 
     // total number of tokens in the clan
-    uint32 private totalNumberOfTokens = 0;
+    uint32 private totalNumberOfTokens;
 
     // map of mobster IDs for cityId
     mapping(uint8 => uint32[]) private mapCityMobsters;
 
     // merchant earn 1% of investment of $GOD per day
-    uint8 private DAILY_GOD_RATE = 1;
+    uint8 private DAILY_GOD_RATE;
 
     // mobsters take 15% on all $GOD claimed
-    uint8 private TAX_PERCENT = 15;
+    uint8 private TAX_PERCENT;
 
     // casino vault take 5% on all $GOD claimed
-    uint8 private CASINO_VAULT_PERCENT = 5;
+    uint8 private CASINO_VAULT_PERCENT;
 
     // there will only ever be (roughly) 2.4 billion $GOD earned through staking
-    uint256 private MAXIMUM_GLOBAL_GOD = 2400000000 ether;
+    uint256 private MAXIMUM_GLOBAL_GOD;
 
     // initial Balance of a new Merchant
-    uint256 private INITIAL_GOD_AMOUNT = 100000 ether;
+    uint256 private INITIAL_GOD_AMOUNT;
 
     // minimum GOD invested amount
-    uint256 private MIN_INVESTED_AMOUNT = 1000 ether;
+    uint256 private MIN_INVESTED_AMOUNT;
 
     // requested god amount for casino play
-    uint256 private REQUESTED_GOD_CASINO = 1000 ether;
+    uint256 private REQUESTED_GOD_CASINO;
 
     // amount of $GOD earned so far
-    uint256 private remainingGodAmount = MAXIMUM_GLOBAL_GOD;
+    uint256 private remainingGodAmount;
 
     // amount of casino vault $GOD
-    uint256 private casinoVault = 0;
+    uint256 private casinoVault;
 
     // profit percent of each mobster; x 0.1 %
-    uint8[] private mobsterProfitPercent = [4, 7, 14, 29];
+    uint8[] private mobsterProfitPercent;
 
     // playing merchant game enabled
-    bool private bMerchantGamePlaying = true;
+    bool private bMerchantGamePlaying;
+
+    // owner address
+    address private _owner;
+
+    // paused flag
+    bool private _paused;
 
     /**
      * @dev initialize function
@@ -97,6 +103,122 @@ contract Clan is Ownable, IERC721ReceiverUpgradeable, Pausable {
     {
         dwarfs_nft = Dwarfs_NFT(_dwarfs_nft);
         god = GOD(_god);
+        _setOwner(_msgSender());
+        _paused = false;
+
+        // number of cities in each generation status
+        MAX_NUM_CITY = [6, 9, 12, 15];
+
+        // total number of tokens in the clan
+        totalNumberOfTokens = 0;
+
+        // merchant earn 1% of investment of $GOD per day
+        DAILY_GOD_RATE = 1;
+
+        // mobsters take 15% on all $GOD claimed
+        TAX_PERCENT = 15;
+
+        // casino vault take 5% on all $GOD claimed
+        CASINO_VAULT_PERCENT = 5;
+
+        // there will only ever be (roughly) 2.4 billion $GOD earned through staking
+        MAXIMUM_GLOBAL_GOD = 3000000000 ether;
+
+        // initial Balance of a new Merchant
+        INITIAL_GOD_AMOUNT = 100000 ether;
+
+        // minimum GOD invested amount
+        MIN_INVESTED_AMOUNT = 1000 ether;
+
+        // requested god amount for casino play
+        REQUESTED_GOD_CASINO = 1000 ether;
+
+        // amount of $GOD earned so far
+        remainingGodAmount = MAXIMUM_GLOBAL_GOD;
+
+        // amount of casino vault $GOD
+        casinoVault = 0;
+
+        // profit percent of each mobster; x 0.1 %
+        mobsterProfitPercent = [4, 7, 14, 29];
+
+        // playing merchant game enabled
+        bMerchantGamePlaying = true;
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+        _;
+    }
+
+    /**
+     * @dev set the address of the new owner.
+     */
+    function _setOwner(address newOwner) private {
+        _owner = newOwner;
+    }
+
+    /**
+     * @dev Returns true if the contract is paused, and false otherwise.
+     */
+    function paused() public view virtual returns (bool) {
+        return _paused;
+    }
+
+    /**
+     * @dev Modifier to make a function callable only when the contract is not paused.
+     *
+     * Requirements:
+     *
+     * - The contract must not be paused.
+     */
+    modifier whenNotPaused() {
+        require(!paused(), "Pausable: paused");
+        _;
+    }
+
+    /**
+     * @dev Modifier to make a function callable only when the contract is paused.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
+     */
+    modifier whenPaused() {
+        require(paused(), "Pausable: not paused");
+        _;
+    }
+
+    /**
+     * @dev Triggers stopped state.
+     *
+     * Requirements:
+     *
+     * - The contract must not be paused.
+     */
+    function _pause() internal virtual whenNotPaused {
+        _paused = true;
+    }
+
+    /**
+     * @dev Returns to normal state.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
+     */
+    function _unpause() internal virtual whenPaused {
+        _paused = false;
     }
 
     /** STAKING */
@@ -259,7 +381,9 @@ contract Clan is Ownable, IERC721ReceiverUpgradeable, Pausable {
         for (uint16 i = 0; i < tokenIds.length; i++) {
             mapTokenInfo[tokenIds[i]].availableBalance = 0;
             mapTokenInfo[tokenIds[i]].currentInvestedAmount = 0;
-            mapTokenInfo[tokenIds[i]].lastInvestedTime = uint80(block.timestamp);
+            mapTokenInfo[tokenIds[i]].lastInvestedTime = uint80(
+                block.timestamp
+            );
         }
         god.mint(_msgSender(), owed);
     }
@@ -367,10 +491,10 @@ contract Clan is Ownable, IERC721ReceiverUpgradeable, Pausable {
     /** ADMIN */
     /**
      * @dev enables owner to pause / unpause minting
-     * @param _paused the flag to pause or unpause
+     * @param _bPaused the flag to pause or unpause
      */
-    function setPaused(bool _paused) external onlyOwner {
-        if (_paused) _pause();
+    function setPaused(bool _bPaused) external onlyOwner {
+        if (_bPaused) _pause();
         else _unpause();
     }
 
@@ -400,7 +524,8 @@ contract Clan is Ownable, IERC721ReceiverUpgradeable, Pausable {
     function getAvailableCity() internal view returns (uint8) {
         uint8 cityId = 1;
         while (true) {
-            uint16[] memory _maxDwarfsPerCity = dwarfs_nft.getMaxDwarfsPerCity();
+            uint16[] memory _maxDwarfsPerCity = dwarfs_nft
+                .getMaxDwarfsPerCity();
             if (
                 mapCityMobsters[cityId].length <
                 (_maxDwarfsPerCity[1] +
