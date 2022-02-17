@@ -44,9 +44,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
     // reference to $GOD for burning in mint
     GOD private god;
 
-    // traits parameters range
-    uint8[] public MAX_TRAITS;
-
     // Base URI
     string private baseURI;
 
@@ -64,12 +61,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
 
     // the rest number of dwarfs in the current city
     uint16 remainMobstersOfCity;
-
-    // static boss traits
-    DwarfTrait[] public bossTraits;
-
-    // static dwarfather traits
-    DwarfTrait[] public dwarfatherTraits;
 
     // current generation number of NFT
     uint8 private generationOfNft;
@@ -129,23 +120,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
             4, // max boss in a city
             1
         ]; // max dwarfather in a city
-
-        // traits parameters range
-        MAX_TRAITS = [
-            255, // background
-            255, // weapon
-            255, // body
-            255, // outfit
-            255, // head
-            255, // ears
-            255, // mouth
-            255, // nose
-            255, // eyes
-            255, // brows
-            255, // hair
-            255, // facialhair
-            255 // eyewear
-        ];
 
         // number of dwarfs in the current city
         count_mobsters = [0, 0, 0, 0];
@@ -240,10 +214,10 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
     {
         require(s.length == amount, "Invalid parameter");
         for (uint16 i = 0; i < amount; i++) {
-            if (mapTraithashToken[getTraitHash(s[i])] == 0) {
+            if (mapTraithashToken[nft_traits.getTraitHash(s[i])] == 0) {
                 minted++;
                 mapTokenTraits[minted] = s[i];
-                mapTraithashToken[getTraitHash(s[i])] = minted;
+                mapTraithashToken[nft_traits.getTraitHash(s[i])] = minted;
 
                 _safeMint(_msgSender(), minted);
             }
@@ -431,15 +405,22 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
             alphaIndex = selectDwarfType(seed);
         }
         while (true) {
-            t = selectTraits(seed, alphaIndex);
-            if (mapTraithashToken[getTraitHash(t)] == 0) {
+            t = nft_traits.selectTraits(
+                seed,
+                alphaIndex,
+                totalBosses,
+                totalDwarfathers
+            );
+            if (mapTraithashToken[nft_traits.getTraitHash(t)] == 0) {
                 t.generation = generationOfNft;
                 t.isMerchant = (alphaIndex < 5);
                 t.cityId = (alphaIndex < 5) ? 0 : cityId; // if Merchant, cityId should be 0 (no city)
                 t.alphaIndex = alphaIndex;
+                if (alphaIndex == 7) totalBosses++;
+                if (alphaIndex == 8) totalDwarfathers++;
 
                 mapTokenTraits[tokenId] = t;
-                mapTraithashToken[getTraitHash(t)] = tokenId;
+                mapTraithashToken[nft_traits.getTraitHash(t)] = tokenId;
 
                 if (t.isMerchant == false) count_mobsters[t.alphaIndex - 5]++;
 
@@ -504,70 +485,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
                 return 5; // dwarfsoldier
             }
         }
-    }
-
-    /**
-     * @dev selects the species and all of its traits based on the seed value
-     * @param seed a pseudorandom 256 bit number to derive traits from
-     * @return t -  a struct of randomly selected traits
-     */
-    function selectTraits(uint256 seed, uint8 alphaIndex)
-        internal
-        returns (DwarfTrait memory t)
-    {
-        // if Boss
-        if (alphaIndex == 7) {
-            // set the custom traits to boss
-            t = bossTraits[totalBosses];
-        } else if (alphaIndex == 8) {
-            // set the custom traits to dwarfather
-            t = dwarfatherTraits[totalDwarfathers];
-            totalDwarfathers++;
-        } else {
-            t.background_weapon =
-                uint16((random(seed) % MAX_TRAITS[0]) << 8) + // background
-                uint8(random(seed + 1) % MAX_TRAITS[1]); // weapon
-            t.body_outfit =
-                uint16((random(seed + 2) % MAX_TRAITS[2]) << 8) + // body
-                uint8(random(seed + 3) % MAX_TRAITS[3]); // outfit
-            t.head_ears =
-                uint16((random(seed + 4) % MAX_TRAITS[4]) << 8) + // head
-                uint8(random(seed + 5) % MAX_TRAITS[5]); // ears
-            t.mouth_nose =
-                uint16((random(seed + 6) % MAX_TRAITS[6]) << 8) + // mouth
-                uint8(random(seed + 7) % MAX_TRAITS[7]); // nose
-            t.eyes_brows =
-                uint16((random(seed + 8) % MAX_TRAITS[8]) << 8) + // eyes
-                uint8(random(seed + 9) % MAX_TRAITS[9]); // eyebrows
-            t.hair_facialhair =
-                uint16((random(seed + 10) % MAX_TRAITS[10]) << 8) + // hair
-                uint8(random(seed + 11) % MAX_TRAITS[11]); // facialhair
-            t.eyewear = uint8(random(seed + 12) % MAX_TRAITS[12]); // eyewear
-        }
-
-        return t;
-    }
-
-    /**
-     * @dev converts a struct to a 256 bit hash to check for uniqueness
-     * @param s the struct to pack into a hash
-     * @return the 256 bit hash of the struct
-     */
-    function getTraitHash(DwarfTrait memory s) internal pure returns (uint256) {
-        return
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        s.background_weapon, // background & weapon
-                        s.body_outfit, // body & outfit
-                        s.head_ears, // head & ears
-                        s.mouth_nose, // mouth & nose
-                        s.eyes_brows, // eyes & eyebrows
-                        s.hair_facialhair, // hair & facialhair
-                        s.eyewear // eyewear
-                    )
-                )
-            );
     }
 
     /**
@@ -672,20 +589,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
     }
 
     /**
-     * @dev set the traits values
-     * @param maxValues the max values of the traits
-     */
-    function setMaxTraitValues(uint8[] memory maxValues) external onlyOwner {
-        require(
-            maxValues.length == MAX_TRAITS.length,
-            "Invalid input parameter"
-        );
-        for (uint8 i = 0; i < maxValues.length; i++) {
-            MAX_TRAITS[i] = maxValues[i];
-        }
-    }
-
-    /**
      * @dev set the max dwarfs per city
      * @param maxValues the max dwarfs
      */
@@ -708,38 +611,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
      */
     function getMaxDwarfsPerCity() external view returns (uint16[] memory) {
         return MAX_MOBSTERS_CITY;
-    }
-
-    /**
-     * @dev set the traits of boss
-     * @param traits the trait of a boss
-     * @param index the boss index
-     */
-    function setBossTraits(DwarfTrait memory traits, uint16 index)
-        external
-        onlyOwner
-    {
-        if (index >= bossTraits.length) {
-            bossTraits.push(traits);
-        } else {
-            bossTraits[index] = traits;
-        }
-    }
-
-    /**
-     * @dev set the traits of dwarfather
-     * @param traits the trait of a boss
-     * @param index the boss index
-     */
-    function setDwarfatherTraits(DwarfTrait memory traits, uint16 index)
-        external
-        onlyOwner
-    {
-        if (index >= dwarfatherTraits.length) {
-            dwarfatherTraits.push(traits);
-        } else {
-            dwarfatherTraits[index] = traits;
-        }
     }
 
     /**

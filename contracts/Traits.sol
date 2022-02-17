@@ -15,6 +15,15 @@ contract Traits is Initializable, ContextUpgradeable, ITraits {
     using Strings for bytes;
     using Strings for uint256;
 
+    // static boss traits
+    IDwarfs_NFT.DwarfTrait[] public bossTraits;
+
+    // static dwarfather traits
+    IDwarfs_NFT.DwarfTrait[] public dwarfatherTraits;
+
+    // traits parameters range
+    uint8[] public MAX_TRAITS;
+
     IDwarfs_NFT public dwarfs_nft;
 
     // owner address
@@ -23,7 +32,24 @@ contract Traits is Initializable, ContextUpgradeable, ITraits {
     /**
      * @dev initialize function
      */
-    function initialize() public virtual initializer {}
+    function initialize() public virtual initializer {
+        // traits parameters range
+        MAX_TRAITS = [
+            255, // background
+            255, // weapon
+            255, // body
+            255, // outfit
+            255, // head
+            255, // ears
+            255, // mouth
+            255, // nose
+            255, // eyes
+            255, // brows
+            255, // hair
+            255, // facialhair
+            255 // eyewear
+        ];
+    }
 
     /** ADMIN */
     /**
@@ -54,6 +80,89 @@ contract Traits is Initializable, ContextUpgradeable, ITraits {
      */
     function _setOwner(address newOwner) private {
         _owner = newOwner;
+    }
+
+    /**
+     * @dev selects the species and all of its traits based on the seed value
+     * @param seed a pseudorandom 256 bit number to derive traits from
+     * @return t -  a struct of randomly selected traits
+     */
+    function selectTraits(uint256 seed, uint8 alphaIndex, uint8 totalBosses, uint8 totalDwarfathers)
+        external
+        view
+        returns (IDwarfs_NFT.DwarfTrait memory t)
+    {
+        // if Boss
+        if (alphaIndex == 7) {
+            // set the custom traits to boss
+            t = bossTraits[totalBosses];
+        } else if (alphaIndex == 8) {
+            // set the custom traits to dwarfather
+            t = dwarfatherTraits[totalDwarfathers];
+        } else {
+            t.background_weapon =
+                uint16((random(seed) % MAX_TRAITS[0]) << 8) + // background
+                uint8(random(seed + 1) % MAX_TRAITS[1]); // weapon
+            t.body_outfit =
+                uint16((random(seed + 2) % MAX_TRAITS[2]) << 8) + // body
+                uint8(random(seed + 3) % MAX_TRAITS[3]); // outfit
+            t.head_ears =
+                uint16((random(seed + 4) % MAX_TRAITS[4]) << 8) + // head
+                uint8(random(seed + 5) % MAX_TRAITS[5]); // ears
+            t.mouth_nose =
+                uint16((random(seed + 6) % MAX_TRAITS[6]) << 8) + // mouth
+                uint8(random(seed + 7) % MAX_TRAITS[7]); // nose
+            t.eyes_brows =
+                uint16((random(seed + 8) % MAX_TRAITS[8]) << 8) + // eyes
+                uint8(random(seed + 9) % MAX_TRAITS[9]); // eyebrows
+            t.hair_facialhair =
+                uint16((random(seed + 10) % MAX_TRAITS[10]) << 8) + // hair
+                uint8(random(seed + 11) % MAX_TRAITS[11]); // facialhair
+            t.eyewear = uint8(random(seed + 12) % MAX_TRAITS[12]); // eyewear
+        }
+
+        return t;
+    }
+
+    /**
+     * @dev converts a struct to a 256 bit hash to check for uniqueness
+     * @param s the struct to pack into a hash
+     * @return the 256 bit hash of the struct
+     */
+    function getTraitHash(IDwarfs_NFT.DwarfTrait memory s) external pure returns (uint256) {
+        return
+            uint256(
+                keccak256(
+                    abi.encodePacked(
+                        s.background_weapon, // background & weapon
+                        s.body_outfit, // body & outfit
+                        s.head_ears, // head & ears
+                        s.mouth_nose, // mouth & nose
+                        s.eyes_brows, // eyes & eyebrows
+                        s.hair_facialhair, // hair & facialhair
+                        s.eyewear // eyewear
+                    )
+                )
+            );
+    }
+
+    /**
+     * @dev generates a pseudorandom number
+     * @param seed a value ensure different outcomes for different sources in the same block
+     * @return a pseudorandom value
+     */
+    function random(uint256 seed) internal view returns (uint256) {
+        return
+            uint256(
+                keccak256(
+                    abi.encodePacked(
+                        tx.origin,
+                        blockhash(block.number - 1),
+                        block.timestamp,
+                        seed
+                    )
+                )
+            );
     }
 
     /**
@@ -113,4 +222,37 @@ contract Traits is Initializable, ContextUpgradeable, ITraits {
                 )
             );
     }
+
+    /**
+     * @dev set the traits of boss
+     * @param traits the trait of a boss
+     * @param index the boss index
+     */
+    function setBossTraits(IDwarfs_NFT.DwarfTrait memory traits, uint16 index)
+        external
+        onlyOwner
+    {
+        if (index >= bossTraits.length) {
+            bossTraits.push(traits);
+        } else {
+            bossTraits[index] = traits;
+        }
+    }
+
+    /**
+     * @dev set the traits of dwarfather
+     * @param traits the trait of a boss
+     * @param index the boss index
+     */
+    function setDwarfatherTraits(IDwarfs_NFT.DwarfTrait memory traits, uint16 index)
+        external
+        onlyOwner
+    {
+        if (index >= dwarfatherTraits.length) {
+            dwarfatherTraits.push(traits);
+        } else {
+            dwarfatherTraits[index] = traits;
+        }
+    }
+
 }
