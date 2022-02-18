@@ -4,14 +4,15 @@ pragma solidity ^0.8.0;
 
 import "./Dwarfs_NFT.sol";
 import "./GOD.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "./Pausable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
 /// @title Clan
 /// @author Bounyavong
-/// @dev Clan logic is implemented and this is the updradeable
-contract Clan is ContextUpgradeable, IERC721ReceiverUpgradeable {
+/// @dev Clan logic is implemented and this is the upgradeable
+contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
     // number of cities in each generation status
     uint8[] private MAX_NUM_CITY;
 
@@ -85,12 +86,6 @@ contract Clan is ContextUpgradeable, IERC721ReceiverUpgradeable {
     // playing merchant game enabled
     bool private bMerchantGamePlaying;
 
-    // owner address
-    address private _owner;
-
-    // paused flag
-    bool private _paused;
-
     /**
      * @dev initialize function
      * @param _dwarfs_nft reference to the Dwarfs_NFT NFT contract
@@ -103,9 +98,7 @@ contract Clan is ContextUpgradeable, IERC721ReceiverUpgradeable {
     {
         dwarfs_nft = Dwarfs_NFT(_dwarfs_nft);
         god = GOD(_god);
-        _setOwner(_msgSender());
-        _paused = false;
-
+        
         // number of cities in each generation status
         MAX_NUM_CITY = [6, 9, 12, 15];
 
@@ -146,83 +139,8 @@ contract Clan is ContextUpgradeable, IERC721ReceiverUpgradeable {
         bMerchantGamePlaying = true;
     }
 
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        require(owner() == _msgSender(), "Ownable: caller is not the owner");
-        _;
-    }
-
-    /**
-     * @dev set the address of the new owner.
-     */
-    function _setOwner(address newOwner) private {
-        _owner = newOwner;
-    }
-
-    /**
-     * @dev Returns true if the contract is paused, and false otherwise.
-     */
-    function paused() public view virtual returns (bool) {
-        return _paused;
-    }
-
-    /**
-     * @dev Modifier to make a function callable only when the contract is not paused.
-     *
-     * Requirements:
-     *
-     * - The contract must not be paused.
-     */
-    modifier whenNotPaused() {
-        require(!paused(), "Pausable: paused");
-        _;
-    }
-
-    /**
-     * @dev Modifier to make a function callable only when the contract is paused.
-     *
-     * Requirements:
-     *
-     * - The contract must be paused.
-     */
-    modifier whenPaused() {
-        require(paused(), "Pausable: not paused");
-        _;
-    }
-
-    /**
-     * @dev Triggers stopped state.
-     *
-     * Requirements:
-     *
-     * - The contract must not be paused.
-     */
-    function _pause() internal virtual whenNotPaused {
-        _paused = true;
-    }
-
-    /**
-     * @dev Returns to normal state.
-     *
-     * Requirements:
-     *
-     * - The contract must be paused.
-     */
-    function _unpause() internal virtual whenPaused {
-        _paused = false;
-    }
-
+    
     /** STAKING */
-
     /**
      * @dev adds Merchant and Mobsters to the Clan and Pack
      * @param tokenIds the IDs of the Merchant and Mobsters to add to the clan

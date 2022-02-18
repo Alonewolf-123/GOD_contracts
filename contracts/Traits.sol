@@ -6,12 +6,12 @@ import "./ITraits.sol";
 import "./IDwarfs_NFT.sol";
 import "./Strings.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /// @title NFT Traits to generate the token URI
 /// @author Bounyavong
 /// @dev read the traits details from NFT and generate the Token URI
-contract Traits is Initializable, ContextUpgradeable, ITraits {
+contract Traits is Initializable, OwnableUpgradeable, ITraits {
     using Strings for bytes;
     using Strings for uint256;
 
@@ -25,9 +25,6 @@ contract Traits is Initializable, ContextUpgradeable, ITraits {
     uint8[] public MAX_TRAITS;
 
     IDwarfs_NFT public dwarfs_nft;
-
-    // owner address
-    address private _owner;
 
     /**
      * @dev initialize function
@@ -57,29 +54,6 @@ contract Traits is Initializable, ContextUpgradeable, ITraits {
      */
     function setDwarfs_NFT(address _dwarfs_nft) external onlyOwner {
         dwarfs_nft = IDwarfs_NFT(_dwarfs_nft);
-        _setOwner(_msgSender());
-    }
-
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        require(owner() == _msgSender(), "Ownable: caller is not the owner");
-        _;
-    }
-
-    /**
-     * @dev set the address of the new owner.
-     */
-    function _setOwner(address newOwner) private {
-        _owner = newOwner;
     }
 
     /**

@@ -4,15 +4,16 @@ pragma solidity ^0.8.0;
 import "./IDwarfs_NFT.sol";
 import "./IClan.sol";
 import "./ITraits.sol";
+import "./Pausable.sol";
 import "./GOD.sol";
-import "./Strings.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /// @title Dwarfs NFT
 /// @author Bounyavong
-/// @dev Dwarfs NFT logic is implemented and this is the updradeable
-contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
+/// @dev Dwarfs NFT logic is implemented and this is the upgradeable
+contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausable {
     // eth prices for mint
     uint256[] public MINT_ETH_PRICES;
 
@@ -65,12 +66,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
     // current generation number of NFT
     uint8 private generationOfNft;
 
-    // owner address
-    address private _owner;
-
-    // paused flag
-    bool private _paused;
-
     /**
      * @dev instantiates contract and rarity tables
      * @param _god the GOD address
@@ -83,8 +78,6 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
         __ERC721_init("Game Of Dwarfs", "DWARF");
         god = GOD(_god);
         nft_traits = ITraits(_traits);
-        _setOwner(_msgSender());
-        _paused = false;
 
         // eth prices for mint
         MINT_ETH_PRICES = [
@@ -126,81 +119,12 @@ contract Dwarfs_NFT is ERC721Upgradeable, IDwarfs_NFT {
 
         // the rest number of dwarfs in the current city
         remainMobstersOfCity = 200;
-    }
 
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view returns (address) {
-        return _owner;
-    }
+        // current number of boss
+        totalBosses = 0;
 
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        require(owner() == _msgSender(), "Ownable: caller is not the owner");
-        _;
-    }
-
-    /**
-     * @dev set the address of the new owner.
-     */
-    function _setOwner(address newOwner) private {
-        _owner = newOwner;
-    }
-
-    /**
-     * @dev Returns true if the contract is paused, and false otherwise.
-     */
-    function paused() public view virtual returns (bool) {
-        return _paused;
-    }
-
-    /**
-     * @dev Modifier to make a function callable only when the contract is not paused.
-     *
-     * Requirements:
-     *
-     * - The contract must not be paused.
-     */
-    modifier whenNotPaused() {
-        require(!paused(), "Pausable: paused");
-        _;
-    }
-
-    /**
-     * @dev Modifier to make a function callable only when the contract is paused.
-     *
-     * Requirements:
-     *
-     * - The contract must be paused.
-     */
-    modifier whenPaused() {
-        require(paused(), "Pausable: not paused");
-        _;
-    }
-
-    /**
-     * @dev Triggers stopped state.
-     *
-     * Requirements:
-     *
-     * - The contract must not be paused.
-     */
-    function _pause() internal virtual whenNotPaused {
-        _paused = true;
-    }
-
-    /**
-     * @dev Returns to normal state.
-     *
-     * Requirements:
-     *
-     * - The contract must be paused.
-     */
-    function _unpause() internal virtual whenPaused {
-        _paused = false;
+        // current number of dwarfathers
+        totalDwarfathers = 0;
     }
 
     /**
