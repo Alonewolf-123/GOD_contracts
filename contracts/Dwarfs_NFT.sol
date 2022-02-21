@@ -13,7 +13,12 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 /// @title Dwarfs NFT
 /// @author Bounyavong
 /// @dev Dwarfs NFT logic is implemented and this is the upgradeable
-contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausable {
+contract Dwarfs_NFT is
+    ERC721Upgradeable,
+    OwnableUpgradeable,
+    IDwarfs_NFT,
+    Pausable
+{
     // eth prices for mint
     uint256[] public MINT_ETH_PRICES;
 
@@ -28,6 +33,12 @@ contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausa
 
     // number of dwarfs in a city
     uint16[] public MAX_MOBSTERS_CITY;
+
+    // number of dwarfs from casino
+    uint16 public MAX_CASINO_MINTS;
+
+    // price for playing casino
+    uint256 public CASINO_PRICE;
 
     // number of tokens have been minted so far
     uint32 private minted;
@@ -59,6 +70,9 @@ contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausa
 
     // current number of dwarfathers
     uint8 private totalDwarfathers;
+
+    // current number of dwarfs of casino play
+    uint16 private count_casinoMints;
 
     // the rest number of dwarfs in the current city
     uint16 remainMobstersOfCity;
@@ -114,6 +128,10 @@ contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausa
             1
         ]; // max dwarfather in a city
 
+        MAX_CASINO_MINTS = 50; // max number of mints from casino is 50
+
+        CASINO_PRICE = 1000 ether; // price of casino play is 1000 GOD
+
         // number of dwarfs in the current city
         count_mobsters = [0, 0, 0, 0];
 
@@ -125,6 +143,9 @@ contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausa
 
         // current number of dwarfathers
         totalDwarfathers = 0;
+
+        // current number of dwarfs of casino
+        count_casinoMints = 0;
     }
 
     /**
@@ -149,6 +170,39 @@ contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausa
     }
 
     /**
+     * @dev mint a token from casino
+     */
+    function mintOfCasino() external payable whenNotPaused {
+        require(tx.origin == _msgSender(), "Only EOA");
+        require(generationOfNft > 0, "Casino mint will be started from Phase 2");
+        require(
+            count_casinoMints < MAX_CASINO_MINTS,
+            "All the casino dwarfs of current generation have been minted already!"
+        );
+
+        god.burn(_msgSender(), CASINO_PRICE);
+
+        uint256 seed;
+
+        if (clan.getAvailableCity() != cityId) {
+            cityId = clan.getAvailableCity();
+            count_mobsters = clan.getNumMobstersOfCity(cityId);
+        }
+
+        minted++;
+        if (minted > MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3) {
+            generationOfNft++;
+            count_casinoMints = 0;
+        }
+        seed = random(minted);
+        generate(minted, seed);
+
+        count_casinoMints++;
+
+        _safeMint(address(clan), minted);
+    }
+
+    /**
      * @dev mint a token - 85% Merchant, 15% Mobsters
      * @param amount the amount of the token
      */
@@ -156,87 +210,41 @@ contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausa
         require(tx.origin == _msgSender(), "Only EOA");
         require(minted + amount <= MAX_GEN_TOKENS[3], "All tokens minted");
         require(amount > 0 && amount <= 10, "Invalid mint amount");
-        if (minted < MAX_GEN_TOKENS[0]) {
+
+        if (generationOfNft == 0) {
             require(
-                minted + amount <= MAX_GEN_TOKENS[0],
-                "All tokens of generation 0 on-sale already sold"
+                minted + amount <= MAX_GEN_TOKENS[generationOfNft],
+                "All tokens of generation on-sale already sold"
             );
             require(
-                amount * MINT_ETH_PRICES[0] <= msg.value,
+                amount * MINT_ETH_PRICES[generationOfNft] <= msg.value,
                 "Invalid ETH payment amount"
             );
-        } else if (
-            minted >= MAX_GEN_TOKENS[0] &&
-            minted <
-            MAX_GEN_TOKENS[0] +
-                ((MAX_GEN_TOKENS[1] - MAX_GEN_TOKENS[0]) *
-                    MAX_TOKENS_ETH_SOLD) /
-                100
-        ) {
+        } else {
             require(
                 minted + amount <=
-                    MAX_GEN_TOKENS[0] +
-                        ((MAX_GEN_TOKENS[1] - MAX_GEN_TOKENS[0]) *
+                    MAX_GEN_TOKENS[generationOfNft - 1] +
+                        ((MAX_GEN_TOKENS[generationOfNft - 1] -
+                            MAX_GEN_TOKENS[generationOfNft - 1]) *
                             MAX_TOKENS_ETH_SOLD) /
                         100,
-                "All tokens of generation 1 on-sale already sold"
+                "All tokens of generation on-sale already sold"
             );
             require(
-                amount * MINT_ETH_PRICES[1] <= msg.value,
-                "Invalid ETH payment amount"
-            );
-        } else if (
-            minted >= MAX_GEN_TOKENS[1] &&
-            minted <
-            MAX_GEN_TOKENS[1] +
-                ((MAX_GEN_TOKENS[2] - MAX_GEN_TOKENS[1]) *
-                    MAX_TOKENS_ETH_SOLD) /
-                100
-        ) {
-            require(
-                minted + amount <=
-                    MAX_GEN_TOKENS[1] +
-                        ((MAX_GEN_TOKENS[2] - MAX_GEN_TOKENS[1]) *
-                            MAX_TOKENS_ETH_SOLD) /
-                        100,
-                "All tokens of generation 2 on-sale already sold"
-            );
-            require(
-                amount * MINT_ETH_PRICES[2] <= msg.value,
-                "Invalid ETH payment amount"
-            );
-        } else if (
-            minted >= MAX_GEN_TOKENS[2] &&
-            minted <
-            MAX_GEN_TOKENS[2] +
-                ((MAX_GEN_TOKENS[3] - MAX_GEN_TOKENS[2]) *
-                    MAX_TOKENS_ETH_SOLD) /
-                100
-        ) {
-            require(
-                minted + amount <=
-                    MAX_GEN_TOKENS[2] +
-                        ((MAX_GEN_TOKENS[3] - MAX_GEN_TOKENS[2]) *
-                            MAX_TOKENS_ETH_SOLD) /
-                        100,
-                "All tokens of generation 3 on-sale already sold"
-            );
-            require(
-                amount * MINT_ETH_PRICES[3] <= msg.value,
+                amount * MINT_ETH_PRICES[generationOfNft] <= msg.value,
                 "Invalid ETH payment amount"
             );
         }
 
         uint256 totalGodCost = 0;
         for (uint16 i = 0; i < amount; i++) {
-            minted++;
-            totalGodCost += mintCost(minted);
+            totalGodCost += mintCost(minted + i + 1);
         }
         if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
 
         uint32[] memory tokenIds = new uint32[](amount);
         uint256 seed;
-        minted = minted - amount;
+
         for (uint16 i = 0; i < amount; i++) {
             if (i == 0 || clan.getAvailableCity() != cityId) {
                 cityId = clan.getAvailableCity();
@@ -244,8 +252,11 @@ contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausa
             }
 
             minted++;
-            if (minted > MAX_GEN_TOKENS[generationOfNft]) {
+            if (
+                minted > MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3
+            ) {
                 generationOfNft++;
+                count_casinoMints = 0;
             }
             seed = random(minted);
             generate(minted, seed);
@@ -513,10 +524,13 @@ contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausa
     }
 
     /**
-     * @dev set the max dwarfs per city
-     * @param maxValues the max dwarfs
+     * @dev set the max mobsters per city
+     * @param maxValues the max mobsters
      */
-    function setMaxDwarfsPerCity(uint16[] memory maxValues) external onlyOwner {
+    function setMaxMobstersPerCity(uint16[] memory maxValues)
+        external
+        onlyOwner
+    {
         require(
             maxValues.length == MAX_MOBSTERS_CITY.length,
             "Invalid input parameter"
@@ -530,11 +544,19 @@ contract Dwarfs_NFT is ERC721Upgradeable, OwnableUpgradeable, IDwarfs_NFT, Pausa
     }
 
     /**
-     * @dev get the max number of dwarfs per city
-     * @return the number of dwarfs
+     * @dev get the max number of mobsters per city
+     * @return the number of mobsters
      */
-    function getMaxDwarfsPerCity() external view returns (uint16[] memory) {
+    function getMaxMobstersPerCity() external view returns (uint16[] memory) {
         return MAX_MOBSTERS_CITY;
+    }
+
+    /**
+     * @dev set the max number of dwarfs from casino
+     * @param maxCasinoMints the max dwarfs from casino
+     */
+    function getMaxCasinoMints(uint16 maxCasinoMints) external onlyOwner {
+        MAX_CASINO_MINTS = maxCasinoMints;
     }
 
     /**

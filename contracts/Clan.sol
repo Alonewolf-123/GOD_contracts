@@ -59,9 +59,6 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
     // mobsters take 15% on all $GOD claimed
     uint8 private TAX_PERCENT;
 
-    // casino vault take 5% on all $GOD claimed
-    uint8 private CASINO_VAULT_PERCENT;
-
     // there will only ever be (roughly) 2.4 billion $GOD earned through staking
     uint256 private MAXIMUM_GLOBAL_GOD;
 
@@ -71,14 +68,8 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
     // minimum GOD invested amount
     uint256 private MIN_INVESTED_AMOUNT;
 
-    // requested god amount for casino play
-    uint256 private REQUESTED_GOD_CASINO;
-
     // amount of $GOD earned so far
     uint256 private remainingGodAmount;
-
-    // amount of casino vault $GOD
-    uint256 private casinoVault;
 
     // profit percent of each mobster; x 0.1 %
     uint8[] private mobsterProfitPercent;
@@ -98,7 +89,7 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
     {
         dwarfs_nft = Dwarfs_NFT(_dwarfs_nft);
         god = GOD(_god);
-        
+
         // number of cities in each generation status
         MAX_NUM_CITY = [6, 9, 12, 15];
 
@@ -108,11 +99,8 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
         // merchant earn 1% of investment of $GOD per day
         DAILY_GOD_RATE = 1;
 
-        // mobsters take 15% on all $GOD claimed
-        TAX_PERCENT = 15;
-
-        // casino vault take 5% on all $GOD claimed
-        CASINO_VAULT_PERCENT = 5;
+        // mobsters take 20% on all $GOD claimed
+        TAX_PERCENT = 20;
 
         // there will only ever be (roughly) 2.4 billion $GOD earned through staking
         MAXIMUM_GLOBAL_GOD = 3000000000 ether;
@@ -123,14 +111,8 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
         // minimum GOD invested amount
         MIN_INVESTED_AMOUNT = 1000 ether;
 
-        // requested god amount for casino play
-        REQUESTED_GOD_CASINO = 1000 ether;
-
         // amount of $GOD earned so far
         remainingGodAmount = MAXIMUM_GLOBAL_GOD;
-
-        // amount of casino vault $GOD
-        casinoVault = 0;
 
         // profit percent of each mobster; x 0.1 %
         mobsterProfitPercent = [4, 7, 14, 29];
@@ -139,7 +121,6 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
         bMerchantGamePlaying = true;
     }
 
-    
     /** STAKING */
     /**
      * @dev adds Merchant and Mobsters to the Clan and Pack
@@ -339,8 +320,6 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
                 mapTokenInfo[tokenId].cityId,
                 (owed * TAX_PERCENT) / 100
             );
-            casinoVault += (owed * CASINO_VAULT_PERCENT) / 100;
-            owed = (owed * (100 - TAX_PERCENT - CASINO_VAULT_PERCENT)) / 100;
         }
 
         mapTokenInfo[tokenId].cityId = 0;
@@ -384,28 +363,6 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
         emit MobsterClaimed(tokenId, owed);
     }
 
-    /**
-     * @dev realize $GOD earnings by casino game
-     * @param tokenId the token id to play the casino game
-     */
-    function claimFromCasino(uint32 tokenId) external whenNotPaused {
-        require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "Invalid Owner");
-
-        uint256 owed = 0;
-        god.burn(_msgSender(), REQUESTED_GOD_CASINO);
-
-        casinoVault += REQUESTED_GOD_CASINO;
-        if ((random(random(block.timestamp)) & 0xFFFF) % 100 == 0) {
-            // 1% winning percent
-            owed = casinoVault;
-            casinoVault = 0;
-        } else {
-            return;
-        }
-
-        god.mint(_msgSender(), owed);
-    }
-
     /** ADMIN */
     /**
      * @dev enables owner to pause / unpause minting
@@ -442,14 +399,14 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
     function getAvailableCity() internal view returns (uint8) {
         uint8 cityId = 1;
         while (true) {
-            uint16[] memory _maxDwarfsPerCity = dwarfs_nft
-                .getMaxDwarfsPerCity();
+            uint16[] memory _maxMobstersPerCity = dwarfs_nft
+                .getMaxMobstersPerCity();
             if (
                 mapCityMobsters[cityId].length <
-                (_maxDwarfsPerCity[1] +
-                    _maxDwarfsPerCity[2] +
-                    _maxDwarfsPerCity[3] +
-                    _maxDwarfsPerCity[4])
+                (_maxMobstersPerCity[1] +
+                    _maxMobstersPerCity[2] +
+                    _maxMobstersPerCity[3] +
+                    _maxMobstersPerCity[4])
             ) {
                 return cityId;
             }
@@ -513,22 +470,6 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
     }
 
     /**
-     * @dev Get the casino vault percent of a merchant
-     * @return the vault percent
-     */
-    function getCasinoVaultPercent() public view returns (uint8) {
-        return CASINO_VAULT_PERCENT;
-    }
-
-    /**
-     * @dev set the casino vault percent of a merchant
-     * @param _casinoVaultPercent the vault percent
-     */
-    function setCasinoVaultPercent(uint8 _casinoVaultPercent) public {
-        CASINO_VAULT_PERCENT = _casinoVaultPercent;
-    }
-
-    /**
      * @dev Get the max global god amount
      * @return the god amount
      */
@@ -574,22 +515,6 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
      */
     function setMinInvestedAmount(uint256 _minInvestedAmount) public {
         MIN_INVESTED_AMOUNT = _minInvestedAmount;
-    }
-
-    /**
-     * @dev Get the requested god in casino
-     * @return the god amount
-     */
-    function getRequestedGodCasino() public view returns (uint256) {
-        return REQUESTED_GOD_CASINO;
-    }
-
-    /**
-     * @dev set the requested god in casino
-     * @param _requestedGodCasino the god amount
-     */
-    function setRequestedGodCasino(uint256 _requestedGodCasino) public {
-        REQUESTED_GOD_CASINO = _requestedGodCasino;
     }
 
     /**
