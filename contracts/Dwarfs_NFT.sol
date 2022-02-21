@@ -184,6 +184,7 @@ contract Dwarfs_NFT is
         );
         require(mapCasinoplayerTime[_msgSender()] + 12 hours >= uint80(block.timestamp) || mapCasinoplayerTime[_msgSender()] == 0, "You can play the casino in 12 hours");
 
+        mapCasinoplayerTime[_msgSender()] = uint80(block.timestamp);
         god.burn(_msgSender(), CASINO_PRICE);
 
         uint256 seed;
