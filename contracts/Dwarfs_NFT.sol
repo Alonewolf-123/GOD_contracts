@@ -183,10 +183,10 @@ contract Dwarfs_NFT is
             "All the casino dwarfs of current generation have been minted already"
         );
         require(mapCasinoplayerTime[_msgSender()] + 12 hours >= uint80(block.timestamp) || mapCasinoplayerTime[_msgSender()] == 0, "You can play the casino in 12 hours");
-
-        mapCasinoplayerTime[_msgSender()] = uint80(block.timestamp);
         god.burn(_msgSender(), CASINO_PRICE);
 
+        mapCasinoplayerTime[_msgSender()] = uint80(block.timestamp);
+        
         uint256 seed;
 
         cityId = clan.getAvailableCity();
