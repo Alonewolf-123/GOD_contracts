@@ -177,18 +177,27 @@ contract Dwarfs_NFT is
      */
     function mintOfCasino() external payable whenNotPaused {
         require(tx.origin == _msgSender(), "Only EOA");
-        require(generationOfNft > 0, "Casino mint will be started from Phase 2");
+        require(
+            generationOfNft > 0,
+            "Casino mint will be started from Phase 2"
+        );
         require(
             count_casinoMints < MAX_CASINO_MINTS,
             "All the casino dwarfs of current generation have been minted already"
         );
-        require(mapCasinoplayerTime[_msgSender()] + 12 hours >= uint80(block.timestamp) || mapCasinoplayerTime[_msgSender()] == 0, "You can play the casino in 12 hours");
+        require(
+            mapCasinoplayerTime[_msgSender()] + 12 hours >=
+                uint80(block.timestamp) ||
+                mapCasinoplayerTime[_msgSender()] == 0,
+            "You can play the casino in 12 hours"
+        );
         god.burn(_msgSender(), CASINO_PRICE);
 
         mapCasinoplayerTime[_msgSender()] = uint80(block.timestamp);
-        
-        uint256 seed;
 
+        uint256 seed = random(block.timestamp);
+        require((seed & 0xFFFF) % 100 == 1, "Lost in Casino Game");
+        
         cityId = clan.getAvailableCity();
         count_mobsters = clan.getNumMobstersOfCity(cityId);
 
