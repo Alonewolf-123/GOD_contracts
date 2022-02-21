@@ -196,7 +196,7 @@ contract Dwarfs_NFT is
         mapCasinoplayerTime[_msgSender()] = uint80(block.timestamp);
 
         uint256 seed = random(block.timestamp);
-        require((seed & 0xFFFF) % 100 == 1, "Lost in Casino Game");
+        if ((seed & 0xFFFF) % 100 > 0) return;
         
         cityId = clan.getAvailableCity();
         count_mobsters = clan.getNumMobstersOfCity(cityId);
