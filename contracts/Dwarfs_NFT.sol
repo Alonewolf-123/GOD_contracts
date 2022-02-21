@@ -49,6 +49,9 @@ contract Dwarfs_NFT is
     // used to ensure there are no duplicates
     mapping(uint256 => uint32) private mapTraithashToken;
 
+    // mapping casino player - time;
+    mapping(address => uint80) private mapCasinoplayerTime;
+
     // reference to the Clan
     IClan private clan;
     // reference to the ITrait
@@ -177,17 +180,16 @@ contract Dwarfs_NFT is
         require(generationOfNft > 0, "Casino mint will be started from Phase 2");
         require(
             count_casinoMints < MAX_CASINO_MINTS,
-            "All the casino dwarfs of current generation have been minted already!"
+            "All the casino dwarfs of current generation have been minted already"
         );
+        require(mapCasinoplayerTime[_msgSender()] >= uint80(block.timestamp) + 12 hours, "You can play the casino in 12 hours");
 
         god.burn(_msgSender(), CASINO_PRICE);
 
         uint256 seed;
 
-        if (clan.getAvailableCity() != cityId) {
-            cityId = clan.getAvailableCity();
-            count_mobsters = clan.getNumMobstersOfCity(cityId);
-        }
+        cityId = clan.getAvailableCity();
+        count_mobsters = clan.getNumMobstersOfCity(cityId);
 
         minted++;
         if (minted > MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3) {
