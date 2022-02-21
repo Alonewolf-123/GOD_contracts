@@ -182,7 +182,7 @@ contract Dwarfs_NFT is
             count_casinoMints < MAX_CASINO_MINTS,
             "All the casino dwarfs of current generation have been minted already"
         );
-        require(mapCasinoplayerTime[_msgSender()] >= uint80(block.timestamp) + 12 hours, "You can play the casino in 12 hours");
+        require(mapCasinoplayerTime[_msgSender()] + 12 hours >= uint80(block.timestamp) || mapCasinoplayerTime[_msgSender()] == 0, "You can play the casino in 12 hours");
 
         god.burn(_msgSender(), CASINO_PRICE);
 
