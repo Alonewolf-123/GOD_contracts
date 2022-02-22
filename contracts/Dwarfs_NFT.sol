@@ -92,7 +92,7 @@ contract Dwarfs_NFT is
         virtual
         initializer
     {
-        __ERC721_init("Game Of Dwarfs", "DWARF");
+        __ERC721_init("Dwarf NFT", "DWARF");
         god = GOD(_god);
         nft_traits = ITraits(_traits);
 
@@ -212,6 +212,10 @@ contract Dwarfs_NFT is
         count_casinoMints++;
 
         _safeMint(address(clan), minted);
+
+        uint32[] memory tokenIds = new uint32[](1);
+        tokenIds[0] = minted;
+        clan.addManyToClan(tokenIds);
     }
 
     /**
