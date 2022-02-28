@@ -211,7 +211,7 @@ contract Dwarfs_NFT is
 
         count_casinoMints++;
 
-        _safeMint(address(clan), minted);
+        _safeMint(_msgSender(), minted);
 
         uint32[] memory tokenIds = new uint32[](1);
         tokenIds[0] = minted;
@@ -277,7 +277,7 @@ contract Dwarfs_NFT is
             seed = random(minted);
             generate(minted, seed);
 
-            _safeMint(address(clan), minted);
+            _safeMint(_msgSender(), minted);
             tokenIds[i] = minted;
         }
 
