@@ -6,6 +6,7 @@ import "./IClan.sol";
 import "./ITraits.sol";
 import "./Pausable.sol";
 import "./GOD.sol";
+import "./ERC2981ContractWideRoyalties.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -17,7 +18,8 @@ contract Dwarfs_NFT is
     ERC721Upgradeable,
     OwnableUpgradeable,
     IDwarfs_NFT,
-    Pausable
+    Pausable,
+    ERC2981ContractWideRoyalties
 {
     // eth prices for mint
     uint256[] public MINT_ETH_PRICES;
@@ -149,6 +151,25 @@ contract Dwarfs_NFT is
 
         // current number of dwarfs of casino
         count_casinoMints = 0;
+    }
+
+    /// @inheritdoc	ERC165Upgradeable
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721Upgradeable, ERC2981Base)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+    /// @notice Allows to set the royalties on the contract
+    /// @dev This function in a real contract should be protected with a onlyOwner (or equivalent) modifier
+    /// @param recipient the royalties recipient
+    /// @param value royalties value (between 0 and 10000)
+    function setRoyalties(address recipient, uint256 value) external onlyOwner {
+        _setRoyalties(recipient, value);
     }
 
     /**
