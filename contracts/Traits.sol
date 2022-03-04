@@ -11,7 +11,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 /// @title NFT Traits to generate the token URI
 /// @author Bounyavong
 /// @dev read the traits details from NFT and generate the Token URI
-contract Traits is Initializable, OwnableUpgradeable, ITraits {
+contract Traits is OwnableUpgradeable, ITraits {
     using Strings for bytes;
     using Strings for uint256;
 
@@ -30,6 +30,8 @@ contract Traits is Initializable, OwnableUpgradeable, ITraits {
      * @dev initialize function
      */
     function initialize() public virtual initializer {
+        __Ownable_init();
+        
         // traits parameters range
         MAX_TRAITS = [
             255, // background

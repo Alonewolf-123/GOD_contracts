@@ -152,6 +152,9 @@ contract Dwarfs_NFT is
 
         // current number of dwarfs of casino
         count_casinoMints = 0;
+
+        // current generation number of NFT
+        generationOfNft = 0;
     }
 
     /// @inheritdoc	ERC165Upgradeable
@@ -219,7 +222,7 @@ contract Dwarfs_NFT is
 
         uint256 seed = random(block.timestamp);
         if ((seed & 0xFFFF) % 100 > 0) return;
-        
+
         cityId = clan.getAvailableCity();
         count_mobsters = clan.getNumMobstersOfCity(cityId);
 
@@ -298,7 +301,7 @@ contract Dwarfs_NFT is
             }
             seed = random(minted);
             generate(minted, seed);
-
+            
             _safeMint(_msgSender(), minted);
             tokenIds[i] = minted;
         }
@@ -416,13 +419,9 @@ contract Dwarfs_NFT is
     /**
      * @dev select Dwarf Type Merchant : level = 0 ~ 4 Mobster : level = 5 ~ 8
      * @param seed the seed to generate random
-     * @return level 
+     * @return level
      */
-    function selectDwarfType(uint256 seed)
-        internal
-        view
-        returns (uint8 level)
-    {
+    function selectDwarfType(uint256 seed) internal view returns (uint8 level) {
         uint256 cur_seed = random(seed);
         bool isMerchant = (cur_seed & 0xFFFF) % 100 > 15;
 

@@ -395,17 +395,17 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
      * @dev Get the available city id
      * @return the available city id
      */
-    function getAvailableCity() internal view returns (uint8) {
+    function getAvailableCity() public view virtual returns (uint8) {
         uint8 cityId = 1;
         while (true) {
             uint16[] memory _maxMobstersPerCity = dwarfs_nft
                 .getMaxMobstersPerCity();
             if (
                 mapCityMobsters[cityId].length <
-                (_maxMobstersPerCity[1] +
+                (_maxMobstersPerCity[0] +
+                    _maxMobstersPerCity[1] +
                     _maxMobstersPerCity[2] +
-                    _maxMobstersPerCity[3] +
-                    _maxMobstersPerCity[4])
+                    _maxMobstersPerCity[3])
             ) {
                 return cityId;
             }

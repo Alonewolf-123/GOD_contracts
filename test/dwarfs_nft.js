@@ -1,6 +1,7 @@
 // import Web3 from "web3";
 
 const { ethers } = require("ethers");
+const _deploy_traits = require("../migrations/1_deploy_traits");
 
 const Dwarfs_NFT = artifacts.require("Dwarfs_NFT");
 const Clan = artifacts.require("Clan");
@@ -16,12 +17,21 @@ const Clan = artifacts.require("Clan");
 //     web3 = new Web3(App.web3Provider);
 // }
 
+contract("Dwarfs_NFT", function(accounts) {
+    it("Clan test"), async function() {
+        let clan = await Clan.deployed();
+        let cityId = clan.getAvailableCity();
+        console.log(cityId);
+        console.log(clan.getNumMobstersOfCity(cityId));
+    })
 
-contract("Dwarfs_NFT", accounts => {
-    web3.eth.getAccounts().then(web3_accounts => console.log(web3_accounts));
-    console.log(Clan.address);
-    Dwarfs_NFT.deployed().then(function(instance) { return instance.setClan(Clan.address) });
+it("Mint testing", async function() {
+    let dwarfs_nft = await Dwarfs_NFT.deployed();
+    dwarfs_nft.setClan(Clan.address)
 
-    it("Mint testing", () =>
-        Dwarfs_NFT.deployed().then(instance => instance.mintByOwner(5)))
+    // let amount = 2;
+    // dwarfs_nft.mint(amount, { value: 0.0012 * 10e18 * amount });
+    dwarfs_nft.mint(2, { value: 0.0012 * 10e18 * 2 });
+
+})
 });

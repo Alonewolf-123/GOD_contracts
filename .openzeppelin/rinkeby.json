@@ -1,0 +1,1617 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x7Cb1af16f0f6F8E6575b9d1A33e3f91476Ebf8D3",
+    "txHash": "0xe485210d635789ccb762f15fd22b9f435d311c3562ee0372dda631fd62a7658d"
+  },
+  "proxies": [
+    {
+      "address": "0x229Be56c468e7521B29540760dD6DD17A190Bf29",
+      "txHash": "0x40ce7efd1a4c87aa997d73f386074a4b592c962653134ed04fc49be05ae283fe",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xED1Fd77475302dFBb07b02a2775151C4B7bC824E",
+      "txHash": "0x1f6a6e61bab2f088c75f5fc76d397ac7148295314dc25bbbda2def314d9e17ed",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xd5b3D473C2379F471011e20Edf2bd40C66158B97",
+      "txHash": "0x304dd25ad1939c94dbf4c6910f41a54e7172dd0f9314a17879730589e286cb63",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xD978b9474D5B1D5c9a811481f5A05Be6C40AcCc1",
+      "txHash": "0x653ae7e2e8daef4eb2c0612d8ec54b7d45aaf02eb67151ae43532438930f87bb",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xFCAf44CFA07eE5E9CAC757836A4C45787e284703",
+      "txHash": "0x5d50dc3d4cf0a1c347d99d0fc4bec17f9b1f60ca5639952edcaf85e826ba1473",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x48d5658D9980Ba43d7FdA2F8d023B395F36de86D",
+      "txHash": "0x64dbb9d9d0bd0e9c0a7dc858d6357b29e02925eff3e28a61e2a85cecb60b75bf",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xCaB910925CD92DA4aD5F7D3F1b97078fC43328CB",
+      "txHash": "0xab1232f989689a23798b2b9a6008e39460ca33809b16e63d8ca056430bb377cb",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x6883C51C6654F8f6B7fCb3C8E6604F1afcB2Ab97",
+      "txHash": "0x190df3d45171851ecdf5cfb16ee04f97f8bbd3f80e4bc16992ab5f83a96995a0",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "e294fc3a796a1793327ab8b743ad8475837f116cf89b40b5718a8b79f79530bf": {
+      "address": "0x5B4E2186Bd42cEB5f1CCF1551222720B3d2b4d75",
+      "txHash": "0x5dfff47f54778561776953440bb3d0e54e31fca9eb0ab9ca30e3d2ed5cbdaedb",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:87"
+          },
+          {
+            "contract": "Traits",
+            "label": "bossTraits",
+            "type": "t_array(t_struct(DwarfTrait)5641_storage)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:19"
+          },
+          {
+            "contract": "Traits",
+            "label": "dwarfatherTraits",
+            "type": "t_array(t_struct(DwarfTrait)5641_storage)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:22"
+          },
+          {
+            "contract": "Traits",
+            "label": "MAX_TRAITS",
+            "type": "t_array(t_uint8)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:25"
+          },
+          {
+            "contract": "Traits",
+            "label": "dwarfs_nft",
+            "type": "t_contract(IDwarfs_NFT)5655",
+            "src": "..\\project:\\contracts\\Traits.sol:27"
+          }
+        ],
+        "types": {
+          "t_array(t_struct(DwarfTrait)5641_storage)dyn_storage": {
+            "label": "struct IDwarfs_NFT.DwarfTrait[]"
+          },
+          "t_struct(DwarfTrait)5641_storage": {
+            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "members": [
+              {
+                "label": "isMerchant",
+                "type": "t_bool"
+              },
+              {
+                "label": "background_weapon",
+                "type": "t_uint16"
+              },
+              {
+                "label": "body_outfit",
+                "type": "t_uint16"
+              },
+              {
+                "label": "head_ears",
+                "type": "t_uint16"
+              },
+              {
+                "label": "mouth_nose",
+                "type": "t_uint16"
+              },
+              {
+                "label": "eyes_brows",
+                "type": "t_uint16"
+              },
+              {
+                "label": "hair_facialhair",
+                "type": "t_uint16"
+              },
+              {
+                "label": "eyewear",
+                "type": "t_uint8"
+              },
+              {
+                "label": "cityId",
+                "type": "t_uint8"
+              },
+              {
+                "label": "level",
+                "type": "t_uint8"
+              },
+              {
+                "label": "generation",
+                "type": "t_uint8"
+              }
+            ]
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_uint16": {
+            "label": "uint16"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_array(t_uint8)dyn_storage": {
+            "label": "uint8[]"
+          },
+          "t_contract(IDwarfs_NFT)5655": {
+            "label": "contract IDwarfs_NFT"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "09abd3204cc71b2bd7ecd5a863779bcb904b542eb002bbc64ed059b0f2d7e52d": {
+      "address": "0x7e934402B0a5c5594e495E0aA82048564cb9FD6b",
+      "txHash": "0xeb19d74baf183da0d8b62315db1a11d3f47d39df1f1bc2b5d2e17f4b04edbdc8",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "ERC20Upgradeable",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:37"
+          },
+          {
+            "contract": "ERC20Upgradeable",
+            "label": "_allowances",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:39"
+          },
+          {
+            "contract": "ERC20Upgradeable",
+            "label": "_totalSupply",
+            "type": "t_uint256",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:41"
+          },
+          {
+            "contract": "ERC20Upgradeable",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:43"
+          },
+          {
+            "contract": "ERC20Upgradeable",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:44"
+          },
+          {
+            "contract": "ERC20Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)45_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:394"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:87"
+          },
+          {
+            "contract": "GOD",
+            "label": "controllers",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "..\\project:\\contracts\\GOD.sol:13"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_array(t_uint256)45_storage": {
+            "label": "uint256[45]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "1889981a5af67e617a7102442f48428c62c6c8e32d0fe3cd873df70f5441754d": {
+      "address": "0x1cB3610abE430eA0B1db7957E87154bD2F9A240B",
+      "txHash": "0x10f46c6f975f589514776b71b42b15a5338c10d43f5315568de2e3b73f608656",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\introspection\\ERC165Upgradeable.sol:41"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:25"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:28"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_owners",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:31"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:34"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_tokenApprovals",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:37"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_operatorApprovals",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:40"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)44_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:458"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:87"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:29"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:102"
+          },
+          {
+            "contract": "ERC2981ContractWideRoyalties",
+            "label": "_royalties",
+            "type": "t_struct(RoyaltyInfo)5385_storage",
+            "src": "..\\project:\\contracts\\ERC2981ContractWideRoyalties.sol:9"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MINT_ETH_PRICES",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:24"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MINT_GOD_PRICES",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:27"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_GEN_TOKENS",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:30"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_TOKENS_ETH_SOLD",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:33"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_MOBSTERS_CITY",
+            "type": "t_array(t_uint16)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:36"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_CASINO_MINTS",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:39"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "CASINO_PRICE",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:42"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "minted",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:45"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "mapTokenTraits",
+            "type": "t_mapping(t_uint32,t_struct(DwarfTrait)5641_storage)",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:48"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "mapTraithashToken",
+            "type": "t_mapping(t_uint256,t_uint32)",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:51"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "mapCasinoplayerTime",
+            "type": "t_mapping(t_address,t_uint80)",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:54"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "clan",
+            "type": "t_contract(IClan)5616",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:57"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "nft_traits",
+            "type": "t_contract(ITraits)5704",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:59"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "god",
+            "type": "t_contract(GOD)5581",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:61"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "baseURI",
+            "type": "t_string_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:64"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "cityId",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:67"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "count_mobsters",
+            "type": "t_array(t_uint16)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:70"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "totalBosses",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:73"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "totalDwarfathers",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:76"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "count_casinoMints",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:79"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "remainMobstersOfCity",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:82"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "generationOfNft",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:85"
+          }
+        ],
+        "types": {
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_uint16": {
+            "label": "uint16"
+          },
+          "t_array(t_uint16)dyn_storage": {
+            "label": "uint16[]"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_uint32,t_struct(DwarfTrait)5641_storage)": {
+            "label": "mapping(uint32 => struct IDwarfs_NFT.DwarfTrait)"
+          },
+          "t_struct(DwarfTrait)5641_storage": {
+            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "members": [
+              {
+                "label": "isMerchant",
+                "type": "t_bool"
+              },
+              {
+                "label": "background_weapon",
+                "type": "t_uint16"
+              },
+              {
+                "label": "body_outfit",
+                "type": "t_uint16"
+              },
+              {
+                "label": "head_ears",
+                "type": "t_uint16"
+              },
+              {
+                "label": "mouth_nose",
+                "type": "t_uint16"
+              },
+              {
+                "label": "eyes_brows",
+                "type": "t_uint16"
+              },
+              {
+                "label": "hair_facialhair",
+                "type": "t_uint16"
+              },
+              {
+                "label": "eyewear",
+                "type": "t_uint8"
+              },
+              {
+                "label": "cityId",
+                "type": "t_uint8"
+              },
+              {
+                "label": "level",
+                "type": "t_uint8"
+              },
+              {
+                "label": "generation",
+                "type": "t_uint8"
+              }
+            ]
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_mapping(t_uint256,t_uint32)": {
+            "label": "mapping(uint256 => uint32)"
+          },
+          "t_mapping(t_address,t_uint80)": {
+            "label": "mapping(address => uint80)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint80": {
+            "label": "uint80"
+          },
+          "t_contract(IClan)5616": {
+            "label": "contract IClan"
+          },
+          "t_contract(ITraits)5704": {
+            "label": "contract ITraits"
+          },
+          "t_contract(GOD)5581": {
+            "label": "contract GOD"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_struct(RoyaltyInfo)5385_storage": {
+            "label": "struct ERC2981Base.RoyaltyInfo",
+            "members": [
+              {
+                "label": "recipient",
+                "type": "t_address"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint24"
+              }
+            ]
+          },
+          "t_uint24": {
+            "label": "uint24"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "5d86b20df7a15c08615d971a63f85f3c251dfb1dc53ad8f75612004172c92f77": {
+      "address": "0x6fdD996124AbDed2d54a7Fb09e38e4127dd3E4C6",
+      "txHash": "0x632bc98cc75bcbda20f567db5f6bc78250ae741ae870c099ad689fec75a14307",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:87"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:29"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:102"
+          },
+          {
+            "contract": "Clan",
+            "label": "MAX_NUM_CITY",
+            "type": "t_array(t_uint8)dyn_storage",
+            "src": "..\\project:\\contracts\\Clan.sol:14"
+          },
+          {
+            "contract": "Clan",
+            "label": "dwarfs_nft",
+            "type": "t_contract(Dwarfs_NFT)5371",
+            "src": "..\\project:\\contracts\\Clan.sol:37"
+          },
+          {
+            "contract": "Clan",
+            "label": "god",
+            "type": "t_contract(GOD)5581",
+            "src": "..\\project:\\contracts\\Clan.sol:40"
+          },
+          {
+            "contract": "Clan",
+            "label": "mapTokenInfo",
+            "type": "t_mapping(t_uint32,t_struct(TokenInfo)2646_storage)",
+            "src": "..\\project:\\contracts\\Clan.sol:43"
+          },
+          {
+            "contract": "Clan",
+            "label": "mapTokenExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Clan.sol:45"
+          },
+          {
+            "contract": "Clan",
+            "label": "totalNumberOfTokens",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Clan.sol:48"
+          },
+          {
+            "contract": "Clan",
+            "label": "mapCityMobsters",
+            "type": "t_mapping(t_uint8,t_array(t_uint32)dyn_storage)",
+            "src": "..\\project:\\contracts\\Clan.sol:51"
+          },
+          {
+            "contract": "Clan",
+            "label": "DAILY_GOD_RATE",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Clan.sol:54"
+          },
+          {
+            "contract": "Clan",
+            "label": "TAX_PERCENT",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Clan.sol:57"
+          },
+          {
+            "contract": "Clan",
+            "label": "MAXIMUM_GLOBAL_GOD",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:60"
+          },
+          {
+            "contract": "Clan",
+            "label": "INITIAL_GOD_AMOUNT",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:63"
+          },
+          {
+            "contract": "Clan",
+            "label": "MIN_INVESTED_AMOUNT",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:66"
+          },
+          {
+            "contract": "Clan",
+            "label": "remainingGodAmount",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:69"
+          },
+          {
+            "contract": "Clan",
+            "label": "mobsterProfitPercent",
+            "type": "t_array(t_uint8)dyn_storage",
+            "src": "..\\project:\\contracts\\Clan.sol:72"
+          },
+          {
+            "contract": "Clan",
+            "label": "bMerchantGamePlaying",
+            "type": "t_bool",
+            "src": "..\\project:\\contracts\\Clan.sol:75"
+          }
+        ],
+        "types": {
+          "t_array(t_uint8)dyn_storage": {
+            "label": "uint8[]"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_contract(Dwarfs_NFT)5371": {
+            "label": "contract Dwarfs_NFT"
+          },
+          "t_contract(GOD)5581": {
+            "label": "contract GOD"
+          },
+          "t_mapping(t_uint32,t_struct(TokenInfo)2646_storage)": {
+            "label": "mapping(uint32 => struct Clan.TokenInfo)"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_struct(TokenInfo)2646_storage": {
+            "label": "struct Clan.TokenInfo",
+            "members": [
+              {
+                "label": "tokenId",
+                "type": "t_uint32"
+              },
+              {
+                "label": "cityId",
+                "type": "t_uint8"
+              },
+              {
+                "label": "availableBalance",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currentInvestedAmount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "lastInvestedTime",
+                "type": "t_uint80"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_uint80": {
+            "label": "uint80"
+          },
+          "t_mapping(t_uint32,t_bool)": {
+            "label": "mapping(uint32 => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_uint8,t_array(t_uint32)dyn_storage)": {
+            "label": "mapping(uint8 => uint32[])"
+          },
+          "t_array(t_uint32)dyn_storage": {
+            "label": "uint32[]"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "c3c7bfd66fe594978c5c0a714f3152d8e6fc418bc78b29bb4c128cab0132d3b7": {
+      "address": "0x3c775212011e9Fff8d26390f739Fe4ff84B3eb5A",
+      "txHash": "0x10acb74cdd17c087fe59f06f844a27845cb559359895fb827b23740cdbdfab69",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "Traits",
+            "label": "bossTraits",
+            "type": "t_array(t_struct(DwarfTrait)5645_storage)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:19"
+          },
+          {
+            "contract": "Traits",
+            "label": "dwarfatherTraits",
+            "type": "t_array(t_struct(DwarfTrait)5645_storage)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:22"
+          },
+          {
+            "contract": "Traits",
+            "label": "MAX_TRAITS",
+            "type": "t_array(t_uint8)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:25"
+          },
+          {
+            "contract": "Traits",
+            "label": "dwarfs_nft",
+            "type": "t_contract(IDwarfs_NFT)5659",
+            "src": "..\\project:\\contracts\\Traits.sol:27"
+          }
+        ],
+        "types": {
+          "t_array(t_struct(DwarfTrait)5645_storage)dyn_storage": {
+            "label": "struct IDwarfs_NFT.DwarfTrait[]"
+          },
+          "t_struct(DwarfTrait)5645_storage": {
+            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "members": [
+              {
+                "label": "isMerchant",
+                "type": "t_bool"
+              },
+              {
+                "label": "background_weapon",
+                "type": "t_uint16"
+              },
+              {
+                "label": "body_outfit",
+                "type": "t_uint16"
+              },
+              {
+                "label": "head_ears",
+                "type": "t_uint16"
+              },
+              {
+                "label": "mouth_nose",
+                "type": "t_uint16"
+              },
+              {
+                "label": "eyes_brows",
+                "type": "t_uint16"
+              },
+              {
+                "label": "hair_facialhair",
+                "type": "t_uint16"
+              },
+              {
+                "label": "eyewear",
+                "type": "t_uint8"
+              },
+              {
+                "label": "cityId",
+                "type": "t_uint8"
+              },
+              {
+                "label": "level",
+                "type": "t_uint8"
+              },
+              {
+                "label": "generation",
+                "type": "t_uint8"
+              }
+            ]
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_uint16": {
+            "label": "uint16"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_array(t_uint8)dyn_storage": {
+            "label": "uint8[]"
+          },
+          "t_contract(IDwarfs_NFT)5659": {
+            "label": "contract IDwarfs_NFT"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "5a5df2191659a6f7f61bb8eadd78cec814126fe6422ec3516f481c63a78ccdb4": {
+      "address": "0x39a97f0a66C491C2A9cfF1E053251152bCAA35cF",
+      "txHash": "0x573efd6d69bdd86bbc3ed74641f1545d2187ce7f749eaeb22a3b344635a69621",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\introspection\\ERC165Upgradeable.sol:41"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:25"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:28"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_owners",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:31"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:34"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_tokenApprovals",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:37"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_operatorApprovals",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:40"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)44_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:458"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:29"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:102"
+          },
+          {
+            "contract": "ERC2981ContractWideRoyalties",
+            "label": "_royalties",
+            "type": "t_struct(RoyaltyInfo)5389_storage",
+            "src": "..\\project:\\contracts\\ERC2981ContractWideRoyalties.sol:9"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MINT_ETH_PRICES",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:24"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MINT_GOD_PRICES",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:27"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_GEN_TOKENS",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:30"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_TOKENS_ETH_SOLD",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:33"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_MOBSTERS_CITY",
+            "type": "t_array(t_uint16)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:36"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_CASINO_MINTS",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:39"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "CASINO_PRICE",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:42"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "minted",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:45"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "mapTokenTraits",
+            "type": "t_mapping(t_uint32,t_struct(DwarfTrait)5645_storage)",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:48"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "mapTraithashToken",
+            "type": "t_mapping(t_uint256,t_uint32)",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:51"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "mapCasinoplayerTime",
+            "type": "t_mapping(t_address,t_uint80)",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:54"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "clan",
+            "type": "t_contract(IClan)5620",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:57"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "nft_traits",
+            "type": "t_contract(ITraits)5708",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:59"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "god",
+            "type": "t_contract(GOD)5585",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:61"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "baseURI",
+            "type": "t_string_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:64"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "cityId",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:67"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "count_mobsters",
+            "type": "t_array(t_uint16)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:70"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "totalBosses",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:73"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "totalDwarfathers",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:76"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "count_casinoMints",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:79"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "remainMobstersOfCity",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:82"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "generationOfNft",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:85"
+          }
+        ],
+        "types": {
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_uint16": {
+            "label": "uint16"
+          },
+          "t_array(t_uint16)dyn_storage": {
+            "label": "uint16[]"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_uint32,t_struct(DwarfTrait)5645_storage)": {
+            "label": "mapping(uint32 => struct IDwarfs_NFT.DwarfTrait)"
+          },
+          "t_struct(DwarfTrait)5645_storage": {
+            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "members": [
+              {
+                "label": "isMerchant",
+                "type": "t_bool"
+              },
+              {
+                "label": "background_weapon",
+                "type": "t_uint16"
+              },
+              {
+                "label": "body_outfit",
+                "type": "t_uint16"
+              },
+              {
+                "label": "head_ears",
+                "type": "t_uint16"
+              },
+              {
+                "label": "mouth_nose",
+                "type": "t_uint16"
+              },
+              {
+                "label": "eyes_brows",
+                "type": "t_uint16"
+              },
+              {
+                "label": "hair_facialhair",
+                "type": "t_uint16"
+              },
+              {
+                "label": "eyewear",
+                "type": "t_uint8"
+              },
+              {
+                "label": "cityId",
+                "type": "t_uint8"
+              },
+              {
+                "label": "level",
+                "type": "t_uint8"
+              },
+              {
+                "label": "generation",
+                "type": "t_uint8"
+              }
+            ]
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_mapping(t_uint256,t_uint32)": {
+            "label": "mapping(uint256 => uint32)"
+          },
+          "t_mapping(t_address,t_uint80)": {
+            "label": "mapping(address => uint80)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint80": {
+            "label": "uint80"
+          },
+          "t_contract(IClan)5620": {
+            "label": "contract IClan"
+          },
+          "t_contract(ITraits)5708": {
+            "label": "contract ITraits"
+          },
+          "t_contract(GOD)5585": {
+            "label": "contract GOD"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_struct(RoyaltyInfo)5389_storage": {
+            "label": "struct ERC2981Base.RoyaltyInfo",
+            "members": [
+              {
+                "label": "recipient",
+                "type": "t_address"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint24"
+              }
+            ]
+          },
+          "t_uint24": {
+            "label": "uint24"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "f172065ff8b5fc2ef2b4c2d7afe78b7bb7b8dc2c544d414aacf3ab9759e3f486": {
+      "address": "0xd04F1f1D2861A6D023E328a7fCFc105fa4766012",
+      "txHash": "0xbda56105f6eec87ebd47f6153c36a4c9f94c5fce62727e0453814d1740790339",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:29"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:102"
+          },
+          {
+            "contract": "Clan",
+            "label": "MAX_NUM_CITY",
+            "type": "t_array(t_uint8)dyn_storage",
+            "src": "..\\project:\\contracts\\Clan.sol:14"
+          },
+          {
+            "contract": "Clan",
+            "label": "dwarfs_nft",
+            "type": "t_contract(Dwarfs_NFT)5375",
+            "src": "..\\project:\\contracts\\Clan.sol:37"
+          },
+          {
+            "contract": "Clan",
+            "label": "god",
+            "type": "t_contract(GOD)5585",
+            "src": "..\\project:\\contracts\\Clan.sol:40"
+          },
+          {
+            "contract": "Clan",
+            "label": "mapTokenInfo",
+            "type": "t_mapping(t_uint32,t_struct(TokenInfo)2646_storage)",
+            "src": "..\\project:\\contracts\\Clan.sol:43"
+          },
+          {
+            "contract": "Clan",
+            "label": "mapTokenExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Clan.sol:45"
+          },
+          {
+            "contract": "Clan",
+            "label": "totalNumberOfTokens",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Clan.sol:48"
+          },
+          {
+            "contract": "Clan",
+            "label": "mapCityMobsters",
+            "type": "t_mapping(t_uint8,t_array(t_uint32)dyn_storage)",
+            "src": "..\\project:\\contracts\\Clan.sol:51"
+          },
+          {
+            "contract": "Clan",
+            "label": "DAILY_GOD_RATE",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Clan.sol:54"
+          },
+          {
+            "contract": "Clan",
+            "label": "TAX_PERCENT",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Clan.sol:57"
+          },
+          {
+            "contract": "Clan",
+            "label": "MAXIMUM_GLOBAL_GOD",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:60"
+          },
+          {
+            "contract": "Clan",
+            "label": "INITIAL_GOD_AMOUNT",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:63"
+          },
+          {
+            "contract": "Clan",
+            "label": "MIN_INVESTED_AMOUNT",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:66"
+          },
+          {
+            "contract": "Clan",
+            "label": "remainingGodAmount",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:69"
+          },
+          {
+            "contract": "Clan",
+            "label": "mobsterProfitPercent",
+            "type": "t_array(t_uint8)dyn_storage",
+            "src": "..\\project:\\contracts\\Clan.sol:72"
+          },
+          {
+            "contract": "Clan",
+            "label": "bMerchantGamePlaying",
+            "type": "t_bool",
+            "src": "..\\project:\\contracts\\Clan.sol:75"
+          }
+        ],
+        "types": {
+          "t_array(t_uint8)dyn_storage": {
+            "label": "uint8[]"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_contract(Dwarfs_NFT)5375": {
+            "label": "contract Dwarfs_NFT"
+          },
+          "t_contract(GOD)5585": {
+            "label": "contract GOD"
+          },
+          "t_mapping(t_uint32,t_struct(TokenInfo)2646_storage)": {
+            "label": "mapping(uint32 => struct Clan.TokenInfo)"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_struct(TokenInfo)2646_storage": {
+            "label": "struct Clan.TokenInfo",
+            "members": [
+              {
+                "label": "tokenId",
+                "type": "t_uint32"
+              },
+              {
+                "label": "cityId",
+                "type": "t_uint8"
+              },
+              {
+                "label": "availableBalance",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currentInvestedAmount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "lastInvestedTime",
+                "type": "t_uint80"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_uint80": {
+            "label": "uint80"
+          },
+          "t_mapping(t_uint32,t_bool)": {
+            "label": "mapping(uint32 => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_uint8,t_array(t_uint32)dyn_storage)": {
+            "label": "mapping(uint8 => uint32[])"
+          },
+          "t_array(t_uint32)dyn_storage": {
+            "label": "uint32[]"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    }
+  }
+}
