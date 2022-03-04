@@ -16,6 +16,7 @@ contract GOD is ERC20Upgradeable, OwnableUpgradeable {
      * @dev initialize the ERC20 and set the token name & symbol
      */
     function initialize() public virtual initializer {
+        __Ownable_init();
         __ERC20_init("GOD COIN", "GOD");
     }
 

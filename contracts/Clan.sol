@@ -4,15 +4,12 @@ pragma solidity ^0.8.0;
 
 import "./Dwarfs_NFT.sol";
 import "./GOD.sol";
-import "./Pausable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
 /// @title Clan
 /// @author Bounyavong
 /// @dev Clan logic is implemented and this is the upgradeable
-contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
+contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgradeable {
     // number of cities in each generation status
     uint8[] private MAX_NUM_CITY;
 
@@ -87,6 +84,8 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
         virtual
         initializer
     {
+        __Ownable_init();
+        __Pausable_init();
         dwarfs_nft = Dwarfs_NFT(_dwarfs_nft);
         god = GOD(_god);
 
@@ -339,7 +338,7 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
             mapTokenInfo[mobsterId].availableBalance +=
                 (amount *
                     mobsterProfitPercent[
-                        dwarfs_nft.getTokenTraits(mobsterId).alphaIndex - 5
+                        dwarfs_nft.getTokenTraits(mobsterId).level - 5
                     ]) /
                 1000;
         }
@@ -347,7 +346,7 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
 
     /**
      * @dev realize $GOD earnings for a single Mobster
-     * Mobsters earn $GOD proportional to their Alpha rank
+     * Mobsters earn $GOD proportional to their Level
      * @param tokenId the ID of the Mobster to claim earnings from
      * @return owed - the amount of $GOD earned
      */
@@ -426,12 +425,12 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, Pausable {
         returns (uint16[] memory)
     {
         uint16[] memory _numOfMobstersOfCity = new uint16[](4);
-        uint8 alphaIndex = 0;
+        uint8 level = 0;
         for (uint32 i = 0; i < mapCityMobsters[cityId].length; i++) {
-            alphaIndex = dwarfs_nft
+            level = dwarfs_nft
                 .getTokenTraits(mapCityMobsters[cityId][i])
-                .alphaIndex;
-            _numOfMobstersOfCity[alphaIndex - 5]++;
+                .level;
+            _numOfMobstersOfCity[level - 5]++;
         }
 
         return _numOfMobstersOfCity;

@@ -4,12 +4,11 @@ pragma solidity ^0.8.0;
 import "./IDwarfs_NFT.sol";
 import "./IClan.sol";
 import "./ITraits.sol";
-import "./Pausable.sol";
 import "./GOD.sol";
 import "./ERC2981ContractWideRoyalties.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 /// @title Dwarfs NFT
 /// @author Bounyavong
@@ -18,7 +17,7 @@ contract Dwarfs_NFT is
     ERC721Upgradeable,
     OwnableUpgradeable,
     IDwarfs_NFT,
-    Pausable,
+    PausableUpgradeable,
     ERC2981ContractWideRoyalties
 {
     // eth prices for mint
@@ -94,6 +93,8 @@ contract Dwarfs_NFT is
         virtual
         initializer
     {
+        __Ownable_init();
+        __Pausable_init();
         __ERC721_init("Dwarf NFT", "DWARF");
         god = GOD(_god);
         nft_traits = ITraits(_traits);
@@ -369,32 +370,32 @@ contract Dwarfs_NFT is
         returns (DwarfTrait memory t)
     {
         // check the merchant or mobster
-        uint8 alphaIndex = 0;
+        uint8 level = 0;
         bool bConstantMerchant = (cityId >
             clan.getMaxNumCityOfGen()[generationOfNft] &&
             tokenId <= MAX_GEN_TOKENS[generationOfNft]);
         if (bConstantMerchant == false) {
-            alphaIndex = selectDwarfType(seed);
+            level = selectDwarfType(seed);
         }
         while (true) {
             t = nft_traits.selectTraits(
                 seed,
-                alphaIndex,
+                level,
                 totalBosses,
                 totalDwarfathers
             );
             if (mapTraithashToken[nft_traits.getTraitHash(t)] == 0) {
                 t.generation = generationOfNft;
-                t.isMerchant = (alphaIndex < 5);
-                t.cityId = (alphaIndex < 5) ? 0 : cityId; // if Merchant, cityId should be 0 (no city)
-                t.alphaIndex = alphaIndex;
-                if (alphaIndex == 7) totalBosses++;
-                if (alphaIndex == 8) totalDwarfathers++;
+                t.isMerchant = (level < 5);
+                t.cityId = (level < 5) ? 0 : cityId; // if Merchant, cityId should be 0 (no city)
+                t.level = level;
+                if (level == 7) totalBosses++;
+                if (level == 8) totalDwarfathers++;
 
                 mapTokenTraits[tokenId] = t;
                 mapTraithashToken[nft_traits.getTraitHash(t)] = tokenId;
 
-                if (t.isMerchant == false) count_mobsters[t.alphaIndex - 5]++;
+                if (t.isMerchant == false) count_mobsters[t.level - 5]++;
 
                 if (bConstantMerchant == false) {
                     remainMobstersOfCity--;
@@ -413,14 +414,14 @@ contract Dwarfs_NFT is
     }
 
     /**
-     * @dev select Dwarf Type Merchant : alphaIndex = 0 ~ 4 Mobster : alphaIndex = 5 ~ 8
+     * @dev select Dwarf Type Merchant : level = 0 ~ 4 Mobster : level = 5 ~ 8
      * @param seed the seed to generate random
-     * @return alphaIndex the alpha index
+     * @return level 
      */
     function selectDwarfType(uint256 seed)
         internal
         view
-        returns (uint8 alphaIndex)
+        returns (uint8 level)
     {
         uint256 cur_seed = random(seed);
         bool isMerchant = (cur_seed & 0xFFFF) % 100 > 15;
