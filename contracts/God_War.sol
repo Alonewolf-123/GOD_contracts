@@ -16,11 +16,11 @@ contract God_War is
   PausableUpgradeable
 {
 
-  // Represents the currents state of each clan, one per dwarfather
+  // Represents the current state of each clan, one per dwarfather
   struct Clan {
     bool enabled;
-    uint96 lastUpdated; 
-    uint128 protection;
+    uint80 lastUpdated; 
+    uint32 protection;
     uint256 tokenValue;
     uint256 score;
     uint256 tokenValueSeconds;
@@ -32,14 +32,14 @@ contract God_War is
 
   // Represents the state of a single NFT's stake
   struct TokenStake {
-    uint16 clan;
+    uint32 clan;
     uint80 lastUpdated;
     address owner;
   }
 
   // Represents the state of an address' total GOD staked in a clan
   struct GodStake {
-    uint176 god;
+    uint256 god;
     uint80 lastUpdated;
     uint256 godSeconds;
   }
@@ -47,34 +47,34 @@ contract God_War is
   // Emitted when NFTs are staked
   event TokensStaked(
     address owner,
-    uint256[] tokenIds,
-    uint256 clan
+    uint32[] tokenIds,
+    uint32 clan
   );
 
   // Emitted when NFTs are unstaked
   event TokensUnstaked(
     address owner,
-    uint256[] tokenIds
+    uint32[] tokenIds
   );
 
   // Emitted when GOD is staked
   event GodStaked(
     address owner,
-    uint256 clan,
+    uint32 clan,
     uint256 amount
   );
 
   // Emitted when GOD is unstaked
   event GodUnstaked(
     address owner,
-    uint256 clan,
+    uint32 clan,
     uint256 amount
   );
 
   // Emitted when NFTs claim their rewards
   event TokenRewardsClaimed(
     address owner,
-    uint256[] tokenIds,
+    uint32[] tokenIds,
     uint256 reward
   );
 
@@ -86,13 +86,13 @@ contract God_War is
 
   // Emitted when a clan vendettas another one
   event ClanVendetta(
-    uint256 clan,
-    uint256 target
+    uint32 clan,
+    uint32 target
   );
 
   // Emitted when a clan protects itself
   event ClanDefended(
-    uint256 clan
+    uint32 clan
   );
 
   bool public bStartClans;
@@ -104,25 +104,24 @@ contract God_War is
   // points each Influence point of a mobster earns per second
   uint256[] public dwarfPointUnits;
   // mapping from Dwarfather ID to its clan's state
-  mapping(uint256 => Clan) public clans;
+  mapping(uint32 => Clan) public clans;
   // mapping from Token ID to its stake
-  mapping(uint256 => TokenStake) public tokenStakes;
+  mapping(uint32 => TokenStake) public tokenStakes;
   // mapping from clan to owner to GOD stake
-  mapping(uint256 => mapping(address => GodStake)) public godStakes;
+  mapping(uint32 => mapping(address => GodStake)) public godStakes;
   // array of all the dwarfather's IDs
-  uint256[] public dwarfathers;
+  uint32[] public dwarfathers;
   // mapping from Dwarfather ID to its placement at the end of the game (1st, 2nd, ..., last)
-  mapping(uint256 => uint256) public rankings;
+  mapping(uint32 => uint256) public rankings;
 
   // total GOD available to be won in the game
   uint256 public WINNER_POT;
   // percentage of clan's winnings an Dwarfather receives
   uint256 public constant DWARFATHER_PERCENTAGE = 5;
-  // points each merchant earns per second
-  uint32 public constant MERCHANT_VALUE = 5;
+
   // percentage of points lost if vendettaed without protection
   uint128 public constant VENDETTA_LOSS = 3;
-  // maximum alpha a mobster can have
+  // maximum level a mobster can have
   uint8 public constant MAX_LEVEL = 8;
 
   // reference to dwarfs
@@ -164,7 +163,7 @@ contract God_War is
    * @param tokenIds the IDs of the dwarfs to stake
    * @param clan the clan to join
    */
-  function joinClan(uint256[] calldata tokenIds, uint256 clan) external whenNotPaused {
+  function joinClan(uint32[] calldata tokenIds, uint32 clan) external whenNotPaused {
     require(gameEndTimestamp == 0, "GAME HAS ENDED");
     require(tokenIds.length > 0, "GOTTA STAKE SOMETHING");
     _updateClan(clan);
@@ -180,7 +179,7 @@ contract God_War is
    * @param tokenId the ID of the migrated dwarf to stake
    * @param clan the clan to join
    */
-  function _joinClan(uint256 tokenId, uint256 clan) internal {
+  function _joinClan(uint32 tokenId, uint32 clan) internal {
     require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
 
     if (_levelOfDwarf(tokenId) == MAX_LEVEL) {
@@ -208,7 +207,7 @@ contract God_War is
    * @param tokenIds the IDs of the dwarfs to transfer
    * @param newClan the clan to move them to
    */
-  function transferClan(uint256[] calldata tokenIds, uint256 newClan) external whenNotPaused {
+  function transferClan(uint32[] calldata tokenIds, uint32 newClan) external whenNotPaused {
     require(gameEndTimestamp == 0, "GAME HAS ENDED");
     require(clans[newClan].enabled, "NOT A CLAN");
     require(tokenIds.length > 0, "GOTTA TRANSFER SOMETHING");
@@ -227,7 +226,7 @@ contract God_War is
    * @param tokenId the ID of the migrated dwarf to transfer
    * @param newClan the clan to move it to
    */
-  function _transferClan(uint256 tokenId, uint256 newClan) internal {
+  function _transferClan(uint32 tokenId, uint32 newClan) internal {
     bool isMerchant = _isMerchant(tokenId);
     uint256 level = _levelOfDwarf(tokenId);
     require(level != MAX_LEVEL, "DWARFATHERS CANT LEAVE THEIR CLAN");
@@ -249,7 +248,7 @@ contract God_War is
    * returns dwarfs from the contract and resets their stakes
    * @param tokenIds the IDs of the dwarfs to unstake
    */
-  function leaveClan(uint256[] calldata tokenIds) external whenNotPaused {
+  function leaveClan(uint32[] calldata tokenIds) external whenNotPaused {
     require(gameEndTimestamp == 0, "GAME HAS ENDED");
     require(tokenIds.length > 0, "GOTTA TRANSFER SOMETHING");
     for (uint i = 0; i < tokenIds.length; i++) {
@@ -259,9 +258,9 @@ contract God_War is
     emit TokensUnstaked(_msgSender(), tokenIds);
   }
 
-  function _leaveClan(uint256 tokenId) internal {
+  function _leaveClan(uint32 tokenId) internal {
     require(tokenStakes[tokenId].owner == _msgSender(), "AINT YO TOKEN");
-    uint256 clan = tokenStakes[tokenId].clan;
+    uint32 clan = tokenStakes[tokenId].clan;
     require(clan != 0x0, "AINT WITH A CLAN");
     require(_levelOfDwarf(tokenId) != MAX_LEVEL, "DWARFATHERS CANT LEAVE THEIR CLAN");
     // we must call this on each one since it's possible to
@@ -277,7 +276,7 @@ contract God_War is
    * @param clan the clan to stake the GOD in
    * @param amount the amount of GOD to stake
    */
-  function stakeGod(uint256 clan, uint256 amount) external whenNotPaused {
+  function stakeGod(uint32 clan, uint256 amount) external whenNotPaused {
     require(gameEndTimestamp == 0, "GAME HAS ENDED");
     require(clans[clan].enabled, "MUST STAKE IN A CLAN");
     require(amount > 0, "GOTTA STAKE SOMETHING");
@@ -301,7 +300,7 @@ contract God_War is
    * @param oldClan the clan to move the GOD from
    * @param newClan the clan to move the GOD to
    */
-  function transferGod(uint256 oldClan, uint256 newClan) external whenNotPaused {
+  function transferGod(uint32 oldClan, uint32 newClan) external whenNotPaused {
     require(gameEndTimestamp == 0, "GAME HAS ENDED");
     require(clans[newClan].enabled, "MUST STAKE IN A CLAN");
     require(oldClan != newClan, "CANT TRANSFER TO SAME CLAN");
@@ -330,7 +329,7 @@ contract God_War is
    * sends all GOD staked in a clan back to owner and resets the stake
    * @param clan the clan to unstake from
    */
-  function unstakeGod(uint256 clan) external whenNotPaused {
+  function unstakeGod(uint32 clan) external whenNotPaused {
     require(gameEndTimestamp == 0, "GAME HAS ENDED");
     _updateClan(clan);
     uint256 staked = godStakes[clan][_msgSender()].god;
@@ -350,7 +349,7 @@ contract God_War is
    * @param dwarfatherId the ID of the Dwarfather vendetta
    * @param target the ID of the clan to vendetta
    */
-  function vendetta(uint256 dwarfatherId, uint256 target) external whenNotPaused {
+  function vendetta(uint32 dwarfatherId, uint32 target) external whenNotPaused {
     require(gameEndTimestamp == 0, "GAME HAS ENDED");
     require(clans[dwarfatherId].enabled, "YOURE NOT A CLAN LEADER");
     require(dwarfatherId != target, "CANT VENDETTA YOURSELF");
@@ -376,7 +375,7 @@ contract God_War is
    * increments the clans protection count
    * @param dwarfatherId the ID of the Dwarfather protecting
    */
-  function protect(uint256 dwarfatherId) external whenNotPaused {
+  function protect(uint32 dwarfatherId) external whenNotPaused {
     require(gameEndTimestamp == 0, "GAME HAS ENDED");
     require(clans[dwarfatherId].enabled, "YOURE NOT A CLAN LEADER");
     require(tokenStakes[dwarfatherId].owner == _msgSender(), "AINT YO TOKEN");
@@ -392,7 +391,7 @@ contract God_War is
    * claims GODs for the earned rewards for dwarfs
    * @param tokenIds the IDs of the dwarfs to claim for
    */
-  function claimTokens(uint256[] calldata tokenIds) external whenNotPaused {
+  function claimTokens(uint32[] calldata tokenIds) external whenNotPaused {
     require(gameEndTimestamp > 0, "GAME HAS NOT ENDED");
     require(tokenIds.length > 0, "GOTTA CLAIM SOMETHING");
     uint256 won;
@@ -408,7 +407,7 @@ contract God_War is
    * calculates the winnings for a dwarf and returns it to the owner
    * @param tokenId the ID of the dwarf to claim
    */
-  function _claimToken(uint256 tokenId) internal returns (uint256 won) {
+  function _claimToken(uint32 tokenId) internal returns (uint256 won) {
     require(_msgSender() == tokenStakes[tokenId].owner, "AINT YO TOKEN");
 
     won = _tokenWinnings(tokenId);
@@ -439,39 +438,34 @@ contract God_War is
   }
 
   /**
-   * send a god pouch or GOD to a user depending on their earnings
+   * send GODs to a user depending on their earnings
    */
   function _mintReward(uint256 amount) internal {
-    // god pouches automatically have 10,000 GOD available once minted
-    if (amount > 10000 ether) { 
-      godPouch.mint(_msgSender(), uint128(amount), 365 * 4); // 4 year vesting
-    } else { // if user won < 10,000 GOD, they receive GOD instead of a Pouch
       god.mint(_msgSender(), amount);
-    }
   }
 
   /**
    * cost (in god seconds) to vendetta
    * @param dwarfatherId the ID of the Dwarfather vendetta
    */
-  function vendettaCost(uint256 dwarfatherId) public view returns (uint128) {
-    // if less than the equivalent of 250 merchant are staked
+  function vendettaCost(uint32 dwarfatherId) public view returns (uint128) {
+    // if less than the equivalent of 50 merchant are staked
     // require a minimum balance
-    return clans[dwarfatherId].tokenValue < 250 * MERCHANT_VALUE 
-      ? 3125000 ether * 1 days // 2500 * 250 * 5
-      : 2500 ether * 1 days * uint128(clans[dwarfatherId].tokenValue);
+    return clans[dwarfatherId].tokenValue < 50 * dwarfPointUnits[0] 
+      ? 3000000 ether * 1 days // 3000 * 50 * 20
+      : 3000 ether * 1 days * uint128(clans[dwarfatherId].tokenValue);
   }
 
   /**
    * cost (in god seconds) to protect
    * @param dwarfatherId the ID of the Dwarfather protecting
    */
-  function protectionCost(uint256 dwarfatherId) public view returns (uint128) {
-    // if less than the equivalent of 250 merchant are staked
+  function protectionCost(uint32 dwarfatherId) public view returns (uint128) {
+    // if less than the equivalent of 50 merchant are staked
     // require a minimum balance
-    return clans[dwarfatherId].tokenValue < 250 * MERCHANT_VALUE 
-      ? 3125000 ether * 1 days // 2500 * 250 * 5
-      : 2500 ether * 1 days * uint128(clans[dwarfatherId].tokenValue);
+    return clans[dwarfatherId].tokenValue < 50 * dwarfPointUnits[0] 
+      ? 3000000 ether * 1 days // 3000 * 50 * 20
+      : 3000 ether * 1 days * uint128(clans[dwarfatherId].tokenValue);
   }
 
   function godWinnings(address owner) public view returns (uint256) {
@@ -486,20 +480,19 @@ contract God_War is
 
   /** INTERNAL */
 
-  function _isMerchant(uint256 tokenId) internal view returns (bool merchant) {
-    merchant = dwarfs_nft.tokenTraits(tokenId).isMerchant;
+  function _isMerchant(uint32 tokenId) internal view returns (bool merchant) {
+    merchant = dwarfs_nft.getTokenTraits(tokenId).isMerchant;
   }
 
-  function _levelOfDwarf(uint256 tokenId) internal view returns (uint8 level) {
-    level = dwarfs_nft.tokenTraits(tokenId).level;
-    return level;
+  function _levelOfDwarf(uint32 tokenId) internal view returns (uint8 level) {
+    level = dwarfs_nft.getTokenTraits(tokenId).level;
   }
 
   /**
    * updates accounting for a single clan
    * @param clan the clan to update accounting for
    */
-  function _updateClan(uint256 clan) internal {
+  function _updateClan(uint32 clan) internal {
     // if the game is over, no changes should be made
     if (gameEndTimestamp > 0) return;
     Clan storage p = clans[clan];
@@ -515,7 +508,7 @@ contract God_War is
     p.balance += p.god * elapsed;
     // godSeconds is increased by god x time
     p.godSeconds += p.god * elapsed;
-    p.lastUpdated = uint96(block.timestamp);
+    p.lastUpdated = uint80(block.timestamp);
   }
 
   /**
@@ -523,15 +516,15 @@ contract God_War is
    * half of the clan's winnings are made available for dwarfs to claim
    * @param tokenId the ID of the token to calculate winnings for
    */
-  function _tokenWinnings(uint256 tokenId) internal view returns (uint256) {
+  function _tokenWinnings(uint32 tokenId) internal view returns (uint256) {
     if (tokenStakes[tokenId].owner == address(0x0)) return 0;
-    uint256 clan = tokenStakes[tokenId].clan;
+    uint32 clan = tokenStakes[tokenId].clan;
     uint256 elapsed = gameEndTimestamp - tokenStakes[tokenId].lastUpdated;
     if (_isMerchant(tokenId))
-      return MERCHANT_VALUE * elapsed * _clanWinnings(clan) * (100 - DWARFATHER_PERCENTAGE) / 100 / clans[clan].tokenValueSeconds / 2;
-    uint8 alpha = _levelOfDwarf(tokenId);
-    if (alpha != MAX_LEVEL)
-      return dwarfPointUnits[alpha] * elapsed * _clanWinnings(clan) * (100 - DWARFATHER_PERCENTAGE) / 100 / clans[clan].tokenValueSeconds / 2;
+      return dwarfPointUnits[0] * elapsed * _clanWinnings(clan) * (100 - DWARFATHER_PERCENTAGE) / 100 / clans[clan].tokenValueSeconds / 2;
+    uint8 level = _levelOfDwarf(tokenId);
+    if (level != MAX_LEVEL)
+      return dwarfPointUnits[level] * elapsed * _clanWinnings(clan) * (100 - DWARFATHER_PERCENTAGE) / 100 / clans[clan].tokenValueSeconds / 2;
     else
       return _clanWinnings(clan) * DWARFATHER_PERCENTAGE / 100; // DWARFATHER WINS % CLAN POT
   }
@@ -541,7 +534,7 @@ contract God_War is
    * half of the clan's winnings are made available for god stakes to claim
    * @param clan the clan to calculate GOD winnings for
    */
-  function _godWinnings(uint256 clan, address owner) internal view returns (uint256) {
+  function _godWinnings(uint32 clan, address owner) internal view returns (uint256) {
     if (godStakes[clan][owner].god == 0) return 0;
     uint256 elapsed = gameEndTimestamp - godStakes[clan][owner].lastUpdated;
     uint256 godSeconds = godStakes[clan][owner].godSeconds + godStakes[clan][owner].god * elapsed;
@@ -553,7 +546,7 @@ contract God_War is
    * calculates the entire clan's winnings at the end of the game
    * @param clan the clan to calculate winnings for
    */
-  function _clanWinnings(uint256 clan) internal view returns (uint256) {
+  function _clanWinnings(uint32 clan) internal view returns (uint256) {
     return winningPercentages[rankings[clan] - 1] * WINNER_POT / 10000 + clans[clan].guaranteedRewards;
   }
 
@@ -566,7 +559,7 @@ contract God_War is
    * @param clan the clan to guarantee rewards for
    * @param amount the amount to guarantee
    */
-  function setGuaranteedRewards(uint256 clan, uint256 amount) external onlyOwner {
+  function setGuaranteedRewards(uint32 clan, uint256 amount) external onlyOwner {
     WINNER_POT = WINNER_POT + clans[clan].guaranteedRewards - amount;
     clans[clan].guaranteedRewards = amount;
   }
@@ -580,7 +573,7 @@ contract God_War is
     uint256 place;
     uint256 j;
     uint256 max;
-    uint256 mobster;
+    uint32 mobster;
     uint256 current;
     // update every clan for the final time
     for (j = 0; j < length; j++) {
