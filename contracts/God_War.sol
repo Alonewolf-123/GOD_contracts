@@ -227,7 +227,6 @@ contract God_War is
    * @param newClan the clan to move it to
    */
   function _transferClan(uint32 tokenId, uint32 newClan) internal {
-    bool isMerchant = _isMerchant(tokenId);
     uint256 level = _levelOfDwarf(tokenId);
     require(level != MAX_LEVEL, "DWARFATHERS CANT LEAVE THEIR CLAN");
     TokenStake storage stake = tokenStakes[tokenId];
