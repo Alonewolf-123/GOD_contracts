@@ -633,12 +633,12 @@ contract Dwarfs_NFT is
      * @param tokenId the token id
      * @return token URI string
      */
-    function tokenURI(uint32 tokenId) public view returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(
             _exists(tokenId),
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        return nft_traits.tokenURI(tokenId);
+        return nft_traits.getTokenURI(uint32(tokenId));
     }
 }

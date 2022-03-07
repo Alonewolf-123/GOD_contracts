@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "./IDwarfs_NFT.sol";
 
 interface ITraits {
-    function tokenURI(uint32 tokenId) external view returns (string memory);
+    function getTokenURI(uint32 tokenId) external view returns (string memory);
 
     function selectTraits(
         uint256 seed,

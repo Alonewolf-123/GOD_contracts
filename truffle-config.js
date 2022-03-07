@@ -70,7 +70,7 @@ module.exports = {
             gas: 8500000,
             gasPrice: 1000000000, // 1 gwei (in wei) (default: 100 gwei)
             networkCheckTimeout: 1000000,
-            confirmations: 2, // # of confs to wait between deployments. (default: 0)
+            confirmations: 1, // # of confs to wait between deployments. (default: 0)
             timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
             skipDryRun: true,
             websocket: true // Skip dry run before migrations? (default: false for public nets )

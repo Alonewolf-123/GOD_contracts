@@ -148,7 +148,7 @@ contract Traits is OwnableUpgradeable, ITraits {
      * @param tokenId the token id
      * @return token URI string
      */
-    function tokenURI(uint32 tokenId)
+    function getTokenURI(uint32 tokenId)
         public
         view
         override
