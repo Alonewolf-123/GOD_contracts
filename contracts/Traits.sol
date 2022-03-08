@@ -13,6 +13,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 /// @dev read the traits details from NFT and generate the Token URI
 contract Traits is OwnableUpgradeable, ITraits {
     using Strings for bytes;
+    using Strings for string;
     using Strings for uint256;
 
     // static boss traits
@@ -21,33 +22,20 @@ contract Traits is OwnableUpgradeable, ITraits {
     // static dwarfather traits
     IDwarfs_NFT.DwarfTrait[] public dwarfatherTraits;
 
-    // traits parameters range
-    uint8[] public MAX_TRAITS;
-
+    // instanec of the dwarfs NFT
     IDwarfs_NFT public dwarfs_nft;
+
+    // array of the unallocated traits
+    string[] public unallocatedTraits;
+
+    // array of the allocated traits
+    string[] public allocatedTraits;
 
     /**
      * @dev initialize function
      */
     function initialize() public virtual initializer {
         __Ownable_init();
-        
-        // traits parameters range
-        MAX_TRAITS = [
-            255, // background
-            255, // weapon
-            255, // body
-            255, // outfit
-            255, // head
-            255, // ears
-            255, // mouth
-            255, // nose
-            255, // eyes
-            255, // brows
-            255, // hair
-            255, // facialhair
-            255 // eyewear
-        ];
     }
 
     /** ADMIN */
@@ -63,11 +51,12 @@ contract Traits is OwnableUpgradeable, ITraits {
      * @param seed a pseudorandom 256 bit number to derive traits from
      * @return t -  a struct of randomly selected traits
      */
-    function selectTraits(uint256 seed, uint8 alphaIndex, uint8 totalBosses, uint8 totalDwarfathers)
-        external
-        view
-        returns (IDwarfs_NFT.DwarfTrait memory t)
-    {
+    function selectTraits(
+        uint256 seed,
+        uint8 alphaIndex,
+        uint8 totalBosses,
+        uint8 totalDwarfathers
+    ) external returns (IDwarfs_NFT.DwarfTrait memory t) {
         // if Boss
         if (alphaIndex == 7) {
             // set the custom traits to boss
@@ -76,28 +65,47 @@ contract Traits is OwnableUpgradeable, ITraits {
             // set the custom traits to dwarfather
             t = dwarfatherTraits[totalDwarfathers];
         } else {
-            t.background_weapon =
-                uint16((random(seed) % MAX_TRAITS[0]) << 8) + // background
-                uint8(random(seed + 1) % MAX_TRAITS[1]); // weapon
-            t.body_outfit =
-                uint16((random(seed + 2) % MAX_TRAITS[2]) << 8) + // body
-                uint8(random(seed + 3) % MAX_TRAITS[3]); // outfit
-            t.head_ears =
-                uint16((random(seed + 4) % MAX_TRAITS[4]) << 8) + // head
-                uint8(random(seed + 5) % MAX_TRAITS[5]); // ears
-            t.mouth_nose =
-                uint16((random(seed + 6) % MAX_TRAITS[6]) << 8) + // mouth
-                uint8(random(seed + 7) % MAX_TRAITS[7]); // nose
-            t.eyes_brows =
-                uint16((random(seed + 8) % MAX_TRAITS[8]) << 8) + // eyes
-                uint8(random(seed + 9) % MAX_TRAITS[9]); // eyebrows
-            t.hair_facialhair =
-                uint16((random(seed + 10) % MAX_TRAITS[10]) << 8) + // hair
-                uint8(random(seed + 11) % MAX_TRAITS[11]); // facialhair
-            t.eyewear = uint8(random(seed + 12) % MAX_TRAITS[12]); // eyewear
+            uint256 m_TraitIndex = random(seed) % unallocatedTraits.length;
+            string memory traitStr = unallocatedTraits[m_TraitIndex];
+            t = parseStringToTrait(traitStr);
+
+            allocatedTraits.push(traitStr);
+            delete unallocatedTraits[m_TraitIndex];
         }
 
         return t;
+    }
+
+    /**
+     * @dev parse the base64 encoded string to traits
+     * @param traitStr a base64 encoded string
+     * @return t -  a struct of parsed traits
+     */
+    function parseStringToTrait(string memory traitStr)
+        internal
+        pure
+        returns (IDwarfs_NFT.DwarfTrait memory t)
+    {
+        bytes memory traitBytes = traitStr.base64Decode();
+        t.background_weapon =
+            uint16(uint8(traitBytes[0]) << 8) + // background
+            uint8(traitBytes[1]); // weapon
+        t.body_outfit =
+            uint16(uint8(traitBytes[2]) << 8) + // body
+            uint8(traitBytes[3]); // outfit
+        t.head_ears =
+            uint16(uint8(traitBytes[4]) << 8) + // head
+            uint8(traitBytes[5]); // ears
+        t.mouth_nose =
+            uint16(uint8(traitBytes[6]) << 8) + // mouth
+            uint8(traitBytes[7]); // nose
+        t.eyes_brows =
+            uint16(uint8(traitBytes[8]) << 8) + // eyes
+            uint8(traitBytes[9]); // eyebrows
+        t.hair_facialhair =
+            uint16(uint8(traitBytes[10]) << 8) + // hair
+            uint8(traitBytes[11]); // facialhair
+        t.eyewear = uint8(traitBytes[12]); // eyewear
     }
 
     /**
@@ -105,7 +113,11 @@ contract Traits is OwnableUpgradeable, ITraits {
      * @param s the struct to pack into a hash
      * @return the 256 bit hash of the struct
      */
-    function getTraitHash(IDwarfs_NFT.DwarfTrait memory s) external pure returns (uint256) {
+    function getTraitHash(IDwarfs_NFT.DwarfTrait memory s)
+        external
+        pure
+        returns (uint256)
+    {
         return
             uint256(
                 keccak256(
@@ -177,7 +189,7 @@ contract Traits is OwnableUpgradeable, ITraits {
 
         t[12] = bytes1(s.eyewear); // add the eyewear into bytes
 
-        string memory _tokenURI = t.base64();
+        string memory _tokenURI = t.base64Encode();
         string memory _baseURI = dwarfs_nft.getBaseURI();
 
         // If there is no base URI, return the token URI.
@@ -220,10 +232,10 @@ contract Traits is OwnableUpgradeable, ITraits {
      * @param traits the trait of a boss
      * @param index the boss index
      */
-    function setDwarfatherTraits(IDwarfs_NFT.DwarfTrait memory traits, uint16 index)
-        external
-        onlyOwner
-    {
+    function setDwarfatherTraits(
+        IDwarfs_NFT.DwarfTrait memory traits,
+        uint16 index
+    ) external onlyOwner {
         if (index >= dwarfatherTraits.length) {
             dwarfatherTraits.push(traits);
         } else {
@@ -231,4 +243,20 @@ contract Traits is OwnableUpgradeable, ITraits {
         }
     }
 
+    /**
+     * @dev set the traits of NFT (except the dwarfather and boss)
+     * @param traits the trait of NFT
+     */
+    function setNFTTraits(string[] memory traits) external onlyOwner {
+        unallocatedTraits = traits;
+    }
+
+    /**
+     * @dev add the new traits of NFT (except the dwarfather and boss)
+     * @param traits the trait of NFT
+     */
+    function addNewNFTTraits(string[] memory traits) external onlyOwner {
+        for (uint256 i = 0; i < traits.length; i++)
+            unallocatedTraits.push(traits[i]);
+    }
 }

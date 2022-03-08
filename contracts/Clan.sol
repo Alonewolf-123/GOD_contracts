@@ -74,6 +74,9 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
     // playing merchant game enabled
     bool private bMerchantGamePlaying;
 
+    event AddManyToClan(uint32[] tokenIds, uint256 timestamp);
+    event ClaimManyFromClan(uint32[] tokenIds, uint256 timestamp);
+    
     /**
      * @dev initialize function
      * @param _dwarfs_nft reference to the Dwarfs_NFT NFT contract
@@ -133,6 +136,8 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
         for (uint16 i = 0; i < tokenIds.length; i++) {
             _addToCity(tokenIds[i]);
         }
+
+        emit AddManyToClan(tokenIds, block.timestamp);
     }
 
     /**
@@ -284,6 +289,8 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
             );
         }
         god.mint(_msgSender(), owed);
+
+        emit ClaimManyFromClan(tokenIds, block.timestamp);
     }
 
     /**
@@ -411,7 +418,7 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
             }
             cityId++;
         }
-
+        
         return cityId;
     }
 

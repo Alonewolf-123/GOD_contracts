@@ -12,7 +12,7 @@ interface ITraits {
         uint8 alphaIndex,
         uint8 totalBosses,
         uint8 totalDwarfathers
-    ) external view returns (IDwarfs_NFT.DwarfTrait memory t);
+    ) external returns (IDwarfs_NFT.DwarfTrait memory t);
 
     function getTraitHash(IDwarfs_NFT.DwarfTrait memory s)
         external

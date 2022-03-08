@@ -84,6 +84,10 @@ contract Dwarfs_NFT is
     // current generation number of NFT
     uint8 private generationOfNft;
 
+    event Mint(uint32[] tokenIds, DwarfTrait[] traits, uint256 timestamp);
+    event MintByOwner(uint32[] tokenIds, uint256 timestamp);
+    event MintOfCasino(uint32[] tokenIds, uint256 timestamp);
+
     /**
      * @dev instantiates contract and rarity tables
      * @param _god the GOD address
@@ -186,15 +190,18 @@ contract Dwarfs_NFT is
         onlyOwner
     {
         require(s.length == amount, "Invalid parameter");
+        uint32[] memory tokenIds = new uint32[](amount);
         for (uint16 i = 0; i < amount; i++) {
             if (mapTraithashToken[nft_traits.getTraitHash(s[i])] == 0) {
                 minted++;
                 mapTokenTraits[minted] = s[i];
                 mapTraithashToken[nft_traits.getTraitHash(s[i])] = minted;
-
+                tokenIds[i] = minted;
                 _safeMint(_msgSender(), minted);
             }
         }
+
+        emit MintByOwner(tokenIds, block.timestamp);
     }
 
     /**
@@ -241,6 +248,7 @@ contract Dwarfs_NFT is
         uint32[] memory tokenIds = new uint32[](1);
         tokenIds[0] = minted;
         clan.addManyToClan(tokenIds);
+        emit MintOfCasino(tokenIds, block.timestamp);
     }
 
     /**
@@ -284,6 +292,7 @@ contract Dwarfs_NFT is
         if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
 
         uint32[] memory tokenIds = new uint32[](amount);
+        DwarfTrait[] memory traits = new DwarfTrait[](amount);
         uint256 seed;
 
         for (uint16 i = 0; i < amount; i++) {
@@ -301,12 +310,15 @@ contract Dwarfs_NFT is
             }
             seed = random(minted);
             generate(minted, seed);
-            
+
             _safeMint(_msgSender(), minted);
             tokenIds[i] = minted;
+            traits[i] = mapTokenTraits[minted];
         }
 
         clan.addManyToClan(tokenIds);
+
+        emit Mint(tokenIds, traits, block.timestamp);
     }
 
     /**
@@ -633,7 +645,13 @@ contract Dwarfs_NFT is
      * @param tokenId the token id
      * @return token URI string
      */
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
         require(
             _exists(tokenId),
             "ERC721Metadata: URI query for nonexistent token"
