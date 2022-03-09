@@ -3,8 +3,8 @@
 pragma solidity ^0.8.0;
 import "./IDwarfs_NFT.sol";
 import "./IClan.sol";
-import "./ITraits.sol";
 import "./GOD.sol";
+import "./Strings.sol";
 import "./ERC2981ContractWideRoyalties.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -20,6 +20,10 @@ contract Dwarfs_NFT is
     PausableUpgradeable,
     ERC2981ContractWideRoyalties
 {
+    using Strings for bytes;
+    using Strings for string;
+    using Strings for uint256;
+
     // eth prices for mint
     uint256[] public MINT_ETH_PRICES;
 
@@ -45,7 +49,7 @@ contract Dwarfs_NFT is
     uint32 private minted;
 
     // mapping from tokenId to a struct containing the token's traits
-    mapping(uint32 => DwarfTrait) private mapTokenTraits;
+    mapping(uint32 => ITraits.DwarfTrait) private mapTokenTraits;
     // mapping from hashed(tokenTrait) to the tokenId it's associated with
     // used to ensure there are no duplicates
     mapping(uint256 => uint32) private mapTraithashToken;
@@ -84,7 +88,7 @@ contract Dwarfs_NFT is
     // current generation number of NFT
     uint8 private generationOfNft;
 
-    event Mint(uint32[] tokenIds, DwarfTrait[] traits, uint256 timestamp);
+    event Mint(uint32[] tokenIds, ITraits.DwarfTrait[] traits, uint256 timestamp);
     event MintByOwner(uint32[] tokenIds, uint256 timestamp);
     event MintOfCasino(uint32[] tokenIds, uint256 timestamp);
 
@@ -185,7 +189,7 @@ contract Dwarfs_NFT is
      * @param amount the mint amount
      * @param s the traits array
      */
-    function mintByOwner(uint16 amount, DwarfTrait[] memory s)
+    function mintByOwner(uint16 amount, ITraits.DwarfTrait[] memory s)
         external
         onlyOwner
     {
@@ -292,7 +296,7 @@ contract Dwarfs_NFT is
         if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
 
         uint32[] memory tokenIds = new uint32[](amount);
-        DwarfTrait[] memory traits = new DwarfTrait[](amount);
+        ITraits.DwarfTrait[] memory traits = new ITraits.DwarfTrait[](amount);
         uint256 seed;
 
         for (uint16 i = 0; i < amount; i++) {
@@ -382,7 +386,7 @@ contract Dwarfs_NFT is
      */
     function generate(uint32 tokenId, uint256 seed)
         internal
-        returns (DwarfTrait memory t)
+        returns (ITraits.DwarfTrait memory t)
     {
         // check the merchant or mobster
         uint8 level = 0;
@@ -500,7 +504,7 @@ contract Dwarfs_NFT is
         external
         view
         override
-        returns (DwarfTrait memory)
+        returns (ITraits.DwarfTrait memory)
     {
         return mapTokenTraits[tokenId];
     }
@@ -657,6 +661,24 @@ contract Dwarfs_NFT is
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        return nft_traits.getTokenURI(uint32(tokenId));
+        string memory _tokenURI = nft_traits.getTokenURI(mapTokenTraits[uint32(tokenId)]);
+
+        // If there is no base URI, return the token URI.
+        if (bytes(baseURI).length == 0) {
+            return string(abi.encodePacked(_tokenURI, ".json"));
+        }
+        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+        if (bytes(_tokenURI).length > 0) {
+            return string(abi.encodePacked(baseURI, _tokenURI, ".json"));
+        }
+        // If there is a baseURI but no tokenURI, concatenate the tokenId to the baseURI.
+        return
+            string(
+                abi.encodePacked(
+                    baseURI,
+                    (uint256(tokenId)).toString(),
+                    ".json"
+                )
+            );
     }
 }

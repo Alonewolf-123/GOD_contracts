@@ -150,7 +150,7 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
             "The token has been added to the clan already"
         );
 
-        IDwarfs_NFT.DwarfTrait memory t = dwarfs_nft.getTokenTraits(tokenId);
+        ITraits.DwarfTrait memory t = dwarfs_nft.getTokenTraits(tokenId);
 
         // Add a mobster to a city
         if (t.isMerchant == false) {

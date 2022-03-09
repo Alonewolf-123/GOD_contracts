@@ -12,7 +12,7 @@ Dwarfs_NFT Fixing Course
 8. getGen0Tokens(): 476
     Is this function needed? Then these variable must be private.
 9. setPrices(), setMaxTraits(), setGenTokens(): These functions should be array.
-10. tokenURI(): Remove cityId, alphaIndex
+10. tokenURI(): Remove cityId, level
 11. The description of the source code on etherscan must follow the 'NatSpec'.
         ref: https://etherscan.io/address/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d#readContract
             https://docs.soliditylang.org/en/v0.8.11/natspec-format.html

@@ -129,10 +129,10 @@
         ],
         "types": {
           "t_array(t_struct(DwarfTrait)5641_storage)dyn_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait[]"
+            "label": "struct ITraits.DwarfTrait[]"
           },
           "t_struct(DwarfTrait)5641_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "label": "struct ITraits.DwarfTrait",
             "members": [
               {
                 "label": "isMerchant",
@@ -573,10 +573,10 @@
             "label": "uint32"
           },
           "t_mapping(t_uint32,t_struct(DwarfTrait)5641_storage)": {
-            "label": "mapping(uint32 => struct IDwarfs_NFT.DwarfTrait)"
+            "label": "mapping(uint32 => struct ITraits.DwarfTrait)"
           },
           "t_struct(DwarfTrait)5641_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "label": "struct ITraits.DwarfTrait",
             "members": [
               {
                 "label": "isMerchant",
@@ -968,10 +968,10 @@
         ],
         "types": {
           "t_array(t_struct(DwarfTrait)5645_storage)dyn_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait[]"
+            "label": "struct ITraits.DwarfTrait[]"
           },
           "t_struct(DwarfTrait)5645_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "label": "struct ITraits.DwarfTrait",
             "members": [
               {
                 "label": "isMerchant",
@@ -1300,10 +1300,10 @@
             "label": "uint32"
           },
           "t_mapping(t_uint32,t_struct(DwarfTrait)5645_storage)": {
-            "label": "mapping(uint32 => struct IDwarfs_NFT.DwarfTrait)"
+            "label": "mapping(uint32 => struct ITraits.DwarfTrait)"
           },
           "t_struct(DwarfTrait)5645_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "label": "struct ITraits.DwarfTrait",
             "members": [
               {
                 "label": "isMerchant",
@@ -1695,10 +1695,10 @@
         ],
         "types": {
           "t_array(t_struct(DwarfTrait)7653_storage)dyn_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait[]"
+            "label": "struct ITraits.DwarfTrait[]"
           },
           "t_struct(DwarfTrait)7653_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "label": "struct ITraits.DwarfTrait",
             "members": [
               {
                 "label": "isMerchant",
@@ -2027,10 +2027,10 @@
             "label": "uint32"
           },
           "t_mapping(t_uint32,t_struct(DwarfTrait)7653_storage)": {
-            "label": "mapping(uint32 => struct IDwarfs_NFT.DwarfTrait)"
+            "label": "mapping(uint32 => struct ITraits.DwarfTrait)"
           },
           "t_struct(DwarfTrait)7653_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "label": "struct ITraits.DwarfTrait",
             "members": [
               {
                 "label": "isMerchant",
@@ -2399,10 +2399,10 @@
             "label": "uint32"
           },
           "t_mapping(t_uint32,t_struct(DwarfTrait)7685_storage)": {
-            "label": "mapping(uint32 => struct IDwarfs_NFT.DwarfTrait)"
+            "label": "mapping(uint32 => struct ITraits.DwarfTrait)"
           },
           "t_struct(DwarfTrait)7685_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "label": "struct ITraits.DwarfTrait",
             "members": [
               {
                 "label": "isMerchant",
@@ -2771,10 +2771,10 @@
             "label": "uint32"
           },
           "t_mapping(t_uint32,t_struct(DwarfTrait)7685_storage)": {
-            "label": "mapping(uint32 => struct IDwarfs_NFT.DwarfTrait)"
+            "label": "mapping(uint32 => struct ITraits.DwarfTrait)"
           },
           "t_struct(DwarfTrait)7685_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "label": "struct ITraits.DwarfTrait",
             "members": [
               {
                 "label": "isMerchant",
@@ -3143,10 +3143,10 @@
             "label": "uint32"
           },
           "t_mapping(t_uint32,t_struct(DwarfTrait)7685_storage)": {
-            "label": "mapping(uint32 => struct IDwarfs_NFT.DwarfTrait)"
+            "label": "mapping(uint32 => struct ITraits.DwarfTrait)"
           },
           "t_struct(DwarfTrait)7685_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "label": "struct ITraits.DwarfTrait",
             "members": [
               {
                 "label": "isMerchant",
@@ -3515,10 +3515,10 @@
             "label": "uint32"
           },
           "t_mapping(t_uint32,t_struct(DwarfTrait)7685_storage)": {
-            "label": "mapping(uint32 => struct IDwarfs_NFT.DwarfTrait)"
+            "label": "mapping(uint32 => struct ITraits.DwarfTrait)"
           },
           "t_struct(DwarfTrait)7685_storage": {
-            "label": "struct IDwarfs_NFT.DwarfTrait",
+            "label": "struct ITraits.DwarfTrait",
             "members": [
               {
                 "label": "isMerchant",
