@@ -94,6 +94,9 @@ contract Traits is OwnableUpgradeable, ITraits {
             uint16(uint8(traitBytes[10]) << 8) + // hair
             uint8(traitBytes[11]); // facialhair
         t.eyewear = uint8(traitBytes[12]); // eyewear
+        t.cityId = uint8(traitBytes[13]); // city id
+        t.level = uint8(traitBytes[14]); // level
+        t.generation = uint8(traitBytes[15]); // generation
     }
 
     /**
@@ -116,7 +119,10 @@ contract Traits is OwnableUpgradeable, ITraits {
                         aTrait.mouth_nose, // mouth & nose
                         aTrait.eyes_brows, // eyes & eyebrows
                         aTrait.hair_facialhair, // hair & facialhair
-                        aTrait.eyewear // eyewear
+                        aTrait.eyewear, // eyewear
+                        aTrait.cityId, // city id
+                        aTrait.level, // level
+                        aTrait.generation // generation
                     )
                 )
             );
@@ -151,7 +157,7 @@ contract Traits is OwnableUpgradeable, ITraits {
         pure
         returns (string memory _tokenURI)
     {
-        bytes memory t = new bytes(13);
+        bytes memory t = new bytes(16);
         t[0] = bytes1((uint8)(aTrait.background_weapon >> 8)); // add the background into bytes
         t[1] = bytes1((uint8)(aTrait.background_weapon & 0x00FF)); // add the weapon into bytes
 
@@ -171,6 +177,9 @@ contract Traits is OwnableUpgradeable, ITraits {
         t[11] = bytes1((uint8)(aTrait.hair_facialhair & 0x00FF)); // add the facialhair into bytes
 
         t[12] = bytes1(aTrait.eyewear); // add the eyewear into bytes
+        t[13] = bytes1(aTrait.cityId); // add the city id into bytes
+        t[14] = bytes1(aTrait.level); // add the level into bytes
+        t[15] = bytes1(aTrait.generation); // add the generation into bytes
 
         _tokenURI = t.base64Encode();
     }
@@ -196,10 +205,10 @@ contract Traits is OwnableUpgradeable, ITraits {
      * @param traits the trait of a boss
      * @param index the boss index
      */
-    function setDwarfatherTraits(
-        DwarfTrait memory traits,
-        uint16 index
-    ) external onlyOwner {
+    function setDwarfatherTraits(DwarfTrait memory traits, uint16 index)
+        external
+        onlyOwner
+    {
         if (index >= dwarfatherTraits.length) {
             dwarfatherTraits.push(traits);
         } else {
