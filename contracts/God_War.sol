@@ -159,7 +159,7 @@ contract God_War is
 
   /**
    * accounts for dwarfs in the clan
-   * will start a clan for an dwarfather if it is passed in (clan must equal the dwarfather's ID)
+   * will start a clan for a dwarfather if it is passed in (clan must equal the dwarfather's ID)
    * @param tokenIds the IDs of the dwarfs to stake
    * @param clan the clan to join
    */
@@ -176,7 +176,7 @@ contract God_War is
 
   /**
    * adds a single dwarf to a clan
-   * @param tokenId the ID of the migrated dwarf to stake
+   * @param tokenId the ID of the dwarf to stake
    * @param clan the clan to join
    */
   function _joinClan(uint32 tokenId, uint32 clan) internal {
