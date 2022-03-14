@@ -36,23 +36,20 @@ contract Dwarfs_NFT is
     // sold amount percent by eth (50%)
     uint16 public MAX_TOKENS_ETH_SOLD;
 
-    // number of dwarfs in a city
-    uint16[] public MAX_MOBSTERS_CITY;
-
     // number of dwarfs from casino
     uint16 public MAX_CASINO_MINTS;
 
     // price for playing casino
     uint256 public CASINO_PRICE;
 
+    // number of cities in each generation status
+    uint8[] private MAX_NUM_CITY;
+
     // number of tokens have been minted so far
     uint32 private minted;
 
     // mapping from tokenId to a struct containing the token's traits
     mapping(uint32 => ITraits.DwarfTrait) private mapTokenTraits;
-    // mapping from hashed(tokenTrait) to the tokenId it's associated with
-    // used to ensure there are no duplicates
-    mapping(uint256 => uint32) private mapTraithashToken;
 
     // mapping casino player - time;
     mapping(address => uint80) private mapCasinoplayerTime;
@@ -67,28 +64,20 @@ contract Dwarfs_NFT is
     // Base URI
     string private baseURI;
 
-    // current chosen city ID
-    uint8 private cityId;
-
-    // number of dwarfs in the current city
-    uint16[] private count_mobsters;
-
-    // current number of boss
-    uint8 private totalBosses;
-
-    // current number of dwarfathers
-    uint8 private totalDwarfathers;
+    // current count of mobsters
+    uint8 private count_mobsters;
 
     // current number of dwarfs of casino play
     uint16 private count_casinoMints;
 
-    // the rest number of dwarfs in the current city
-    uint16 remainMobstersOfCity;
-
     // current generation number of NFT
     uint8 private generationOfNft;
 
-    event Mint(uint32[] tokenIds, ITraits.DwarfTrait[] traits, uint256 timestamp);
+    event Mint(
+        uint32[] tokenIds,
+        ITraits.DwarfTrait[] traits,
+        uint256 timestamp
+    );
     event MintByOwner(uint32[] tokenIds, uint256 timestamp);
     event MintOfCasino(uint32[] tokenIds, uint256 timestamp);
 
@@ -134,29 +123,15 @@ contract Dwarfs_NFT is
         // sold amount percent by eth (50%)
         MAX_TOKENS_ETH_SOLD = 50;
 
-        // number of dwarfs in a city
-        MAX_MOBSTERS_CITY = [
-            150, // max dwarfsoldiers in a city
-            45, // max dwarfcapos in a city
-            4, // max boss in a city
-            1
-        ]; // max dwarfather in a city
-
         MAX_CASINO_MINTS = 50; // max number of mints from casino is 50
 
         CASINO_PRICE = 1000 ether; // price of casino play is 1000 GOD
 
-        // number of dwarfs in the current city
-        count_mobsters = [0, 0, 0, 0];
+        // number of cities in each generation status
+        MAX_NUM_CITY = [6, 9, 12, 15];
 
-        // the rest number of dwarfs in the current city
-        remainMobstersOfCity = 200;
-
-        // current number of boss
-        totalBosses = 0;
-
-        // current number of dwarfathers
-        totalDwarfathers = 0;
+        // count of mobsters
+        count_mobsters = 0;
 
         // current number of dwarfs of casino
         count_casinoMints = 0;
@@ -196,13 +171,10 @@ contract Dwarfs_NFT is
         require(s.length == amount, "Invalid parameter");
         uint32[] memory tokenIds = new uint32[](amount);
         for (uint16 i = 0; i < amount; i++) {
-            if (mapTraithashToken[nft_traits.getTraitHash(s[i])] == 0) {
-                minted++;
-                mapTokenTraits[minted] = s[i];
-                mapTraithashToken[nft_traits.getTraitHash(s[i])] = minted;
-                tokenIds[i] = minted;
-                _safeMint(_msgSender(), minted);
-            }
+            minted++;
+            mapTokenTraits[minted] = s[i];
+            tokenIds[i] = minted;
+            _safeMint(_msgSender(), minted);
         }
 
         emit MintByOwner(tokenIds, block.timestamp);
@@ -233,9 +205,6 @@ contract Dwarfs_NFT is
 
         uint256 seed = random(block.timestamp);
         if ((seed & 0xFFFF) % 100 > 0) return;
-
-        cityId = clan.getAvailableCity();
-        count_mobsters = clan.getNumMobstersOfCity(cityId);
 
         minted++;
         if (minted > MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3) {
@@ -300,11 +269,6 @@ contract Dwarfs_NFT is
         uint256 seed;
 
         for (uint16 i = 0; i < amount; i++) {
-            if (i == 0 || clan.getAvailableCity() != cityId) {
-                cityId = clan.getAvailableCity();
-                count_mobsters = clan.getNumMobstersOfCity(cityId);
-            }
-
             minted++;
             if (
                 minted > MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3
@@ -389,90 +353,19 @@ contract Dwarfs_NFT is
         returns (ITraits.DwarfTrait memory t)
     {
         // check the merchant or mobster
-        uint8 level = 0;
-        bool bConstantMerchant = (cityId >
-            clan.getMaxNumCityOfGen()[generationOfNft] &&
+        bool _bMerchant = (count_mobsters ==
+            MAX_NUM_CITY[generationOfNft] * 200 &&
             tokenId <= MAX_GEN_TOKENS[generationOfNft]);
-        if (bConstantMerchant == false) {
-            level = selectDwarfType(seed);
+        seed = random(seed);
+        _bMerchant = (_bMerchant || (((seed & 0xFFFF) % 100) > 15));
+
+        if (_bMerchant == false) {
+            count_mobsters++;
         }
-        while (true) {
-            t = nft_traits.selectTraits(
-                seed,
-                level,
-                totalBosses,
-                totalDwarfathers
-            );
-            if (mapTraithashToken[nft_traits.getTraitHash(t)] == 0) {
-                t.generation = generationOfNft;
-                t.isMerchant = (level < 5);
-                t.cityId = (level < 5) ? 0 : cityId; // if Merchant, cityId should be 0 (no city)
-                t.level = level;
-                if (level == 7) totalBosses++;
-                if (level == 8) totalDwarfathers++;
+        t = nft_traits.selectTraits(seed, _bMerchant);
+        t.generation = generationOfNft;
 
-                mapTokenTraits[tokenId] = t;
-                mapTraithashToken[nft_traits.getTraitHash(t)] = tokenId;
-
-                if (t.isMerchant == false) count_mobsters[t.level - 5]++;
-
-                if (bConstantMerchant == false) {
-                    remainMobstersOfCity--;
-                    if (remainMobstersOfCity <= 0) {
-                        remainMobstersOfCity =
-                            MAX_MOBSTERS_CITY[0] + // dwarfsoldier
-                            MAX_MOBSTERS_CITY[1] + // dwarfcapos
-                            MAX_MOBSTERS_CITY[2] + // boss
-                            MAX_MOBSTERS_CITY[3]; // dwarfather
-                    }
-                }
-
-                return t;
-            }
-        }
-    }
-
-    /**
-     * @dev select Dwarf Type Merchant : level = 0 ~ 4 Mobster : level = 5 ~ 8
-     * @param seed the seed to generate random
-     * @return level
-     */
-    function selectDwarfType(uint256 seed) internal view returns (uint8 level) {
-        uint256 cur_seed = random(seed);
-        bool isMerchant = (cur_seed & 0xFFFF) % 100 > 15;
-
-        if (isMerchant == true) {
-            return 0;
-        } else {
-            cur_seed = random(cur_seed);
-
-            if (
-                (cur_seed & 0xFFFF) % remainMobstersOfCity <
-                (MAX_MOBSTERS_CITY[3] - count_mobsters[3]) // checking the dwarfather
-            ) {
-                return 8;
-            } else if (
-                (cur_seed & 0xFFFF) % remainMobstersOfCity <
-                (MAX_MOBSTERS_CITY[2] +
-                    MAX_MOBSTERS_CITY[3] -
-                    count_mobsters[2] -
-                    count_mobsters[3]) // checking the boss
-            ) {
-                return 7;
-            } else if (
-                (cur_seed & 0xFFFF) % remainMobstersOfCity <
-                (MAX_MOBSTERS_CITY[1] +
-                    MAX_MOBSTERS_CITY[2] +
-                    MAX_MOBSTERS_CITY[3] -
-                    count_mobsters[1] -
-                    count_mobsters[2] -
-                    count_mobsters[3]) // checking the dwarfcapos
-            ) {
-                return 6;
-            } else {
-                return 5; // dwarfsoldier
-            }
-        }
+        mapTokenTraits[tokenId] = t;
     }
 
     /**
@@ -577,34 +470,6 @@ contract Dwarfs_NFT is
     }
 
     /**
-     * @dev set the max mobsters per city
-     * @param maxValues the max mobsters
-     */
-    function setMaxMobstersPerCity(uint16[] memory maxValues)
-        external
-        onlyOwner
-    {
-        require(
-            maxValues.length == MAX_MOBSTERS_CITY.length,
-            "Invalid input parameter"
-        );
-
-        remainMobstersOfCity = 0;
-        for (uint8 i = 0; i < maxValues.length; i++) {
-            MAX_MOBSTERS_CITY[i] = maxValues[i];
-            remainMobstersOfCity += MAX_MOBSTERS_CITY[i];
-        }
-    }
-
-    /**
-     * @dev get the max number of mobsters per city
-     * @return the number of mobsters
-     */
-    function getMaxMobstersPerCity() external view returns (uint16[] memory) {
-        return MAX_MOBSTERS_CITY;
-    }
-
-    /**
      * @dev set the max number of dwarfs from casino
      * @param maxCasinoMints the max dwarfs from casino
      */
@@ -661,7 +526,9 @@ contract Dwarfs_NFT is
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        string memory _tokenURI = nft_traits.getTokenURI(mapTokenTraits[uint32(tokenId)]);
+        string memory _tokenURI = nft_traits.getTokenURI(
+            mapTokenTraits[uint32(tokenId)]
+        );
 
         // If there is no base URI, return the token URI.
         if (bytes(baseURI).length == 0) {

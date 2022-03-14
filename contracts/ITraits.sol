@@ -23,13 +23,6 @@ interface ITraits {
 
     function selectTraits(
         uint256 seed,
-        uint8 level,
-        uint8 totalBosses,
-        uint8 totalDwarfathers
+        bool isMerchant
     ) external returns (DwarfTrait memory aTrait);
-
-    function getTraitHash(DwarfTrait memory aTrait)
-        external
-        pure
-        returns (uint256);
 }

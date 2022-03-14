@@ -15,23 +15,27 @@ contract Traits is OwnableUpgradeable, ITraits {
     using Strings for string;
     using Strings for uint256;
 
-    // static boss traits
-    DwarfTrait[] public bossTraits;
+    // array of the mobster traits
+    string[] public mobsterTraits;
 
-    // static dwarfather traits
-    DwarfTrait[] public dwarfatherTraits;
+    // array of the merchant traits
+    string[] public merchantTraits;
 
-    // array of the unallocated traits
-    string[] public unallocatedTraits;
+    uint32 private MAX_MOBSTERS;
 
-    // array of the allocated traits
-    string[] public allocatedTraits;
+    uint32 public count_mobsters;
+    uint32 public city_id;
+    uint32 public count_merchants;
 
     /**
      * @dev initialize function
      */
     function initialize() public virtual initializer {
         __Ownable_init();
+
+        MAX_MOBSTERS = 200;
+        count_merchants = 17000;
+        count_mobsters = 200;
     }
 
     /**
@@ -39,29 +43,41 @@ contract Traits is OwnableUpgradeable, ITraits {
      * @param seed a pseudorandom 256 bit number to derive traits from
      * @return t -  a struct of randomly selected traits
      */
-    function selectTraits(
-        uint256 seed,
-        uint8 level,
-        uint8 totalBosses,
-        uint8 totalDwarfathers
-    ) external returns (DwarfTrait memory t) {
-        // if Boss
-        if (level == 7) {
-            // set the custom traits to boss
-            t = bossTraits[totalBosses];
-        } else if (level == 8) {
-            // set the custom traits to dwarfather
-            t = dwarfatherTraits[totalDwarfathers];
-        } else {
-            uint256 m_TraitIndex = random(seed) % unallocatedTraits.length;
-            string memory traitStr = unallocatedTraits[m_TraitIndex];
-            t = parseStringToTrait(traitStr);
+    function selectTraits(uint256 seed, bool isMerchant)
+        external
+        returns (DwarfTrait memory t)
+    {
+        string memory traitStr = "";
 
-            allocatedTraits.push(traitStr);
-            delete unallocatedTraits[m_TraitIndex];
+        seed = random(seed);
+        if (isMerchant == true) {
+            // if it's a merchant
+            if (count_merchants > 0) {
+                uint256 _index = seed % count_merchants;
+                traitStr = merchantTraits[_index];
+                count_merchants--;
+                merchantTraits[_index] = merchantTraits[count_merchants];
+                merchantTraits[count_merchants] = traitStr;
+            }
+        } else {
+            // if it's a mobster
+            if (city_id < 15) {
+                if (count_mobsters > 0) {
+                    uint256 _index = (seed % count_mobsters) + MAX_MOBSTERS * city_id;
+                    traitStr = mobsterTraits[_index];
+                    count_mobsters--;
+                    mobsterTraits[_index] = mobsterTraits[count_mobsters];
+                    mobsterTraits[count_mobsters] = traitStr;
+
+                    if (count_mobsters == 0) {
+                        count_mobsters = MAX_MOBSTERS;
+                        city_id++;
+                    }
+                }
+            }
         }
 
-        return t;
+        t = parseStringToTrait(traitStr);
     }
 
     /**
@@ -96,36 +112,6 @@ contract Traits is OwnableUpgradeable, ITraits {
         t.eyewear = uint8(traitBytes[12]); // eyewear
         t.cityId = uint8(traitBytes[13]); // city id
         t.level = uint8(traitBytes[14]); // level
-        t.generation = uint8(traitBytes[15]); // generation
-    }
-
-    /**
-     * @dev converts a struct to a 256 bit hash to check for uniqueness
-     * @param aTrait the struct to pack into a hash
-     * @return the 256 bit hash of the struct
-     */
-    function getTraitHash(DwarfTrait memory aTrait)
-        external
-        pure
-        returns (uint256)
-    {
-        return
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        aTrait.background_weapon, // background & weapon
-                        aTrait.body_outfit, // body & outfit
-                        aTrait.head_ears, // head & ears
-                        aTrait.mouth_nose, // mouth & nose
-                        aTrait.eyes_brows, // eyes & eyebrows
-                        aTrait.hair_facialhair, // hair & facialhair
-                        aTrait.eyewear, // eyewear
-                        aTrait.cityId, // city id
-                        aTrait.level, // level
-                        aTrait.generation // generation
-                    )
-                )
-            );
     }
 
     /**
@@ -179,57 +165,23 @@ contract Traits is OwnableUpgradeable, ITraits {
         t[12] = bytes1(aTrait.eyewear); // add the eyewear into bytes
         t[13] = bytes1(aTrait.cityId); // add the city id into bytes
         t[14] = bytes1(aTrait.level); // add the level into bytes
-        t[15] = bytes1(aTrait.generation); // add the generation into bytes
 
         _tokenURI = t.base64Encode();
     }
 
     /**
-     * @dev set the traits of boss
-     * @param traits the trait of a boss
-     * @param index the boss index
-     */
-    function setBossTraits(DwarfTrait memory traits, uint16 index)
-        external
-        onlyOwner
-    {
-        if (index >= bossTraits.length) {
-            bossTraits.push(traits);
-        } else {
-            bossTraits[index] = traits;
-        }
-    }
-
-    /**
-     * @dev set the traits of dwarfather
-     * @param traits the trait of a boss
-     * @param index the boss index
-     */
-    function setDwarfatherTraits(DwarfTrait memory traits, uint16 index)
-        external
-        onlyOwner
-    {
-        if (index >= dwarfatherTraits.length) {
-            dwarfatherTraits.push(traits);
-        } else {
-            dwarfatherTraits[index] = traits;
-        }
-    }
-
-    /**
-     * @dev set the traits of NFT (except the dwarfather and boss)
+     * @dev set the traits of mobster
      * @param traits the trait of NFT
      */
-    function setNFTTraits(string[] memory traits) external onlyOwner {
-        unallocatedTraits = traits;
+    function setMobsterTraits(string[] memory traits) external onlyOwner {
+        mobsterTraits = traits;
     }
 
     /**
-     * @dev add the new traits of NFT (except the dwarfather and boss)
+     * @dev set the traits of merchant
      * @param traits the trait of NFT
      */
-    function addNewNFTTraits(string[] memory traits) external onlyOwner {
-        for (uint256 i = 0; i < traits.length; i++)
-            unallocatedTraits.push(traits[i]);
+    function setMerchantTraits(string[] memory traits) external onlyOwner {
+        merchantTraits = traits;
     }
 }

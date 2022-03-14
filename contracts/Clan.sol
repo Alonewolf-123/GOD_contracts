@@ -9,10 +9,11 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradea
 /// @title Clan
 /// @author Bounyavong
 /// @dev Clan logic is implemented and this is the upgradeable
-contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgradeable {
-    // number of cities in each generation status
-    uint8[] private MAX_NUM_CITY;
-
+contract Clan is
+    IERC721ReceiverUpgradeable,
+    OwnableUpgradeable,
+    PausableUpgradeable
+{
     // struct to store a token information
     struct TokenInfo {
         uint32 tokenId;
@@ -76,7 +77,7 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
 
     event AddManyToClan(uint32[] tokenIds, uint256 timestamp);
     event ClaimManyFromClan(uint32[] tokenIds, uint256 timestamp);
-    
+
     /**
      * @dev initialize function
      * @param _dwarfs_nft reference to the Dwarfs_NFT NFT contract
@@ -91,9 +92,6 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
         __Pausable_init();
         dwarfs_nft = Dwarfs_NFT(_dwarfs_nft);
         god = GOD(_god);
-
-        // number of cities in each generation status
-        MAX_NUM_CITY = [6, 9, 12, 15];
 
         // total number of tokens in the clan
         totalNumberOfTokens = 0;
@@ -380,49 +378,6 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
     }
 
     /**
-     * @dev get max number of cities of each generation
-     * @return number of city array
-     */
-    function getMaxNumCityOfGen() external view returns (uint8[] memory) {
-        return MAX_NUM_CITY;
-    }
-
-    /**
-     * @dev set max number of cities of each generation
-     * @param maxCity the number of city array
-     */
-    function setMaxNumCityOfGen(uint8[] memory maxCity) external onlyOwner {
-        require(maxCity.length == MAX_NUM_CITY.length, "Invalid parameters");
-        for (uint8 i = 0; i < maxCity.length; i++) {
-            MAX_NUM_CITY[i] = maxCity[i];
-        }
-    }
-
-    /**
-     * @dev Get the available city id
-     * @return the available city id
-     */
-    function getAvailableCity() public view virtual returns (uint8) {
-        uint8 cityId = 1;
-        while (true) {
-            uint16[] memory _maxMobstersPerCity = dwarfs_nft
-                .getMaxMobstersPerCity();
-            if (
-                mapCityMobsters[cityId].length <
-                (_maxMobstersPerCity[0] +
-                    _maxMobstersPerCity[1] +
-                    _maxMobstersPerCity[2] +
-                    _maxMobstersPerCity[3])
-            ) {
-                return cityId;
-            }
-            cityId++;
-        }
-        
-        return cityId;
-    }
-
-    /**
      * @dev Get the number of mobsters in city
      * @return the number of mobsters array
      */
@@ -434,9 +389,7 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
         uint16[] memory _numOfMobstersOfCity = new uint16[](4);
         uint8 level = 0;
         for (uint32 i = 0; i < mapCityMobsters[cityId].length; i++) {
-            level = dwarfs_nft
-                .getTokenTraits(mapCityMobsters[cityId][i])
-                .level;
+            level = dwarfs_nft.getTokenTraits(mapCityMobsters[cityId][i]).level;
             _numOfMobstersOfCity[level - 5]++;
         }
 
@@ -596,15 +549,5 @@ contract Clan is IERC721ReceiverUpgradeable, OwnableUpgradeable, PausableUpgrade
                     )
                 )
             );
-    }
-
-    function onERC721Received(
-        address,
-        address from,
-        uint256,
-        bytes calldata
-    ) external pure override returns (bytes4) {
-        require(from == address(0x0), "Cannot send tokens to Clan directly");
-        return IERC721ReceiverUpgradeable.onERC721Received.selector;
     }
 }
