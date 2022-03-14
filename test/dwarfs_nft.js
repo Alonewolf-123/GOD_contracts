@@ -1,37 +1,92 @@
-// import Web3 from "web3";
-
-const { ethers } = require("ethers");
-const _deploy_traits = require("../migrations/1_deploy_traits");
-
 const Dwarfs_NFT = artifacts.require("Dwarfs_NFT");
+const God = artifacts.require("God");
 const Clan = artifacts.require("Clan");
-// Is there is an injected web3 instance?
-// var web3Provider;
+const Traits = artifacts.require("Traits");
 
-// if (typeof web3 !== 'undefined') {
-//     web3Provider = web3.currentProvider;
-//     web3 = new Web3(web3.currentProvider);
-// } else {
-//     // If no injected web3 instance is detected, fallback to Truffle Develop.
-//     web3Provider = new web3.providers.HttpProvider('http://127.0.0.1:7545');
-//     web3 = new Web3(App.web3Provider);
-// }
+const traits_list = ["AwwCDgIFAgIEAwgJAQIGAA==",
+    "BwECBQIFBAEUAggBAwMIAA==",
+    "Cg4CDQEFBAEBAQQKAQUGAA==",
+    "AQEBFQMCAgEWAQAJBQUFAA==",
+    "Ag8BBwIFBQETAwABAQUFAA==",
+    "Aw4BCwEEAgEUAQADBgUIAA==",
+    "BgMBDAMBBAQTAgABBgQIAA==",
+    "Bg4BEwEFAwESAQkCAQMHAA==",
+    "BAUBDwMFBAMLBAADAwUGAA=="
+];
+const nft_price = 0.0012;
 
 contract("Dwarfs_NFT", function(accounts) {
-    it("Clan test"), async function() {
-        let clan = await Clan.deployed();
-        let cityId = clan.getAvailableCity();
-        console.log(cityId);
-        console.log(clan.getNumMobstersOfCity(cityId));
-    })
+    it("Mint", async function() {
+        let amount = 3;
+        let dwarfs_nft = await Dwarfs_NFT.deployed();
+        let traits = await Traits.deployed();
 
-it("Mint testing", async function() {
-    let dwarfs_nft = await Dwarfs_NFT.deployed();
-    dwarfs_nft.setClan(Clan.address)
+        let orignal_balance = await dwarfs_nft.balanceOf(accounts[0]);
 
-    // let amount = 2;
-    // dwarfs_nft.mint(amount, { value: 0.0012 * 10e18 * amount });
-    dwarfs_nft.mint(2, { value: 0.0012 * 10e18 * 2 });
+        console.log("Traits address: " + Traits.address);
 
-})
+        console.log("Clan address: " + Clan.address);
+
+        await traits.setNFTTraits(traits_list);
+        await dwarfs_nft.setClan(Clan.address)
+        await dwarfs_nft.mint(amount, { value: nft_price * 10e18 * amount });
+
+        let current_balance = await dwarfs_nft.balanceOf(accounts[0]);
+        assert.equal(
+            current_balance - orignal_balance,
+            amount,
+            amount + " wasn't in the first account"
+        );
+    });
+
+    it("Invest", async function() {
+        let tokenId = 1;
+        let amount = 10000;
+        let clan = Clan.deployed();
+        let god = God.deployed();
+        let original_balance = await god.balanceOf(accounts[0]);
+        await clan.investGods(tokenId, amount);
+        let current_balance = await god.balanceOf(accounts[0]);
+
+        assert.equal(
+            original_balance - current_balance,
+            amount,
+            amount + " wasn't invested in the first account"
+        );
+    });
+
+    it("Add merchant", async function() {
+        let cityId = 1;
+        let tokenIds = [1, 2, 3];
+        let clan = Clan.deployed();
+
+        for (var i = 0; i < tokenIds.length; i++) {
+            await clan.addMerchantToCity(tokenIds[i], cityId);
+        }
+    });
+
+    it("Normal Claim", async function() {
+        let tokenIds = [1, 2, 3];
+        let clan = Clan.deployed();
+
+        // test the normal game
+        await clan.claimManyFromClan(tokenIds, false);
+    });
+
+    it("Risky Claim", async function() {
+        let tokenIds = [1, 2, 3];
+        let clan = Clan.deployed();
+        let god = God.deployed();
+        let original_balance = await god.balanceOf(accounts[0]);
+        // test the risk game
+        await clan.claimManyFromClan(tokenIds, true);
+
+        let current_balance = await god.balanceOf(accounts[0]);
+
+        assert.notEqual(
+            original_balance,
+            current_balance,
+            "Clain owe is zero"
+        );
+    });
 });
