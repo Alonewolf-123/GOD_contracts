@@ -101,13 +101,13 @@ contract Clan is
         TAX_PERCENT = 20;
 
         // there will only ever be (roughly) 2.4 billion $GOD earned through staking
-        MAXIMUM_GLOBAL_GOD = 3000000000 ether;
+        MAXIMUM_GLOBAL_GOD = 3000000000;
 
         // initial Balance of a new Merchant
-        INITIAL_GOD_AMOUNT = 100000 ether;
+        INITIAL_GOD_AMOUNT = 100000;
 
         // minimum GOD invested amount
-        MIN_INVESTED_AMOUNT = 1000 ether;
+        MIN_INVESTED_AMOUNT = 1000;
 
         // amount of $GOD earned so far
         remainingGodAmount = MAXIMUM_GLOBAL_GOD;

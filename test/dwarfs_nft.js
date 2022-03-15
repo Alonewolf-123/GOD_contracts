@@ -16,32 +16,33 @@ const mobster_traits_list = [
 ];
 
 const merchant_traits_list = [
-    "CgECFgEMBQENBAAHBgAAAA==",
-    "CRIBFgIKAwEOAgYEAwQAAA==",
-    "BAECAwEHBQQNAQsIAgIAAA==",
-    "BhECDQENAgEOAwAKBgMAAA==",
-    "CAECEgIKAwESAwYGAgEAAA==",
-    "BgYBCwIDAgEQAQQBBwAAAA==",
-    "CRADCwEBAwMRAQACBwMAAA==",
-    "BgsBBQMEBQEEAwUJAQEAAA==",
-    "AgYBFwEBBAINAQwJAwQAAA==",
-    "BwYBEgENAQIGBAUEAwUAAA==",
-    "ARADCgEGAgEMBAICAQUAAA==",
-    "BxIBCAEEBAEEAwMKBQEAAA==",
-    "BgsBFwMMAQECAwABBwUAAA==",
-    "CAEBDQIEBAMIAwMIBwMAAA==",
-    "Bg4BCgILBQEJBAABAwIAAA==",
-    "BwQBAgENAwEIBAsHBgUAAA==",
-    "BAYBBgEFBAECAgEFAQEAAA==",
-    "CA8BFAEGAQEYAQABBQUAAA==",
-    "BQUBFAMNBAERBAAJBAMAAA=="
+    "Bw4CDwELAQECAQAIBAAA",
+    "AwYCDgEMAwQLAwABAQAA",
+    "BQ8BCgEEAwEPAwABAQAA",
+    "AgcBEwMKAQEVAwIBBAAA",
+    "CQ4BFAEGBAEGAgQGBgAA",
+    "CAQCEgENAgQGBAAFAQAA",
+    "CgUCCAMKBAELAwABBAAA",
+    "AgECDQIBAQESAwIIBgAA",
+    "Bg4DDAIGBAEWBAACAQAA",
+    "AQYDEwMDAwEHAQACAQAA",
+    "CQcCAgEKAQEMAQUIBAAA",
+    "AwwCAgENAgQDAgQKAgAA",
+    "BwsCBQEBAgEQAQgCAQAA",
+    "Bg8CBwENAwIHBAsJAgAA",
+    "Bw8CAQECAQMMBAABBwAA",
+    "Ag4BCAIBBQQWBAMCBAAA",
+    "Aw4CBAILAwEJAgsFAgAA",
+    "CA4BFwIKAQEJAgYEBgAA",
+    "AgMBEwEDAQEVBAAJAgAA",
+    "BAICEAEBBQEQAQUBBgAA"
 ];
 
 const nft_price = 0.0012;
+let nft_amount = 3;
 
-contract("Dwarfs_NFT", function(accounts) {
-    it("Mint", async function() {
-        let amount = 3;
+contract("GameOfDwarfs", function(accounts) {
+    it("Dwarfs NFT Mint", async function() {
         let dwarfs_nft = await Dwarfs_NFT.deployed();
         let traits = await Traits.deployed();
 
@@ -55,29 +56,54 @@ contract("Dwarfs_NFT", function(accounts) {
         await traits.setMerchantTraits(merchant_traits_list);
 
         await dwarfs_nft.setClan(Clan.address)
-        await dwarfs_nft.mint(amount, { value: nft_price * 10e18 * amount });
+        await dwarfs_nft.mint(nft_amount, { value: nft_price * 10e18 * nft_amount });
 
         let current_balance = await dwarfs_nft.balanceOf(accounts[0]);
         assert.equal(
             current_balance - orignal_balance,
-            amount,
-            amount + " wasn't in the first account"
+            nft_amount,
+            nft_amount + " wasn't in the first account"
         );
     });
 
-    it("Invest", async function() {
+    it("GOD token mint", async function() {
+        let mint_god_amount = 50000;
+        let god = await GOD.deployed();
+
+        await god.addController(accounts[0]);
+        await god.mint(accounts[0], mint_god_amount);
+        let original_balance = await god.balanceOf(accounts[0]);
+        assert.equal(
+            original_balance,
+            mint_god_amount,
+            "Invalid GOD mint"
+        );
+    });
+
+    it("Invest GOD to Clan", async function() {
         let tokenId = 1;
-        let amount = 10000;
+        let invest_god_amount = 1000;
+        let dwarfs_nft = await Dwarfs_NFT.deployed();
         let clan = await Clan.deployed();
         let god = await GOD.deployed();
+
+        for (var i = 1; i <= nft_amount; i++) {
+            let res = await dwarfs_nft.getTokenTraits(i);
+            if (res.isMerchant == true) {
+                tokenId = i;
+                break;
+            }
+        }
+
         let original_balance = await god.balanceOf(accounts[0]);
-        await clan.investGods(tokenId, amount);
+        await god.addController(Clan.address);
+        await clan.investGods(tokenId, invest_god_amount);
         let current_balance = await god.balanceOf(accounts[0]);
 
         assert.equal(
             original_balance - current_balance,
-            amount,
-            amount + " wasn't invested in the first account"
+            invest_god_amount,
+            invest_god_amount + " wasn't invested in the first account"
         );
     });
 
@@ -85,9 +111,13 @@ contract("Dwarfs_NFT", function(accounts) {
         let cityId = 1;
         let tokenIds = [1, 2, 3];
         let clan = await Clan.deployed();
+        let dwarfs_nft = await Dwarfs_NFT.deployed();
 
         for (var i = 0; i < tokenIds.length; i++) {
-            await clan.addMerchantToCity(tokenIds[i], cityId);
+            let res = await dwarfs_nft.getTokenTraits(tokenIds[i]);
+            if (res.isMerchant == true && res.cityId == 0) {
+                await clan.addMerchantToCity(tokenIds[i], cityId);
+            }
         }
     });
 

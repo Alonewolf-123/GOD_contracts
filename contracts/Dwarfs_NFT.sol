@@ -106,10 +106,10 @@ contract Dwarfs_NFT is
 
         // god prices for mint
         MINT_GOD_PRICES = [
-            0 ether, // GOD price in Gen0
-            100000 ether, // GOD price in Gen1
-            120000 ether, // GOD price in Gen2
-            140000 ether // GOD price in Gen3
+            0, // GOD price in Gen0
+            100000, // GOD price in Gen1
+            120000, // GOD price in Gen2
+            140000 // GOD price in Gen3
         ];
 
         // max number of tokens that can be minted in each phase- 20000 in production
@@ -125,7 +125,7 @@ contract Dwarfs_NFT is
 
         MAX_CASINO_MINTS = 50; // max number of mints from casino is 50
 
-        CASINO_PRICE = 1000 ether; // price of casino play is 1000 GOD
+        CASINO_PRICE = 1000; // price of casino play is 1000 GOD
 
         // number of cities in each generation status
         MAX_NUM_CITY = [6, 9, 12, 15];
