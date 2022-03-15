@@ -65,7 +65,7 @@ contract Dwarfs_NFT is
     string private baseURI;
 
     // current count of mobsters
-    uint8 private count_mobsters;
+    uint256 private count_mobsters;
 
     // current number of dwarfs of casino play
     uint16 private count_casinoMints;
@@ -277,6 +277,7 @@ contract Dwarfs_NFT is
                 count_casinoMints = 0;
             }
             seed = random(minted);
+
             generate(minted, seed);
 
             _safeMint(_msgSender(), minted);
@@ -353,15 +354,26 @@ contract Dwarfs_NFT is
         returns (ITraits.DwarfTrait memory t)
     {
         // check the merchant or mobster
-        bool _bMerchant = (count_mobsters ==
-            MAX_NUM_CITY[generationOfNft] * 200 &&
-            tokenId <= MAX_GEN_TOKENS[generationOfNft]);
+        // bool _bMerchant = ((count_mobsters ==
+        //     uint256(MAX_NUM_CITY[generationOfNft] * 200)) &&
+        //     (tokenId <= uint32(MAX_GEN_TOKENS[generationOfNft])));
+        bool _bMerchant = false;
+        if (
+            (count_mobsters == uint256(MAX_NUM_CITY[generationOfNft]) * 200) &&
+            (tokenId <= uint32(MAX_GEN_TOKENS[generationOfNft]))
+        ) {
+            _bMerchant = true;
+        }
+
+        // require(false, "mint generate before select traits");
+
         seed = random(seed);
         _bMerchant = (_bMerchant || (((seed & 0xFFFF) % 100) > 15));
 
         if (_bMerchant == false) {
             count_mobsters++;
         }
+
         t = nft_traits.selectTraits(seed, _bMerchant);
         t.generation = generationOfNft;
 

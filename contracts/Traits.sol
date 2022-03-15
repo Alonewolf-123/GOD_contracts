@@ -34,8 +34,11 @@ contract Traits is OwnableUpgradeable, ITraits {
         __Ownable_init();
 
         MAX_MOBSTERS = 200;
-        count_merchants = 17000;
-        count_mobsters = 200;
+        // count_merchants = 17000;
+        // count_mobsters = 200;
+
+        count_merchants = 19;
+        count_mobsters = 9;
     }
 
     /**
@@ -78,6 +81,7 @@ contract Traits is OwnableUpgradeable, ITraits {
         }
 
         t = parseStringToTrait(traitStr);
+        t.isMerchant = isMerchant;
     }
 
     /**

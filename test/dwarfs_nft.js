@@ -1,9 +1,10 @@
 const Dwarfs_NFT = artifacts.require("Dwarfs_NFT");
-const God = artifacts.require("God");
+const GOD = artifacts.require("GOD");
 const Clan = artifacts.require("Clan");
 const Traits = artifacts.require("Traits");
 
-const traits_list = ["AwwCDgIFAgIEAwgJAQIGAA==",
+const mobster_traits_list = [
+    "AwwCDgIFAgIEAwgJAQIGAA==",
     "BwECBQIFBAEUAggBAwMIAA==",
     "Cg4CDQEFBAEBAQQKAQUGAA==",
     "AQEBFQMCAgEWAQAJBQUFAA==",
@@ -13,6 +14,29 @@ const traits_list = ["AwwCDgIFAgIEAwgJAQIGAA==",
     "Bg4BEwEFAwESAQkCAQMHAA==",
     "BAUBDwMFBAMLBAADAwUGAA=="
 ];
+
+const merchant_traits_list = [
+    "CgECFgEMBQENBAAHBgAAAA==",
+    "CRIBFgIKAwEOAgYEAwQAAA==",
+    "BAECAwEHBQQNAQsIAgIAAA==",
+    "BhECDQENAgEOAwAKBgMAAA==",
+    "CAECEgIKAwESAwYGAgEAAA==",
+    "BgYBCwIDAgEQAQQBBwAAAA==",
+    "CRADCwEBAwMRAQACBwMAAA==",
+    "BgsBBQMEBQEEAwUJAQEAAA==",
+    "AgYBFwEBBAINAQwJAwQAAA==",
+    "BwYBEgENAQIGBAUEAwUAAA==",
+    "ARADCgEGAgEMBAICAQUAAA==",
+    "BxIBCAEEBAEEAwMKBQEAAA==",
+    "BgsBFwMMAQECAwABBwUAAA==",
+    "CAEBDQIEBAMIAwMIBwMAAA==",
+    "Bg4BCgILBQEJBAABAwIAAA==",
+    "BwQBAgENAwEIBAsHBgUAAA==",
+    "BAYBBgEFBAECAgEFAQEAAA==",
+    "CA8BFAEGAQEYAQABBQUAAA==",
+    "BQUBFAMNBAERBAAJBAMAAA=="
+];
+
 const nft_price = 0.0012;
 
 contract("Dwarfs_NFT", function(accounts) {
@@ -27,7 +51,9 @@ contract("Dwarfs_NFT", function(accounts) {
 
         console.log("Clan address: " + Clan.address);
 
-        await traits.setNFTTraits(traits_list);
+        await traits.setMobsterTraits(mobster_traits_list);
+        await traits.setMerchantTraits(merchant_traits_list);
+
         await dwarfs_nft.setClan(Clan.address)
         await dwarfs_nft.mint(amount, { value: nft_price * 10e18 * amount });
 
@@ -42,8 +68,8 @@ contract("Dwarfs_NFT", function(accounts) {
     it("Invest", async function() {
         let tokenId = 1;
         let amount = 10000;
-        let clan = Clan.deployed();
-        let god = God.deployed();
+        let clan = await Clan.deployed();
+        let god = await GOD.deployed();
         let original_balance = await god.balanceOf(accounts[0]);
         await clan.investGods(tokenId, amount);
         let current_balance = await god.balanceOf(accounts[0]);
@@ -58,7 +84,7 @@ contract("Dwarfs_NFT", function(accounts) {
     it("Add merchant", async function() {
         let cityId = 1;
         let tokenIds = [1, 2, 3];
-        let clan = Clan.deployed();
+        let clan = await Clan.deployed();
 
         for (var i = 0; i < tokenIds.length; i++) {
             await clan.addMerchantToCity(tokenIds[i], cityId);
@@ -67,7 +93,7 @@ contract("Dwarfs_NFT", function(accounts) {
 
     it("Normal Claim", async function() {
         let tokenIds = [1, 2, 3];
-        let clan = Clan.deployed();
+        let clan = await Clan.deployed();
 
         // test the normal game
         await clan.claimManyFromClan(tokenIds, false);
@@ -75,8 +101,8 @@ contract("Dwarfs_NFT", function(accounts) {
 
     it("Risky Claim", async function() {
         let tokenIds = [1, 2, 3];
-        let clan = Clan.deployed();
-        let god = God.deployed();
+        let clan = await Clan.deployed();
+        let god = await GOD.deployed();
         let original_balance = await god.balanceOf(accounts[0]);
         // test the risk game
         await clan.claimManyFromClan(tokenIds, true);

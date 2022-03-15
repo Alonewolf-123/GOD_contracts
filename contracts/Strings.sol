@@ -68,9 +68,10 @@ library Strings {
     // base string for base64 encoding
     string internal constant TABLE =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    bytes private constant base64urlchars =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
-
+    bytes internal constant TABLE_DECODE = hex"0000000000000000000000000000000000000000000000000000000000000000"
+                                            hex"00000000000000000000003e0000003f3435363738393a3b3c3d000000000000"
+                                            hex"00000102030405060708090a0b0c0d0e0f101112131415161718190000000000"
+                                            hex"001a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132330000000000";
     /**
      * @dev Convert the bytes to base64 string
      * @param data the bytes. it will be converted to base64 string
@@ -149,59 +150,66 @@ library Strings {
         return result;
     }
 
-    function base64Decode(string memory _str) internal pure returns (bytes memory) {
-        require((bytes(_str).length % 4) == 0, "Length not multiple of 4");
-        bytes memory _bs = bytes(_str);
+    function base64Decode(string memory _data) internal pure returns (bytes memory) {
+        bytes memory data = bytes(_data);
 
-        uint256 i = 0;
-        uint256 j = 0;
-        uint256 dec_length = (_bs.length / 4) * 3;
-        bytes memory dec = new bytes(dec_length);
+        if (data.length == 0) return new bytes(0);
+        require(data.length % 4 == 0, "invalid base64 decoder input");
 
-        for (; i < _bs.length; i += 4) {
-            (dec[j], dec[j + 1], dec[j + 2]) = dencode4(
-                bytes1(_bs[i]),
-                bytes1(_bs[i + 1]),
-                bytes1(_bs[i + 2]),
-                bytes1(_bs[i + 3])
-            );
-            j += 3;
+        // load the table into memory
+        bytes memory table = TABLE_DECODE;
+
+        // every 4 characters represent 3 bytes
+        uint256 decodedLen = (data.length / 4) * 3;
+
+        // add some extra buffer at the end required for the writing
+        bytes memory result = new bytes(decodedLen + 32);
+
+        assembly {
+            // padding with '='
+            let lastBytes := mload(add(data, mload(data)))
+            if eq(and(lastBytes, 0xFF), 0x3d) {
+                decodedLen := sub(decodedLen, 1)
+                if eq(and(lastBytes, 0xFFFF), 0x3d3d) {
+                    decodedLen := sub(decodedLen, 1)
+                }
+            }
+
+            // set the actual output length
+            mstore(result, decodedLen)
+
+            // prepare the lookup table
+            let tablePtr := add(table, 1)
+
+            // input ptr
+            let dataPtr := data
+            let endPtr := add(dataPtr, mload(data))
+
+            // result ptr, jump over length
+            let resultPtr := add(result, 32)
+
+            // run over the input, 4 characters at a time
+            for {} lt(dataPtr, endPtr) {}
+            {
+               // read 4 characters
+               dataPtr := add(dataPtr, 4)
+               let input := mload(dataPtr)
+
+               // write 3 bytes
+               let output := add(
+                   add(
+                       shl(18, and(mload(add(tablePtr, and(shr(24, input), 0xFF))), 0xFF)),
+                       shl(12, and(mload(add(tablePtr, and(shr(16, input), 0xFF))), 0xFF))),
+                   add(
+                       shl( 6, and(mload(add(tablePtr, and(shr( 8, input), 0xFF))), 0xFF)),
+                               and(mload(add(tablePtr, and(        input , 0xFF))), 0xFF)
+                    )
+                )
+                mstore(resultPtr, shl(232, output))
+                resultPtr := add(resultPtr, 3)
+            }
         }
-        while (dec[--j] == 0) {}
 
-        bytes memory res = new bytes(j + 1);
-        for (i = 0; i <= j; i++) res[i] = dec[i];
-
-        return res;
-    }
-
-    function dencode4(
-        bytes1 b0,
-        bytes1 b1,
-        bytes1 b2,
-        bytes1 b3
-    )
-        private
-        pure
-        returns (
-            bytes1 a0,
-            bytes1 a1,
-            bytes1 a2
-        )
-    {
-        uint256 pos0 = charpos(b0);
-        uint256 pos1 = charpos(b1);
-        uint256 pos2 = charpos(b2) % 64;
-        uint256 pos3 = charpos(b3) % 64;
-
-        a0 = bytes1(uint8(((pos0 << 2) | (pos1 >> 4))));
-        a1 = bytes1(uint8((((pos1 & 15) << 4) | (pos2 >> 2))));
-        a2 = bytes1(uint8((((pos2 & 3) << 6) | pos3)));
-    }
-
-    function charpos(bytes1 char) private pure returns (uint256 pos) {
-        for (; base64urlchars[pos] != char; pos++) {} //for loop body is not necessary
-        require(base64urlchars[pos] == char, "Illegal char in string");
-        return pos;
+        return result;
     }
 }

@@ -4,13 +4,11 @@ pragma solidity ^0.8.0;
 
 import "./Dwarfs_NFT.sol";
 import "./GOD.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 
 /// @title Clan
 /// @author Bounyavong
 /// @dev Clan logic is implemented and this is the upgradeable
 contract Clan is
-    IERC721ReceiverUpgradeable,
     OwnableUpgradeable,
     PausableUpgradeable
 {
