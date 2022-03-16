@@ -62,7 +62,7 @@ contract Dwarfs_NFT is
     GOD private god;
 
     // Base URI
-    string private baseURI;
+    string[] private baseURI;
 
     // current count of mobsters
     uint256 private count_mobsters;
@@ -504,18 +504,13 @@ contract Dwarfs_NFT is
      * or to the token ID if {tokenURI} is empty.
      * @param _baseURI the base URI string
      */
-    function setBaseURI(string memory _baseURI) external onlyOwner {
-        baseURI = _baseURI;
-    }
-
-    /**
-     * @dev Returns the base URI set via {setBaseURI}. This will be
-     * automatically added as a prefix in {tokenURI} to each token's URI, or
-     * to the token ID if no specific URI is set for that token ID.
-     * @return base URI string
-     */
-    function getBaseURI() external view override returns (string memory) {
-        return baseURI;
+    function setBaseURI(string memory _baseURI, uint8 _generation) external onlyOwner {
+        if (baseURI.length <= _generation) {
+            baseURI.push(_baseURI);
+        }
+        else {
+            baseURI[_generation] = _baseURI;
+        }
     }
 
     /** RENDER */
@@ -542,19 +537,21 @@ contract Dwarfs_NFT is
             mapTokenTraits[uint32(tokenId)]
         );
 
+        uint8 _generation = mapTokenTraits[uint32(tokenId)].generation;
+
         // If there is no base URI, return the token URI.
-        if (bytes(baseURI).length == 0) {
+        if (bytes(baseURI[_generation]).length == 0) {
             return string(abi.encodePacked(_tokenURI, ".json"));
         }
         // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
         if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(baseURI, _tokenURI, ".json"));
+            return string(abi.encodePacked(baseURI[_generation], _tokenURI, ".json"));
         }
         // If there is a baseURI but no tokenURI, concatenate the tokenId to the baseURI.
         return
             string(
                 abi.encodePacked(
-                    baseURI,
+                    baseURI[_generation],
                     (uint256(tokenId)).toString(),
                     ".json"
                 )

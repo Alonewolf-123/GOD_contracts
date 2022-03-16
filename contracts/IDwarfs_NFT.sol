@@ -10,9 +10,4 @@ interface IDwarfs_NFT {
         external
         view
         returns (ITraits.DwarfTrait memory);
-
-    function getBaseURI()
-        external
-        view
-        returns (string memory);
 }
