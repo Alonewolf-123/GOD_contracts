@@ -354,18 +354,9 @@ contract Dwarfs_NFT is
         returns (ITraits.DwarfTrait memory t)
     {
         // check the merchant or mobster
-        // bool _bMerchant = ((count_mobsters ==
-        //     uint256(MAX_NUM_CITY[generationOfNft] * 200)) &&
-        //     (tokenId <= uint32(MAX_GEN_TOKENS[generationOfNft])));
-        bool _bMerchant = false;
-        if (
-            (count_mobsters == uint256(MAX_NUM_CITY[generationOfNft]) * 200) &&
-            (tokenId <= uint32(MAX_GEN_TOKENS[generationOfNft]))
-        ) {
-            _bMerchant = true;
-        }
-
-        // require(false, "mint generate before select traits");
+        bool _bMerchant = ((count_mobsters ==
+            uint256(MAX_NUM_CITY[generationOfNft] * 200)) &&
+            (tokenId <= uint32(MAX_GEN_TOKENS[generationOfNft])));
 
         seed = random(seed);
         _bMerchant = (_bMerchant || (((seed & 0xFFFF) % 100) > 15));
@@ -374,8 +365,7 @@ contract Dwarfs_NFT is
             count_mobsters++;
         }
 
-        t = nft_traits.selectTraits(seed, _bMerchant);
-        t.generation = generationOfNft;
+        t = nft_traits.selectTraits(seed, _bMerchant, generationOfNft);
 
         mapTokenTraits[tokenId] = t;
     }
@@ -504,13 +494,23 @@ contract Dwarfs_NFT is
      * or to the token ID if {tokenURI} is empty.
      * @param _baseURI the base URI string
      */
-    function setBaseURI(string memory _baseURI, uint8 _generation) external onlyOwner {
+    function setBaseURI(string memory _baseURI, uint8 _generation)
+        external
+        onlyOwner
+    {
         if (baseURI.length <= _generation) {
             baseURI.push(_baseURI);
-        }
-        else {
+        } else {
             baseURI[_generation] = _baseURI;
         }
+    }
+
+    /**
+     * @dev Internal function to get a hash of an integer
+     * @param index the index of the dwarf list
+     */
+    function getHashString(uint32 index) public pure returns (string memory result) {
+        result = string(abi.encodePacked(keccak256(abi.encodePacked(index))));
     }
 
     /** RENDER */
@@ -533,8 +533,8 @@ contract Dwarfs_NFT is
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        string memory _tokenURI = nft_traits.getTokenURI(
-            mapTokenTraits[uint32(tokenId)]
+        string memory _tokenURI = getHashString(
+            mapTokenTraits[uint32(tokenId)].index
         );
 
         uint8 _generation = mapTokenTraits[uint32(tokenId)].generation;
@@ -545,7 +545,10 @@ contract Dwarfs_NFT is
         }
         // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
         if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(baseURI[_generation], _tokenURI, ".json"));
+            return
+                string(
+                    abi.encodePacked(baseURI[_generation], _tokenURI, ".json")
+                );
         }
         // If there is a baseURI but no tokenURI, concatenate the tokenId to the baseURI.
         return
