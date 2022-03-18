@@ -403,7 +403,7 @@ contract Dwarfs_NFT is
     /** ADMIN */
 
     /**
-     * @dev called after deployment so that the contract can get random mobster thieves
+     * @dev called after deployment
      * @param _clan the address of the Clan
      */
     function setClan(address _clan) external onlyOwner {

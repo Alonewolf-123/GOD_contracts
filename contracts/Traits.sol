@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./ITraits.sol";
-// import "./IMobsterLevelList.sol"
+import "./IMobsterLevelList.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
@@ -25,10 +25,12 @@ contract Traits is OwnableUpgradeable, ITraits {
     uint8 public city_id;
     uint32 public count_merchants;
 
+    IMobsterLevelList mobsterLevelList;
+
     /**
      * @dev initialize function
      */
-    function initialize() public virtual initializer {
+    function initialize(address _mobsterLevelList) public virtual initializer {
         __Ownable_init();
 
         MAX_MOBSTERS = 200;
@@ -37,6 +39,8 @@ contract Traits is OwnableUpgradeable, ITraits {
         count_mobsters = 0;
         merchantStartIndex = [3001, 9801, 13201, 16601];
         merchantGenLimit = [6800, 3400, 3400, 3400];
+
+        mobsterLevelList = IMobsterLevelList(_mobsterLevelList);
     }
 
     /**
@@ -86,7 +90,7 @@ contract Traits is OwnableUpgradeable, ITraits {
             }
             
             t.cityId = city_id;
-            // t.level = mobsterLevelList.getMobsterLevel(mobsterIndex);
+            t.level = mobsterLevelList.getMobsterLevel(mobsterIndex);
             count_mobsters++;
 
             if (count_mobsters == MAX_MOBSTERS) {

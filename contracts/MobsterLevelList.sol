@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./IMobster_Level_List.sol";
+import "./IMobsterLevelList.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
@@ -56,6 +56,10 @@ contract MobsterLevelList is OwnableUpgradeable, IMobsterLevelList {
             start = 1200 + (_generation - 1) * 600;
             end = start + 600;
         }
+        require(
+            mobster_level_list.length >= end,
+            "Invalid level length and generation"
+        );
 
         for (uint32 i = start; i < end; i++) {
             mobster_level_list[i] = _levels[i - start];
