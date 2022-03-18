@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import "./ITraits.sol";
 // import "./IMobsterLevelList.sol"
-import "./Strings.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
@@ -12,9 +11,6 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 /// @author Bounyavong
 /// @dev read the traits details from NFT and generate the Token URI
 contract Traits is OwnableUpgradeable, ITraits {
-    using Strings for bytes;
-    using Strings for string;
-    using Strings for uint256;
 
     // mapping from mobster index to a existed flag
     mapping(uint32 => bool) private mapMobsterIndexExisted;
