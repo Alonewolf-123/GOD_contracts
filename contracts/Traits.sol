@@ -48,8 +48,6 @@ contract Traits is OwnableUpgradeable, ITraits {
         external
         returns (DwarfTrait memory t)
     {
-        string memory traitStr = "";
-
         seed = random(seed);
         if (isMerchant == true) {
             // if it's a merchant
@@ -86,6 +84,7 @@ contract Traits is OwnableUpgradeable, ITraits {
                     _nonExistingCount++;
                 }
             }
+            
             t.cityId = city_id;
             // t.level = mobsterLevelList.getMobsterLevel(mobsterIndex);
             count_mobsters++;
@@ -94,7 +93,6 @@ contract Traits is OwnableUpgradeable, ITraits {
                 count_mobsters = 0;
                 city_id++;
             }
-
         }
 
         t.isMerchant = isMerchant;

@@ -1,8 +1,8 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0x2ADaE3eba81a22c66940E1e6e8f18685fdc8f574",
-    "txHash": "0xfc9348f34e640efecefcd65bb6be9aeaa384e94b69230feb293a7cc30cb19904"
+    "address": "0xE7663Cb7FE0F264Fe2D03f4Aee67CB655C88A8aD",
+    "txHash": "0xa2624e93bdcf60364633a828520d02949a3fb13634f3176cab5bdd69b367d866"
   },
   "proxies": [
     {
@@ -1724,6 +1724,186 @@
       "address": "0x18831Ee60e5E9e8Ec171DfbD1afa4aFc8bf4ADeC",
       "txHash": "0xd972d973b4165dc83d892bfa89a935c46fcf4d2e1dd1264f4b3aa5a737adf930",
       "kind": "transparent"
+    },
+    {
+      "address": "0xD9BB704C8DEb2f305502cba9c3982DEC4737d549",
+      "txHash": "0x7bd4d61d44485163ed541793f5ef2988933e00ee10d4801f7d942e6c81004c4c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa90494EAbAE9E76FdC4D43BA81F1d093e56EFe79",
+      "txHash": "0xe61fb62c598a70f4332eab46636c4bd91ba50047900e2cb1941bcb8a4ddeee51",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x703242B695238b74b3Fe90581146Df4a49f12F8A",
+      "txHash": "0x7f5f7557474cd47bbbc2d07637527ce29dd5a515b929db83efde165e8a47b36d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xE0b5A75484d14eBE4052B4a6fc273a603b3F1d82",
+      "txHash": "0x1c2c3420388aafbe257aa526c0f1dc3fe77cb79d0e422f10fc4d3bc159b5dd22",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0Da94D834a2Ad84F20545B29C4b11C69640fbdf2",
+      "txHash": "0x0be6bce620c6f99d77c881e8118e06bcbd8c530508d903b4abfefa3d289c1f6a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x754f2df8A9613916Ae1fbB37EE47a6c2C252d7a3",
+      "txHash": "0x368881c188cb3b8f5f711e2801bc69eb93bbc6a9025818decb991b6383f3214a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x450D653bF2c065430560c8F5E51DB7334ddB93e6",
+      "txHash": "0x7dc08ae77e69333260dee92c0bcf101315abdda8517c8b29971d0c4b76233fb8",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4cEeF7D959ACDD1Df84f481cFfcbcDb582223d4b",
+      "txHash": "0x373f42dc73cdd58b2fd7e337763c162f57161ce247582a346f2081af80bf438e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x032A287ec6791994c4E4f6db5cB73027e4a05A0C",
+      "txHash": "0x6478d4f9fa4a276731e0818751f8b89d0d52d00e4677a88b29c3f4cdef4cb302",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x067452a56bCc6252E119254a1B5F9155399486ee",
+      "txHash": "0x92dd966898f1a06e54d04d281a4a3b6fcabfb7adc54ad4bfa07449327e62ea02",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa0545706e379C30B26ECaDE78188FDB78cb2162a",
+      "txHash": "0x8634b8731d6c9cbf85290cf1f9098d5856c86346cf61196a61ad77ead49ae72d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xD187411151242113708D47d45DEC810b2b394879",
+      "txHash": "0xd7245da1fc1b2b6400bddceb03d6acb424268f0fc5c9a446234d709b1e546204",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4A79248C0Dd0C30bb4c5bF989C48610Eb06CB8D9",
+      "txHash": "0x4e869706fa46f85f78b9fae155bf7ed41ac9cbb55cb91d09d31c50b20d6b7220",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x538B42d33F5DBf2E17693Ef7BCdaCfef18dF5891",
+      "txHash": "0xf67722e126b707dcad6b087bfa8cf862809318c65ee6117af2f2bed2d7d8e522",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4e8CeB24C2a043ac22B4F03860B0E0A629184306",
+      "txHash": "0xf5eb5ca2ffb8d6329b0ef5fa228424ad07d75d30258e17fa55b67ee784516f1a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x92d810bC4A71C1726B455bFEd1a8CF46aE3ca70C",
+      "txHash": "0xdded8e483315f15d84c73fd503b55b384d99fceada8ef785de91e5b7c79b857d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x840C039c5a08b855Df1F7CDe395599044B71B103",
+      "txHash": "0xb9832beed1b0f483e25400f113dbbdda85c4ac2d8b14f1abe3e399d5b1043094",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0EB4Ef4DC0535f083D3279E5A61a94D3A410Ed04",
+      "txHash": "0xcd1530494fe9eceeb193437a7babf04f5ad1af7c8a185ccc47063d83f65490ae",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x871CB21Fe7D6B0ed253ace411F70Ccf8869a7040",
+      "txHash": "0xf0bbc3cd4820a25dcc39ca1487d774c95ccf7aa0ed00e38be2e4a9e791ba0d1d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xEf79c953Ca463FC642017E409D4C7D421bC69285",
+      "txHash": "0x6b879924bd121a81900ac26afa76214447f697e71f078a710f02e66c67424665",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9aCC802d3069DC8947d23cF4a1Dd75eeCBA0e92F",
+      "txHash": "0x2c2041c1cb0537755289807c0b0802075cff78fed07898e65522a44543e5d1e6",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x82D3aCAaAcB592179527F60cC11f372E0c9ebbC4",
+      "txHash": "0x25307c4ff8480cd65b6a8b551054ad13c18c80b1f1eac161844cc496adbcf206",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x21037402cAe964185Ab46e18907fa13f79AfC973",
+      "txHash": "0x7f98985943ff4e09472d2cdaa918d5fd5329a49197cb1111ebaab3b351e175dd",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x424EB63f3699533C87Fef70662662Ca954eAb85C",
+      "txHash": "0xb3c4bc1b80566e02fd19304870815b2c4f228b35dfb7e0bf276ca7d8e5f2c9f6",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xAEc41e4BC3b401fcEf009aEECCDcD138f61adB1C",
+      "txHash": "0xba1338b2a169d1524d61facafde0598131068e24ccfe7512d7621c629a31fdd0",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x72d4135ee7B189239a895D38cd88faA7b0741049",
+      "txHash": "0xa6e863d84cbe6eb34ef3c8b34ea64d0b11ec7001281d1d0ca1243204c70b69d7",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2B978b6296E8312C2F1dc4E0c0C3240d44C340D0",
+      "txHash": "0x0c92f029045a2b93b9f698a37127c99ab85f85afa75caf137f67b522b6d3b3b5",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x8a655796788AD276e173C5f3b451cb3090b1A399",
+      "txHash": "0xe5477c3af533cf62590fce3ab0b9b9a59e458015c436cda002983711af9b8e9c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xffDa94704581e93F1eC886C24D8a31f981c9fCdF",
+      "txHash": "0x19c1f7eeec39d041fbaf6265b97c8932c52fa35828da7a6d05bc24feb315a0fc",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7a0E396046006786f36a38f23fD35b961368e032",
+      "txHash": "0x14cc22ee05cc07ff2809dd32b18c6c9817b11a75d6e811106b31348e14312c3f",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xba06D1C9e1866a9136F68CFe9D0B27e931E574Cb",
+      "txHash": "0x83bea9e9892802b05ac003f21e731d383af129fb82010ea623650f55ae6a46fd",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc901bF92a65D2B046B76D50Ae794AA6229522d3e",
+      "txHash": "0x049f1cd47c4412fd7ec7888c8527c368fa6d692c688137c84ec526e756ea1ed8",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x5f2baf6eE67C10523Da2263b49D22f5690649ec1",
+      "txHash": "0x0dae21447b5d322606cf7ba8f4e59649d10f040dc62301e0ca610868f4d65b6f",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x3cE0b141dF8ac59bA960e058F3E7eFB5888c606d",
+      "txHash": "0x65c21901941f157dc837a126ea14396b8b22eddc6af2805b86eaff4f0dcae227",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xfA8364105BB1B4b33807594BaE361B1D7cDC9600",
+      "txHash": "0xdb9d100352687bc3736cf6574f508588348f27cf7bc58e85a54a7020fd0b1785",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x75E8DFc4C31C72528F30E80Ca3eC0b72D452DdEF",
+      "txHash": "0x2e90424c99d5ed3a1e62bd96628386dea12f2ddcdd613d644618852648284726",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -1871,8 +2051,8 @@
       }
     },
     "09abd3204cc71b2bd7ecd5a863779bcb904b542eb002bbc64ed059b0f2d7e52d": {
-      "address": "0xdFc074b880FBEc8D2d4a9Da6159B7a0FcFA19fE7",
-      "txHash": "0xaf02d77a08b0a62372988715533478d6589c5599412700345c918e818876fe59",
+      "address": "0x92d8a433C8B4A2B84658B1E96b476B92BeB60143",
+      "txHash": "0x2483edb77ae0a69410f93d37f67a0e5a5812c0f47055dfb7f5630a78c65a48d0",
       "layout": {
         "storage": [
           {
@@ -12548,8 +12728,8 @@
       }
     },
     "faa371514c0afbb24cd083539d503da898d7819f9b4c51e511644643af06f380": {
-      "address": "0x9D8414275F6A36792F2bF1De62EfFb9FFcD12469",
-      "txHash": "0x7d296b28e67628b72410838866c0be3e1cf14fcf33d879f15073123ccceb4ec5",
+      "address": "0xc4F429fCebC0CE699f978a0a5a8063f310743C1A",
+      "txHash": "0x1d02e7c0846e9b323cc6d70264546f14e0b2c61028dc8fef353d149861195067",
       "layout": {
         "storage": [
           {
@@ -13188,6 +13368,1055 @@
           },
           "t_array(t_uint256)50_storage": {
             "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "628aeda80dc3905c8448840812789060b429115abc57c22f38935e6186dc9642": {
+      "address": "0xda14DC37566E65d4d241a65B117B9424Bd08aD7d",
+      "txHash": "0x6ab51fb9827ddbd18f43516ede99560f08aea16c2fa5f7ae46a015dc6232ffa7",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\introspection\\ERC165Upgradeable.sol:41"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:25"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:28"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_owners",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:31"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:34"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_tokenApprovals",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:37"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_operatorApprovals",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:40"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)44_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:458"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:29"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:102"
+          },
+          {
+            "contract": "ERC2981ContractWideRoyalties",
+            "label": "_royalties",
+            "type": "t_struct(RoyaltyInfo)5090_storage",
+            "src": "..\\project:\\contracts\\ERC2981ContractWideRoyalties.sol:9"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MINT_ETH_PRICES",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:28"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MINT_GOD_PRICES",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:31"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_GEN_TOKENS",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:34"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_TOKENS_ETH_SOLD",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:37"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_CASINO_MINTS",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:40"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "CASINO_PRICE",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:43"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_NUM_CITY",
+            "type": "t_array(t_uint8)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:46"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "minted",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:49"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "mapTokenTraits",
+            "type": "t_mapping(t_uint32,t_struct(DwarfTrait)7346_storage)",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:52"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "mapCasinoplayerTime",
+            "type": "t_mapping(t_address,t_uint80)",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:55"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "clan",
+            "type": "t_contract(IClan)7293",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:58"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "nft_traits",
+            "type": "t_contract(ITraits)7365",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:60"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "god",
+            "type": "t_contract(GOD)5286",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:62"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "baseURI",
+            "type": "t_array(t_string_storage)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:65"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "count_mobsters",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:68"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "count_casinoMints",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:71"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "generationOfNft",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:74"
+          }
+        ],
+        "types": {
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_uint16": {
+            "label": "uint16"
+          },
+          "t_array(t_uint8)dyn_storage": {
+            "label": "uint8[]"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_uint32,t_struct(DwarfTrait)7346_storage)": {
+            "label": "mapping(uint32 => struct ITraits.DwarfTrait)"
+          },
+          "t_struct(DwarfTrait)7346_storage": {
+            "label": "struct ITraits.DwarfTrait",
+            "members": [
+              {
+                "label": "isMerchant",
+                "type": "t_bool"
+              },
+              {
+                "label": "background_weapon",
+                "type": "t_uint16"
+              },
+              {
+                "label": "body_outfit",
+                "type": "t_uint16"
+              },
+              {
+                "label": "head_ears",
+                "type": "t_uint16"
+              },
+              {
+                "label": "mouth_nose",
+                "type": "t_uint16"
+              },
+              {
+                "label": "eyes_brows",
+                "type": "t_uint16"
+              },
+              {
+                "label": "hair_facialhair",
+                "type": "t_uint16"
+              },
+              {
+                "label": "eyewear",
+                "type": "t_uint8"
+              },
+              {
+                "label": "cityId",
+                "type": "t_uint8"
+              },
+              {
+                "label": "level",
+                "type": "t_uint8"
+              },
+              {
+                "label": "generation",
+                "type": "t_uint8"
+              }
+            ]
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_uint80)": {
+            "label": "mapping(address => uint80)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint80": {
+            "label": "uint80"
+          },
+          "t_contract(IClan)7293": {
+            "label": "contract IClan"
+          },
+          "t_contract(ITraits)7365": {
+            "label": "contract ITraits"
+          },
+          "t_contract(GOD)5286": {
+            "label": "contract GOD"
+          },
+          "t_array(t_string_storage)dyn_storage": {
+            "label": "string[]"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_struct(RoyaltyInfo)5090_storage": {
+            "label": "struct ERC2981Base.RoyaltyInfo",
+            "members": [
+              {
+                "label": "recipient",
+                "type": "t_address"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint24"
+              }
+            ]
+          },
+          "t_uint24": {
+            "label": "uint24"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "406b0e5ee9fcd0c8fb42c4461c1b54d74562760af72333edfd3fd6421702d8c2": {
+      "address": "0x3b87334c7a10815Aaf00676ab0DF5f917a583eB2",
+      "txHash": "0xf52729391df03b7818e60c34c064c1426a462cfc1c1d7ff6736acc7d739cdea3",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMobsterIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:16"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMerchantIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:17"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantStartIndex",
+            "type": "t_array(t_uint32)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:19"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantGenLimit",
+            "type": "t_array(t_uint32)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:20"
+          },
+          {
+            "contract": "Traits",
+            "label": "MAX_MOBSTERS",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:22"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_mobsters",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:24"
+          },
+          {
+            "contract": "Traits",
+            "label": "city_id",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Traits.sol:25"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_merchants",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:26"
+          }
+        ],
+        "types": {
+          "t_mapping(t_uint32,t_bool)": {
+            "label": "mapping(uint32 => bool)"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint32)dyn_storage": {
+            "label": "uint32[]"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "fd68bcb3f0f3dc879ace236a7f6d113b70508a88e0955781eb541df868087623": {
+      "address": "0xA4DF5479f65AEdC6532fdeA77Fa927afdb87F6e7",
+      "txHash": "0x5b456a726ead0a69095788ef632f18fbfdd59d417a9f6fd1b66fe8ba9e8004ad",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "ERC165Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\introspection\\ERC165Upgradeable.sol:41"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_name",
+            "type": "t_string_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:25"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_symbol",
+            "type": "t_string_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:28"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_owners",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:31"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_balances",
+            "type": "t_mapping(t_address,t_uint256)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:34"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_tokenApprovals",
+            "type": "t_mapping(t_uint256,t_address)",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:37"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "_operatorApprovals",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:40"
+          },
+          {
+            "contract": "ERC721Upgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)44_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\token\\ERC721\\ERC721Upgradeable.sol:458"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:29"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:102"
+          },
+          {
+            "contract": "ERC2981ContractWideRoyalties",
+            "label": "_royalties",
+            "type": "t_struct(RoyaltyInfo)5090_storage",
+            "src": "..\\project:\\contracts\\ERC2981ContractWideRoyalties.sol:9"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MINT_ETH_PRICES",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:24"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MINT_GOD_PRICES",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:27"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_GEN_TOKENS",
+            "type": "t_array(t_uint256)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:30"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_TOKENS_ETH_SOLD",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:33"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_CASINO_MINTS",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:36"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "CASINO_PRICE",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:39"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "MAX_NUM_CITY",
+            "type": "t_array(t_uint8)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:42"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "minted",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:45"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "mapTokenTraits",
+            "type": "t_mapping(t_uint32,t_struct(DwarfTrait)7344_storage)",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:48"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "mapCasinoplayerTime",
+            "type": "t_mapping(t_address,t_uint80)",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:51"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "clan",
+            "type": "t_contract(IClan)7293",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:54"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "nft_traits",
+            "type": "t_contract(ITraits)7357",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:56"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "god",
+            "type": "t_contract(GOD)5286",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:58"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "baseURI",
+            "type": "t_array(t_string_storage)dyn_storage",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:61"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "count_mobsters",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:64"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "count_casinoMints",
+            "type": "t_uint16",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:67"
+          },
+          {
+            "contract": "Dwarfs_NFT",
+            "label": "generationOfNft",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Dwarfs_NFT.sol:70"
+          }
+        ],
+        "types": {
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_uint16": {
+            "label": "uint16"
+          },
+          "t_array(t_uint8)dyn_storage": {
+            "label": "uint8[]"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_mapping(t_uint32,t_struct(DwarfTrait)7344_storage)": {
+            "label": "mapping(uint32 => struct ITraits.DwarfTrait)"
+          },
+          "t_struct(DwarfTrait)7344_storage": {
+            "label": "struct ITraits.DwarfTrait",
+            "members": [
+              {
+                "label": "isMerchant",
+                "type": "t_bool"
+              },
+              {
+                "label": "index",
+                "type": "t_uint32"
+              },
+              {
+                "label": "cityId",
+                "type": "t_uint8"
+              },
+              {
+                "label": "level",
+                "type": "t_uint8"
+              },
+              {
+                "label": "generation",
+                "type": "t_uint8"
+              }
+            ]
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_uint80)": {
+            "label": "mapping(address => uint80)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_uint80": {
+            "label": "uint80"
+          },
+          "t_contract(IClan)7293": {
+            "label": "contract IClan"
+          },
+          "t_contract(ITraits)7357": {
+            "label": "contract ITraits"
+          },
+          "t_contract(GOD)5286": {
+            "label": "contract GOD"
+          },
+          "t_array(t_string_storage)dyn_storage": {
+            "label": "string[]"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_struct(RoyaltyInfo)5090_storage": {
+            "label": "struct ERC2981Base.RoyaltyInfo",
+            "members": [
+              {
+                "label": "recipient",
+                "type": "t_address"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint24"
+              }
+            ]
+          },
+          "t_uint24": {
+            "label": "uint24"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_array(t_uint256)44_storage": {
+            "label": "uint256[44]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "b2875aaf8c7d8727e44b788155577883e0ac81dce15ccb946102037b7a08b171": {
+      "address": "0x062Cdb8d0161fEE2f62B639CAe1e58d5ec4c3124",
+      "txHash": "0xb163ffa7d08fdcdc282279675877f55af68ae51b1085d7905b2a22fbc7e4258c",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:29"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\security\\PausableUpgradeable.sol:102"
+          },
+          {
+            "contract": "Clan",
+            "label": "dwarfs_nft",
+            "type": "t_contract(Dwarfs_NFT)5076",
+            "src": "..\\project:\\contracts\\Clan.sol:36"
+          },
+          {
+            "contract": "Clan",
+            "label": "god",
+            "type": "t_contract(GOD)5286",
+            "src": "..\\project:\\contracts\\Clan.sol:39"
+          },
+          {
+            "contract": "Clan",
+            "label": "mapTokenInfo",
+            "type": "t_mapping(t_uint32,t_struct(TokenInfo)2640_storage)",
+            "src": "..\\project:\\contracts\\Clan.sol:42"
+          },
+          {
+            "contract": "Clan",
+            "label": "mapTokenExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Clan.sol:44"
+          },
+          {
+            "contract": "Clan",
+            "label": "totalNumberOfTokens",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Clan.sol:47"
+          },
+          {
+            "contract": "Clan",
+            "label": "mapCityMobsters",
+            "type": "t_mapping(t_uint8,t_array(t_uint32)dyn_storage)",
+            "src": "..\\project:\\contracts\\Clan.sol:50"
+          },
+          {
+            "contract": "Clan",
+            "label": "DAILY_GOD_RATE",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Clan.sol:53"
+          },
+          {
+            "contract": "Clan",
+            "label": "TAX_PERCENT",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Clan.sol:56"
+          },
+          {
+            "contract": "Clan",
+            "label": "MAXIMUM_GLOBAL_GOD",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:59"
+          },
+          {
+            "contract": "Clan",
+            "label": "INITIAL_GOD_AMOUNT",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:62"
+          },
+          {
+            "contract": "Clan",
+            "label": "MIN_INVESTED_AMOUNT",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:65"
+          },
+          {
+            "contract": "Clan",
+            "label": "remainingGodAmount",
+            "type": "t_uint256",
+            "src": "..\\project:\\contracts\\Clan.sol:68"
+          },
+          {
+            "contract": "Clan",
+            "label": "mobsterProfitPercent",
+            "type": "t_array(t_uint8)dyn_storage",
+            "src": "..\\project:\\contracts\\Clan.sol:71"
+          },
+          {
+            "contract": "Clan",
+            "label": "bMerchantGamePlaying",
+            "type": "t_bool",
+            "src": "..\\project:\\contracts\\Clan.sol:74"
+          }
+        ],
+        "types": {
+          "t_contract(Dwarfs_NFT)5076": {
+            "label": "contract Dwarfs_NFT"
+          },
+          "t_contract(GOD)5286": {
+            "label": "contract GOD"
+          },
+          "t_mapping(t_uint32,t_struct(TokenInfo)2640_storage)": {
+            "label": "mapping(uint32 => struct Clan.TokenInfo)"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_struct(TokenInfo)2640_storage": {
+            "label": "struct Clan.TokenInfo",
+            "members": [
+              {
+                "label": "tokenId",
+                "type": "t_uint32"
+              },
+              {
+                "label": "cityId",
+                "type": "t_uint8"
+              },
+              {
+                "label": "availableBalance",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currentInvestedAmount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "lastInvestedTime",
+                "type": "t_uint80"
+              }
+            ]
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_uint80": {
+            "label": "uint80"
+          },
+          "t_mapping(t_uint32,t_bool)": {
+            "label": "mapping(uint32 => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_uint8,t_array(t_uint32)dyn_storage)": {
+            "label": "mapping(uint8 => uint32[])"
+          },
+          "t_array(t_uint32)dyn_storage": {
+            "label": "uint32[]"
+          },
+          "t_array(t_uint8)dyn_storage": {
+            "label": "uint8[]"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "5250a3468e872661554cc69e53441f2f60d71a2596796f54b483cd6f1314be5f": {
+      "address": "0x76cB6882631ED2721ED3538DE27aee7cfca4ED1E",
+      "txHash": "0xdae09861a5425e6062699ab3041f86023c409dc8153ec99977cdbc2bc40c6790",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "MobsterLevelList",
+            "label": "mobster_level_list",
+            "type": "t_bytes_storage",
+            "src": "..\\project:\\contracts\\Mobster_Level_List.sol:13"
+          }
+        ],
+        "types": {
+          "t_bytes_storage": {
+            "label": "bytes"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "1faf874390e425784d6faa057f1ac53d2cd3da6a947001a06e6466817e4093b0": {
+      "address": "0xb59623C2df6B87f676142A2d907BcD20A7db5BB8",
+      "txHash": "0xb5e9e667b0640b3ad5dead5d68cf4d109bff1e4b1e721b2d9c25fd3620dcc1b4",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "MobsterLevelList",
+            "label": "mobster_level_list",
+            "type": "t_bytes_storage",
+            "src": "..\\project:\\contracts\\Mobster_Level_List.sol:13"
+          }
+        ],
+        "types": {
+          "t_bytes_storage": {
+            "label": "bytes"
+          },
+          "t_bool": {
+            "label": "bool"
           }
         }
       }
