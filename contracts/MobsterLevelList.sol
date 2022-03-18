@@ -61,6 +61,11 @@ contract MobsterLevelList is OwnableUpgradeable, IMobsterLevelList {
             "Invalid level length and generation"
         );
 
+        require(
+            mobster_level_list.length >= end,
+            "Invalid level lenght and generation"
+        );
+
         for (uint32 i = start; i < end; i++) {
             mobster_level_list[i] = _levels[i - start];
         }
