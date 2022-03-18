@@ -1904,6 +1904,361 @@
       "address": "0x75E8DFc4C31C72528F30E80Ca3eC0b72D452DdEF",
       "txHash": "0x2e90424c99d5ed3a1e62bd96628386dea12f2ddcdd613d644618852648284726",
       "kind": "transparent"
+    },
+    {
+      "address": "0xC36Fab7D89C1D98686F396346186b8c31b4c6B64",
+      "txHash": "0xe2bc65a17f89ee7e5a4ea67c1d86ba674b16d7e05c75f4b72688b9bd009e45c3",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xD7Ef84778D94Adad4A0a1cAeC8F6B2463F8bF6C8",
+      "txHash": "0x38eb4558e02790c1f75c228e7cfdaa6482d762cc7b436b30923345cd717b232d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x3eda531D344a4CfF2fe201407F4C67e38c1f2b85",
+      "txHash": "0xcd97ff8bb5ecf0f64b1182d3e77c7c64aa317853076255b753cd019653ba3619",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x3b1f821440a1dc87c7737ea8c7334A457489B87b",
+      "txHash": "0xa568052fbd7848947d5e0b0f8510e50f0870a9da8ecc4cc3461e332764ca27e9",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7F0d733E07b36034851FF1fF83A36c650C27cE12",
+      "txHash": "0x29c74fc7408a9b6aac0566c823959ede815467a3346bea5f1ac9618caba108ac",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc43500f9264FdDcf72cB6FC845E18b7CE202205F",
+      "txHash": "0xbee79e12600401ce5c9683662c96247025d2fe6b499a1b23024ad679fe028d18",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa0343370858d4B1736B8af3Dcb149b975c53608B",
+      "txHash": "0x78ab25571b8cc8bef85a10c02f96159a801cc5bef6f096d97f603eb05390d468",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x694de51e480c89eB4628522c5cBC3F1940145DF6",
+      "txHash": "0xb1762d56ef766a8ba9b29a0d01581e3b982ad133db4b83bb7a854e6050d58ef9",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x69108B8659bA6e2Daa38e484eC98491bf1048519",
+      "txHash": "0xfb97015734601c291567e0d5acfe6460cdca6fd451982f2c8546111d85fd720f",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x8c6d7E4780f50B41604813Ca37cf4f5B0578fd6A",
+      "txHash": "0xd83e70bf7013631ef9402639650e4ba3501e83a2c5c0e7fdc5b5d9774220a00d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x64b4aa818Bdc014C74138f3E410f48C7d7475F41",
+      "txHash": "0xc602a36c0875c369e8a06a67644cd3d5df5128c08af53c6f10e81366927573e4",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xD5fE97263B94E7dB6de8367671eBff7f5384eAbe",
+      "txHash": "0x82a27b352e5e438fc33b39d8dea8f9c177d15abaf1cc1fadf63ff1348f53d39d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc5FE9587Ab6a21f59b08c42A0f44D27610F0BFE1",
+      "txHash": "0x46252d5e97c63627fe24de64330bb7effcdc058bd56d3ce67c52dcc6fee69657",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0b1921bA778849fCbe595ecD159B81F914EEf270",
+      "txHash": "0x09c40a4162f4bcffed686ab1be0a12952245c3d832885fbf05266b1844f6ff12",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x79FEAB1263b3A909A91771b811be888c3C7FE1ab",
+      "txHash": "0x995e75d79a8cebf9fafcf9a4136482c1fd904589aad743fe3aa317b67d3ff75d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2112BE146141258A9b3F6230638Ecd5f0b84C7e9",
+      "txHash": "0x325cb25be5465dbe683076f623c9c36fb222f441db0e7daa0fb4d21df1400074",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x355364b7c4C9480EDfAA1fC41bd4323486c5A0C4",
+      "txHash": "0x517a85345990efa26e638339eb89e12f4cfad94adf543b177aa89d13d2c47be7",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x09b507D23586012164980fF5f1E74Bb7f4262756",
+      "txHash": "0xaaa93cf76202d64205862c96c8ec2130edb67b5f64fa134dd13f158edddce620",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xF2eF06388399fc756fCC28Bbe44E8AD471Ed71f7",
+      "txHash": "0x4794569ec70f75f70906a114c8b49b58dd40a93bd2a307df6bb401ea8c70ca70",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x34B776558Cd809fC201bB10A74a51C6DAdb7bDe1",
+      "txHash": "0xc01145a0afc742654e83e6b24575456e992c1e6447fb754c2426bfca1908eec7",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc39A3abCD4D22563DF2988A715650aAB04D55Ae8",
+      "txHash": "0xdbdde3df9075462d1b57b46565a00dd28ac18a80b58a6f5745d578a37b718bda",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7F29960e3FE3f84B3D55A3A20C17DA4e6059bA26",
+      "txHash": "0x4c8596e16d7c0f78b79f367ee13697c09fa4956ab477ad72285749899aa8ede0",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xF4b2871a89fFe23d93CeE1c4280a6689B236d231",
+      "txHash": "0x59ddcbe7229fc818e28cefd21f849c6a6d0355d7dab3dc3c500d0b149a178fb9",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa492cD9617f0b4Eca2d13807d0128c303c88c42e",
+      "txHash": "0x30d3dd510d10c091d583b21ee2e56f88bdb5efc3e0472dcaf1d3df4561763aee",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x25D723816d837162ce0c360375b537E97E8a773C",
+      "txHash": "0x68ee6efad6730ae13e5bdfbdb55a657cd4fef1a056cbec9c54fda0d076ce5e14",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xe6A08462161968Bb69758374494130259d6e47b3",
+      "txHash": "0x546b5fce4a1e42f7232bf4674ef9336fcbb64a232c26080a319d7527b3c4bcb0",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2c88D9E181ae7F9Dd5F6A2B2c7b4BD610Bd5Caef",
+      "txHash": "0x66f5a3a0b90bbe276789291cf4111484c525fbd0f1c0fe1e1017d4835ace3a54",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x66215B4938c8031d539d9177d6991483A7cF8e33",
+      "txHash": "0x03a679bef10e042353dc16f65fe315a7cf30f23f166b7244951d937bc68dc1ef",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xaB0449d08A52C5b88F37279Df637F79aF221bbb7",
+      "txHash": "0x5edca7fa0eeb13c9d3dd7e7ee40a69287ab78bd8d6ebdbbf0695d4724a53b903",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xf6B47A992C5c10916D8aDB83c5006f4c4FeD36fE",
+      "txHash": "0xf751f6fda3e5391ab2476f136f12860df14127500dc157ceaaeb83a40dc5d5eb",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4fb2480Bb1347923a4d3F17Ec21450D963827E3f",
+      "txHash": "0x1282f935bd7c99bf21d555a087f354f1aba8858820baeec83a2652705ebd97c4",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xea3c3135DCa913A41D0b8ab36cafCD204c632869",
+      "txHash": "0xb8562ec2ee16f637ae18673967fbf27806fbecbee27b38f78459ee5e6ea250a2",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x06B3797c18759a24A3382456B4Fb8d4B6C3D4eEB",
+      "txHash": "0x31767f7bbeb36df08c55d34410cef74c302352961db04b03dc6db412b70cc31d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7da331D92C3371ce14e368C073EdbB164Aa10864",
+      "txHash": "0x5a9c94a27b2d4b4d6c5a86fd57f79ef796504a0b0ba5f2d95c84326742de55fd",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x120700F2C1c342D03e46CD5E8937259EC3454652",
+      "txHash": "0x8d996a401e6e717de36168d59e087880222b842a38d5616efc321965c0ddb45e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x70298235F3F6A90182714cBfEC6394ae13e21100",
+      "txHash": "0x4d0e8b51254ef5f649c96576ea706513f18a1ca5cd8fc7c324bfc75c22ce327a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xceb83952C6e739aCb32C4ea645ee4B42BDcc63Ba",
+      "txHash": "0xd9188156fd1f650842359d31e7c571c2a3686b8c36582e273c812e279289770a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xAB1E5487C476D7725bfc73Beb6E3EB0C501616Ce",
+      "txHash": "0x26c64c0dc04cf72721f66c63da83edd2cf15e9c088ffcd7c0d48d32363ce2d1a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xC2A61Ab82e6a08F3AE06D4e206e9454023d23682",
+      "txHash": "0xe3d2e205e39380d8e31e837e263e94bf4dfe7bc5136cfa70511778321e3d33e1",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xD80f66125670D2d79Bf7B70436866A942860b0b4",
+      "txHash": "0x98395da2eca1bb50a309f091650a95c50f4c7783ed37375c7418a581d83df92d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xdcdFeD9C8d41aACb426C796A9BeC0fF6f870Cf4e",
+      "txHash": "0x818b6302d243068a3326dc1d651c16c42846c046ad11f6d1418d3346ea37b4c0",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7126C5a233f26a4F1c4089a9b973ac671a5E9384",
+      "txHash": "0xfe57ee258eab0b46483413312ad9d05a6be08b2dd504e932be60f1fd0d3d094b",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4554033237a9231599DAd89Dd453099EbF04EAe8",
+      "txHash": "0xef386a9342e60d397462662c53597d1ee9178760cc6525137a8f5b6dae70ca23",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4eD003f40aA1880D334b5c9821D545EcAAA310b2",
+      "txHash": "0x8cae38cfddb32f9674ab496d143f6b3083a95c08b674532f0f7157a771bbce7d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xBbcb9493D93fC8785f9629357898A9e241936DE9",
+      "txHash": "0x9d822085af2f2a28dea28c114c2eabac40f2071e64b3108391de41860ae8395c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7B446D6f4387a5e40FB8Edd7165D2502809Ac863",
+      "txHash": "0x1f973ddbc7946dc610476527561314b231c56e4f88b55cd8306a0d491da32db1",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xb3fb26829b4413A6068C9df5EbCA3D3656bB95F6",
+      "txHash": "0x2cf62b428e76dd1e918b6ed244681996ee55dc0fe0f2c4261a83363b9ef8d207",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xe8b54bAe676fA02cA913a96EF48725Cd3A4FFC2F",
+      "txHash": "0x4ee2075b348a1ac40ce923ca0def5da246f80268744657d4cf558c1466f3718d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xF27b2578b65F53e0C6366F21c7B882F48169a509",
+      "txHash": "0xa91b0391948da5ae5cc765903a29236cc4b2fe787a18e7ca56e7a7660b9a202c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x3D2d99Bf0D7769c4Aa65707F0bc3B68Aa954C320",
+      "txHash": "0x2614e15c4afcc850cf804ca03fe5e88e6d507285bc7303bc09b8d96aada3ea57",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x75bc01463c3Afaeee3A65B8e1a15eA05b63427ed",
+      "txHash": "0x8d988917d5a148475439c849196d47536f91a53ff3464d319ceb09da49d3bbee",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4159AB147fBd109776E25dC2c8111e9215C6f21F",
+      "txHash": "0x11191b50eaa0291b40188f5ff522be37a01ace560636f36abd16d275a3d122ab",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xb081D1CfCE5EFde1edB4c43308F54d44c3791a57",
+      "txHash": "0xbd9ce72c785de332d0c55a979904a00717980dcb63144bb932c39e812801b664",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xf719Ae0bBD17583C381a435dD941aD070dAAffdD",
+      "txHash": "0xe631bd28610221220bbcbb7af32306636dbb12bd08386bc4f8b5cb8b7568ed86",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x37a8D945D6e877b20fe121cEC04351384ACcf0d2",
+      "txHash": "0x3efb80ed433da85626eb94d206334a8f3521781f40352435761c41fdb149a4f4",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x974A3F9134A9050BF0CA50cB0c10ca7ac8308880",
+      "txHash": "0xbf3fb155bb3a8dd5dd8908af12aab52210d0fb1651dfafda645c007129906000",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2Cdbfa3be85c18D7a54B2566c318A32eE2dce4A7",
+      "txHash": "0x4653d0e3b0cfcc61120296bdf3468f8928db5e9a0ea9e328cf7342373de61029",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x16BB5cB12b6b176845eFEf53eb9ACF8FD3aA761a",
+      "txHash": "0xcf2459949e40c931d54249188216f757ab6f6ed19b6397faaf2334f472e2b7f9",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x56Ff24CD799102b5c60B0930E148fC68Fc764613",
+      "txHash": "0xaeed0cebd5c140aaa5de4862c39f4aea8f4c24e30c210f90c566601877a07217",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4331ed33852B6f1b3F9F8B8eAf18D2C860932EE0",
+      "txHash": "0x470bc5bfb239fae83e2d0957ef7aec4f8b29eb94dfd0b5d982c705bd04b55b9c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xB0103F6fC07C0714ABbA13cfa2DF873f18FCa7A4",
+      "txHash": "0x278f0f8d6545ed66e938769428ba362d91c0880c53be2932bbd241b27cb84d9a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x03525e560eC0Ea450c47D2f6Cd2748500c6643BC",
+      "txHash": "0x39aaabc1737bffd692b5f340862c0dc9dc8879db6896cce8748eb4520435a0e6",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xE6B854cF1769F9f4d3cfC61232fb1561CE23B752",
+      "txHash": "0xc92e010c7ca70b56a233dca58271f973e37280e272c514924df4c2188b4b5892",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xbd028e2FACbC2F462613387ABfa7F60b71Ffe22a",
+      "txHash": "0xc96a075638c950c495b193cae1c4158f5e822a0769868a33ded62d4345a1c1a2",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xD8246ed3bCf8BB169aEA0cfFBEf9C37568371F3A",
+      "txHash": "0xef7c8e3931295a1a391c1edcf4f9eb0f950f8b4e3b8638f1c51be37490fd430c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7030b11502E357a9C006A2E3100A4b6cFE12bc65",
+      "txHash": "0x929154db6489d3545d7d8e8355e20efcf1eaf038e1f0de02aca5e86a98e74fa9",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x6eebDCB8D01a574e8C1DA6E1a15173A16DC7629e",
+      "txHash": "0x32dfffdf33817536510c4000d7f822536c4df63c5500d5c309fe9ed48622a69c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x1F8a4B9ae896fF0a966605a5ccF83f2f73E0FFB6",
+      "txHash": "0x5a09a54449f4abb5fd5cc37615536f47bfc405e8b385819f6e8c23aa108f57b8",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xE6C4C4B178D7Fd984cFc20097da31F26493F5CA3",
+      "txHash": "0x1e0d7ad417f54ff83b0365d5b1d5e666302021dc547e0c7a1e15c3f3fdcdb282",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x777F925F835E0CFE8Fd1Cdc1fb8BEB47c2e32932",
+      "txHash": "0x16aa104731a0b8145ac7172c76247a6c330b08f8d142d01e27d8b829b08788a7",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7360968579A37729EFd807A643E686EccD8E15c2",
+      "txHash": "0x183142326a55c8b63fc5dc7cef6ecaa13d75407b6a19211599fa077d1c4f0aa4",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -14417,6 +14772,940 @@
           },
           "t_bool": {
             "label": "bool"
+          }
+        }
+      }
+    },
+    "61375aae71aa272eab0ea6f104ad36f13302224102e38cad42df28d18b9bf849": {
+      "address": "0x773738bb9b622b993f1DB7e6D3a8e6B9bf44B46f",
+      "txHash": "0x7e6b5c1fe9cde34be4b7a50c193ab918f709e342dc3e361d4c77f2ea6b844258",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "MobsterLevelList",
+            "label": "mobster_level_list",
+            "type": "t_bytes_storage",
+            "src": "..\\project:\\contracts\\MobsterLevelList.sol:13"
+          }
+        ],
+        "types": {
+          "t_bytes_storage": {
+            "label": "bytes"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "a0d440af3a55e4e0e1099134975e38fd406211a6145375ac39f5ae54ae0bda35": {
+      "address": "0x23CC07D70D74dc227498b1Be11b4666d7B2c326C",
+      "txHash": "0xd06b7a729620e15be9fd08ef4bb7982d1eff4e1dca170917f5b8217127728172",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMobsterIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:16"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMerchantIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:17"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantStartIndex",
+            "type": "t_array(t_uint32)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:19"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantGenLimit",
+            "type": "t_array(t_uint32)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:20"
+          },
+          {
+            "contract": "Traits",
+            "label": "MAX_MOBSTERS",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:22"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_mobsters",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:24"
+          },
+          {
+            "contract": "Traits",
+            "label": "city_id",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Traits.sol:25"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_merchants",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:26"
+          },
+          {
+            "contract": "Traits",
+            "label": "mobsterLevelList",
+            "type": "t_contract(IMobsterLevelList)7331",
+            "src": "..\\project:\\contracts\\Traits.sol:28"
+          }
+        ],
+        "types": {
+          "t_mapping(t_uint32,t_bool)": {
+            "label": "mapping(uint32 => bool)"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint32)dyn_storage": {
+            "label": "uint32[]"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_contract(IMobsterLevelList)7331": {
+            "label": "contract IMobsterLevelList"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "bdc5d969a88d8b4492aae90728feb820d31785eb991f588e51549879b693c7c9": {
+      "address": "0xf3C1576d5Ad4A700e75EBB8171cC52e16D132816",
+      "txHash": "0xa0db8352b22e85286a19e21cb1141faaaccf5b5ac1f1a045c0e36d21b8a7a420",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "MobsterLevelList",
+            "label": "mobster_level_list",
+            "type": "t_bytes_storage",
+            "src": "..\\project:\\contracts\\MobsterLevelList.sol:13"
+          }
+        ],
+        "types": {
+          "t_bytes_storage": {
+            "label": "bytes"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "ae752600db9118939c519e7ba23e854765de56ac4e59e406b7a1b418384e1166": {
+      "address": "0xa55Ae0E0E0060bE93F458df4f689BEBD861e5cA8",
+      "txHash": "0x3072bed0a3fef33c3b5b3acaf1dd479fba27589847c4acf3cdfdfe2a356997e5",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "MobsterLevelList",
+            "label": "mobster_level_list",
+            "type": "t_bytes_storage",
+            "src": "..\\project:\\contracts\\MobsterLevelList.sol:13"
+          }
+        ],
+        "types": {
+          "t_bytes_storage": {
+            "label": "bytes"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "49c15a703b08892eb118b47b61fdcc7d12247c1c3d7b336e61599b595087162e": {
+      "address": "0x9427BB07B5B0AB9134b2dee323fA255f6ab14ed0",
+      "txHash": "0x989199853067a63fd927d54a4b5a6512893336cf040b1d9080534f676b439480",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "MobsterLevelList",
+            "label": "mobster_level_list",
+            "type": "t_bytes_storage",
+            "src": "..\\project:\\contracts\\MobsterLevelList.sol:13"
+          }
+        ],
+        "types": {
+          "t_bytes_storage": {
+            "label": "bytes"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "f18578f09556bac334c490b586554800e48815f5813ce6395121de196fc4b3d3": {
+      "address": "0x184C63912e58df464FCF0102FFf2fdFcB85E853F",
+      "txHash": "0x1070a561a75a8e835b4b0aec1828d407fc679fa0b8ba360a1e56ee442b85161c",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "MobsterLevelList",
+            "label": "mobster_level_list",
+            "type": "t_bytes_storage",
+            "src": "..\\project:\\contracts\\MobsterLevelList.sol:13"
+          }
+        ],
+        "types": {
+          "t_bytes_storage": {
+            "label": "bytes"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "396ea4c6244068f04103a2a4edba82593cb5a8e1f17dc05c53a737ad060935b9": {
+      "address": "0x4074319E6c22a2175eEc4c57Db878a0f4544a705",
+      "txHash": "0xe21778b8ffdc67e1c201ee4bd1dbce68da958982a34766a58551d1c093091261",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMobsterIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:16"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMerchantIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:17"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantStartIndex",
+            "type": "t_array(t_uint32)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:19"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantGenLimit",
+            "type": "t_array(t_uint32)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:20"
+          },
+          {
+            "contract": "Traits",
+            "label": "MAX_MOBSTERS",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:22"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_mobsters",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:24"
+          },
+          {
+            "contract": "Traits",
+            "label": "city_id",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Traits.sol:25"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_merchants",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:26"
+          },
+          {
+            "contract": "Traits",
+            "label": "mobsterLevelList",
+            "type": "t_contract(IMobsterLevelList)7331",
+            "src": "..\\project:\\contracts\\Traits.sol:28"
+          }
+        ],
+        "types": {
+          "t_mapping(t_uint32,t_bool)": {
+            "label": "mapping(uint32 => bool)"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint32)dyn_storage": {
+            "label": "uint32[]"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_contract(IMobsterLevelList)7331": {
+            "label": "contract IMobsterLevelList"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "0f7248f5b23eec816cab355e32b1749da70fb82b3783237159d839cb7b8119a0": {
+      "address": "0xa92e6dFaB0612f5a4C697Afef0Ca87443cB43C58",
+      "txHash": "0x739bb473055c8fa19b96a458758f1ef284ecccb1f6977d0816a37a42460d6f61",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMobsterIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:16"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMerchantIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:17"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantStartIndex",
+            "type": "t_array(t_uint32)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:19"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantGenLimit",
+            "type": "t_array(t_uint32)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:20"
+          },
+          {
+            "contract": "Traits",
+            "label": "MAX_MOBSTERS",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:22"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_mobsters",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:24"
+          },
+          {
+            "contract": "Traits",
+            "label": "city_id",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Traits.sol:25"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_merchants",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:26"
+          },
+          {
+            "contract": "Traits",
+            "label": "mobsterLevelList",
+            "type": "t_contract(IMobsterLevelList)7331",
+            "src": "..\\project:\\contracts\\Traits.sol:28"
+          }
+        ],
+        "types": {
+          "t_mapping(t_uint32,t_bool)": {
+            "label": "mapping(uint32 => bool)"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint32)dyn_storage": {
+            "label": "uint32[]"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_contract(IMobsterLevelList)7331": {
+            "label": "contract IMobsterLevelList"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "7ff86d21845eaebffeb16fe77b328bbb16d2dc279c6381543fafc84ce1c971f5": {
+      "address": "0xBEcf4441F2c96823dBF1F7fa7309C3a06d69ed31",
+      "txHash": "0x2e34f2ee1522447eef9c6853eba927f477bf71a01fbeb0ef02d22dce657c9dce",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMobsterIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:16"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMerchantIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:17"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantStartIndex",
+            "type": "t_array(t_uint32)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:19"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantGenLimit",
+            "type": "t_array(t_uint32)dyn_storage",
+            "src": "..\\project:\\contracts\\Traits.sol:20"
+          },
+          {
+            "contract": "Traits",
+            "label": "MAX_MOBSTERS",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:22"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_mobsters",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:24"
+          },
+          {
+            "contract": "Traits",
+            "label": "city_id",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Traits.sol:25"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_merchants",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:26"
+          },
+          {
+            "contract": "Traits",
+            "label": "mobsterLevelList",
+            "type": "t_contract(IMobsterLevelList)7331",
+            "src": "..\\project:\\contracts\\Traits.sol:28"
+          }
+        ],
+        "types": {
+          "t_mapping(t_uint32,t_bool)": {
+            "label": "mapping(uint32 => bool)"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint32)dyn_storage": {
+            "label": "uint32[]"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_contract(IMobsterLevelList)7331": {
+            "label": "contract IMobsterLevelList"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    },
+    "ffe86b640bd96b7a8b25312cc48bc89bf63486c5c0828b7d5fd00e7bbe79a367": {
+      "address": "0x0A84e70CBc08c2bEE1163A4C05a5C87d9C70Fec3",
+      "txHash": "0xb042a076216d2068e254a232b84823860de4237a8a68ef78ce6cb4d9da8ca79b",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "..\\@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:26"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "..\\@nomiclabs\\buidler\\console.sol:102"
+          },
+          {
+            "contract": "Traits",
+            "label": "mapMobsterIndexExisted",
+            "type": "t_mapping(t_uint32,t_bool)",
+            "src": "..\\project:\\contracts\\Traits.sol:16"
+          },
+          {
+            "contract": "Traits",
+            "label": "merchantStartIndex",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:18"
+          },
+          {
+            "contract": "Traits",
+            "label": "MAX_MOBSTERS",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:20"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_mobsters",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:22"
+          },
+          {
+            "contract": "Traits",
+            "label": "city_id",
+            "type": "t_uint8",
+            "src": "..\\project:\\contracts\\Traits.sol:23"
+          },
+          {
+            "contract": "Traits",
+            "label": "count_merchants",
+            "type": "t_uint32",
+            "src": "..\\project:\\contracts\\Traits.sol:24"
+          },
+          {
+            "contract": "Traits",
+            "label": "mobsterLevelList",
+            "type": "t_contract(IMobsterLevelList)7331",
+            "src": "..\\project:\\contracts\\Traits.sol:26"
+          },
+          {
+            "contract": "Traits",
+            "label": "dwarfs_nft",
+            "type": "t_contract(Dwarfs_NFT)5076",
+            "src": "..\\project:\\contracts\\Traits.sol:29"
+          }
+        ],
+        "types": {
+          "t_mapping(t_uint32,t_bool)": {
+            "label": "mapping(uint32 => bool)"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          },
+          "t_contract(IMobsterLevelList)7331": {
+            "label": "contract IMobsterLevelList"
+          },
+          "t_contract(Dwarfs_NFT)5076": {
+            "label": "contract Dwarfs_NFT"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
           }
         }
       }
