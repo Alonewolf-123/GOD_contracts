@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 /// @dev read the traits details from NFT and generate the Token URI
 contract Traits is OwnableUpgradeable, ITraits {
     // mapping from mobster index to a existed flag
-    mapping(uint32 => bool) private mapMobsterIndexExisted;
+    mapping(uint32 => uint32) private mapMobsterIndexExisted;
 
     uint32 private merchantStartIndex;
 
@@ -36,7 +36,7 @@ contract Traits is OwnableUpgradeable, ITraits {
         MAX_MOBSTERS = 200;
 
         count_merchants = 0;
-        count_mobsters = 0;
+        count_mobsters = 200;
         merchantStartIndex = 3001;
 
         mobsterLevelList = IMobsterLevelList(_mobsterLevelList);
@@ -67,27 +67,38 @@ contract Traits is OwnableUpgradeable, ITraits {
             count_merchants++;
         } else {
             // if it's a mobster
-            uint32 _index = uint32(seed) % (MAX_MOBSTERS - count_mobsters);
-            uint32 _nonExistingCount = 0;
-            uint32 mobsterIndex = 0;
-            for (uint32 i = 0; i < MAX_MOBSTERS; i++) {
-                mobsterIndex = MAX_MOBSTERS * city_id + i + 1;
-                if (mapMobsterIndexExisted[mobsterIndex] == false) {
-                    if (_index == _nonExistingCount) {
-                        t.index = mobsterIndex;
-                        mapMobsterIndexExisted[mobsterIndex] = true;
-                        break;
-                    }
-                    _nonExistingCount++;
-                }
+            uint32 _index = MAX_MOBSTERS *
+                city_id +
+                (uint32(seed) % count_mobsters) +
+                1;
+
+            if (mapMobsterIndexExisted[_index] == 0) {
+                t.index = _index;
+            } else {
+                t.index = mapMobsterIndexExisted[_index];
+            }
+
+            if (
+                mapMobsterIndexExisted[
+                    MAX_MOBSTERS * city_id + count_mobsters
+                ] == 0
+            ) {
+                mapMobsterIndexExisted[_index] =
+                    MAX_MOBSTERS *
+                    city_id +
+                    count_mobsters;
+            } else {
+                mapMobsterIndexExisted[_index] = mapMobsterIndexExisted[
+                    count_mobsters
+                ];
             }
 
             t.cityId = city_id;
-            t.level = mobsterLevelList.getMobsterLevel(mobsterIndex - 1);
-            count_mobsters++;
+            t.level = mobsterLevelList.getMobsterLevel(t.index - 1);
 
-            if (count_mobsters == MAX_MOBSTERS) {
-                count_mobsters = 0;
+            count_mobsters--;
+            if (count_mobsters == 0) {
+                count_mobsters = MAX_MOBSTERS;
                 city_id++;
             }
         }
