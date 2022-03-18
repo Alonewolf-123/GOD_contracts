@@ -78,18 +78,12 @@ contract Traits is OwnableUpgradeable, ITraits {
                 t.index = mapMobsterIndexExisted[_index];
             }
 
-            if (
-                mapMobsterIndexExisted[
-                    MAX_MOBSTERS * city_id + count_mobsters
-                ] == 0
-            ) {
-                mapMobsterIndexExisted[_index] =
-                    MAX_MOBSTERS *
-                    city_id +
-                    count_mobsters;
+            uint32 lastValue = MAX_MOBSTERS * city_id + count_mobsters;
+            if (mapMobsterIndexExisted[lastValue] == 0) {
+                mapMobsterIndexExisted[_index] = lastValue;
             } else {
                 mapMobsterIndexExisted[_index] = mapMobsterIndexExisted[
-                    count_mobsters
+                    lastValue
                 ];
             }
 
