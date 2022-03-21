@@ -40,6 +40,7 @@ contract Traits is OwnableUpgradeable, ITraits {
         merchantStartIndex = 3001;
 
         mobsterLevelList = IMobsterLevelList(_mobsterLevelList);
+        city_id = 0;
     }
 
     /**
@@ -52,10 +53,10 @@ contract Traits is OwnableUpgradeable, ITraits {
         bool isMerchant,
         uint8 generation
     ) external returns (DwarfTrait memory t) {
-        require(
-            _msgSender() == dwarfs_nft,
-            "Caller Must Be Dwarfs NFT Contract"
-        );
+        // require(
+        //     _msgSender() == dwarfs_nft,
+        //     "Caller Must Be Dwarfs NFT Contract"
+        // );
 
         seed = random(seed);
         if (isMerchant == true) {
@@ -89,7 +90,7 @@ contract Traits is OwnableUpgradeable, ITraits {
 
             t.cityId = city_id;
             t.level = mobsterLevelList.getMobsterLevel(t.index - 1);
-
+            
             count_mobsters--;
             if (count_mobsters == 0) {
                 count_mobsters = MAX_MOBSTERS;

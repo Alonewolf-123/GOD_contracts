@@ -13,7 +13,7 @@ contract("GameOfDwarfs", function(accounts) {
         for (let i = 0; i < 200; i++) {
             await new Promise(resolve => setTimeout(resolve, 2000));
             let res = await traits.selectTraits(i, false, 0);
-            console.log(i + ": " + res);
+            console.log(i + ": " + JSON.stringify(res));
         }
     });
 });
