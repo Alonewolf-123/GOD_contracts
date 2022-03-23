@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "./IDwarfs_NFT.sol";
 import "./IClan.sol";
 import "./GOD.sol";
+import "./Strings.sol";
 import "./ERC2981ContractWideRoyalties.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -19,6 +20,8 @@ contract Dwarfs_NFT is
     PausableUpgradeable,
     ERC2981ContractWideRoyalties
 {
+
+    using Strings for uint256;
 
     // eth prices for mint
     uint256[] public MINT_ETH_PRICES;
@@ -94,10 +97,10 @@ contract Dwarfs_NFT is
 
         // eth prices for mint
         MINT_ETH_PRICES = [
-            0.0012 ether, // ETH price in Gen0
-            0.0014 ether, // ETH price in Gen1
-            0.0016 ether, // ETH price in Gen2
-            0.0018 ether // ETH price in Gen3
+            0.00012 ether, // ETH price in Gen0
+            0.00014 ether, // ETH price in Gen1
+            0.00016 ether, // ETH price in Gen2
+            0.00018 ether // ETH price in Gen3
         ];
 
         // god prices for mint
@@ -134,6 +137,9 @@ contract Dwarfs_NFT is
 
         // current generation number of NFT
         generationOfNft = 0;
+
+        // init the base URIs
+        baseURI = ["", "", "", ""];
     }
 
     /// @inheritdoc	ERC165Upgradeable
@@ -273,7 +279,7 @@ contract Dwarfs_NFT is
                 count_casinoMints = 0;
             }
             seed = random(minted);
-
+            
             generate(minted, seed);
 
             _safeMint(_msgSender(), minted);
@@ -351,7 +357,7 @@ contract Dwarfs_NFT is
     {
         // check the merchant or mobster
         bool _bMerchant = ((count_mobsters ==
-            uint256(MAX_NUM_CITY[generationOfNft] * 200)) &&
+            uint256(MAX_NUM_CITY[generationOfNft]) * 200) &&
             (tokenId <= uint32(MAX_GEN_TOKENS[generationOfNft])));
 
         seed = random(seed);
@@ -392,9 +398,8 @@ contract Dwarfs_NFT is
      * @return DwarfTrait memory
      */
     function getTokenTraits(uint32 tokenId)
-        external
+        public
         view
-        override
         returns (ITraits.DwarfTrait memory)
     {
         return mapTokenTraits[tokenId];
@@ -506,7 +511,7 @@ contract Dwarfs_NFT is
      * @param index the index of the dwarf list
      */
     function getHashString(uint32 index) public pure returns (string memory result) {
-        result = string(abi.encodePacked(keccak256(abi.encodePacked(index))));
+        result = (uint256(keccak256(abi.encodePacked(index)))).toHexString();
     }
 
     /** RENDER */
@@ -539,6 +544,7 @@ contract Dwarfs_NFT is
         if (bytes(baseURI[_generation]).length == 0) {
             return string(abi.encodePacked(_tokenURI, ".json"));
         }
+
         // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
         if (bytes(_tokenURI).length > 0) {
             return

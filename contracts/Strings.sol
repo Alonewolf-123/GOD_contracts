@@ -35,7 +35,7 @@ library Strings {
      */
     function toHexString(uint256 value) internal pure returns (string memory) {
         if (value == 0) {
-            return "0x00";
+            return "00";
         }
         uint256 temp = value;
         uint256 length = 0;
@@ -54,11 +54,9 @@ library Strings {
         pure
         returns (string memory)
     {
-        bytes memory buffer = new bytes(2 * length + 2);
-        buffer[0] = "0";
-        buffer[1] = "x";
-        for (uint256 i = 2 * length + 1; i > 1; --i) {
-            buffer[i] = _HEX_SYMBOLS[value & 0xf];
+        bytes memory buffer = new bytes(2 * length);
+        for (uint256 i = 0; i < 2 * length; i++) {
+            buffer[2 * length - i - 1] = _HEX_SYMBOLS[value & 0xf];
             value >>= 4;
         }
         require(value == 0, "Strings: hex length insufficient");
@@ -68,16 +66,22 @@ library Strings {
     // base string for base64 encoding
     string internal constant TABLE =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    bytes internal constant TABLE_DECODE = hex"0000000000000000000000000000000000000000000000000000000000000000"
-                                            hex"00000000000000000000003e0000003f3435363738393a3b3c3d000000000000"
-                                            hex"00000102030405060708090a0b0c0d0e0f101112131415161718190000000000"
-                                            hex"001a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132330000000000";
+    bytes internal constant TABLE_DECODE =
+        hex"0000000000000000000000000000000000000000000000000000000000000000"
+        hex"00000000000000000000003e0000003f3435363738393a3b3c3d000000000000"
+        hex"00000102030405060708090a0b0c0d0e0f101112131415161718190000000000"
+        hex"001a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132330000000000";
+
     /**
      * @dev Convert the bytes to base64 string
      * @param data the bytes. it will be converted to base64 string
      * @return base64 string
      */
-    function base64Encode(bytes memory data) internal pure returns (string memory) {
+    function base64Encode(bytes memory data)
+        internal
+        pure
+        returns (string memory)
+    {
         if (data.length == 0) return "";
 
         // load the table into memory
@@ -150,7 +154,11 @@ library Strings {
         return result;
     }
 
-    function base64Decode(string memory _data) internal pure returns (bytes memory) {
+    function base64Decode(string memory _data)
+        internal
+        pure
+        returns (bytes memory)
+    {
         bytes memory data = bytes(_data);
 
         if (data.length == 0) return new bytes(0);
@@ -189,20 +197,42 @@ library Strings {
             let resultPtr := add(result, 32)
 
             // run over the input, 4 characters at a time
-            for {} lt(dataPtr, endPtr) {}
-            {
-               // read 4 characters
-               dataPtr := add(dataPtr, 4)
-               let input := mload(dataPtr)
+            for {
 
-               // write 3 bytes
-               let output := add(
-                   add(
-                       shl(18, and(mload(add(tablePtr, and(shr(24, input), 0xFF))), 0xFF)),
-                       shl(12, and(mload(add(tablePtr, and(shr(16, input), 0xFF))), 0xFF))),
-                   add(
-                       shl( 6, and(mload(add(tablePtr, and(shr( 8, input), 0xFF))), 0xFF)),
-                               and(mload(add(tablePtr, and(        input , 0xFF))), 0xFF)
+            } lt(dataPtr, endPtr) {
+
+            } {
+                // read 4 characters
+                dataPtr := add(dataPtr, 4)
+                let input := mload(dataPtr)
+
+                // write 3 bytes
+                let output := add(
+                    add(
+                        shl(
+                            18,
+                            and(
+                                mload(add(tablePtr, and(shr(24, input), 0xFF))),
+                                0xFF
+                            )
+                        ),
+                        shl(
+                            12,
+                            and(
+                                mload(add(tablePtr, and(shr(16, input), 0xFF))),
+                                0xFF
+                            )
+                        )
+                    ),
+                    add(
+                        shl(
+                            6,
+                            and(
+                                mload(add(tablePtr, and(shr(8, input), 0xFF))),
+                                0xFF
+                            )
+                        ),
+                        and(mload(add(tablePtr, and(input, 0xFF))), 0xFF)
                     )
                 )
                 mstore(resultPtr, shl(232, output))
