@@ -44,7 +44,7 @@ contract Dwarfs_NFT is
     uint8[] private MAX_NUM_CITY;
 
     // number of tokens have been minted so far
-    uint32 private minted;
+    uint32 public minted;
 
     // mapping from tokenId to a struct containing the token's traits
     mapping(uint32 => ITraits.DwarfTrait) private mapTokenTraits;
