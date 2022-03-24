@@ -88,7 +88,7 @@ contract Traits is OwnableUpgradeable, ITraits {
                 ];
             }
 
-            t.cityId = city_id;
+            t.cityId = city_id + 1;
             t.level = mobsterLevelList.getMobsterLevel(t.index - 1);
             
             count_mobsters--;
