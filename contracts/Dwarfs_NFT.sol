@@ -292,24 +292,6 @@ contract Dwarfs_NFT is
     }
 
     /**
-     * @dev transfer token
-     * @param from the address of source
-     * @param to the address of destination
-     * @param tokenId the token id
-     */
-    function transferFrom(
-        address from,
-        address to,
-        uint32 tokenId
-    ) public virtual {
-        require(
-            _isApprovedOrOwner(_msgSender(), tokenId),
-            "ERC721: transfer caller is not owner nor approved"
-        );
-        _transfer(from, to, tokenId);
-    }
-
-    /**
      * @dev generates traits for a specific token, checking to make sure it's unique
      * @param tokenId the id of the token to generate traits for
      * @param seed a pseudorandom 256 bit number to derive traits from
@@ -407,7 +389,7 @@ contract Dwarfs_NFT is
      * @param _price the prices array
      * @param _generation the generation of the NFT
      */
-    function setMintETHPrices(uint256 _price, uint8 _generation)
+    function setMintETHPrice(uint256 _price, uint8 _generation)
         external
         onlyOwner
     {
@@ -423,7 +405,7 @@ contract Dwarfs_NFT is
      * @param _price the prices array
      * @param _generation the generation of the NFT
      */
-    function setMintGODPrices(uint256 _price, uint8 _generation)
+    function setMintGODPrice(uint256 _price, uint8 _generation)
         external
         onlyOwner
     {
