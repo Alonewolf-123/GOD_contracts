@@ -20,7 +20,6 @@ contract Dwarfs_NFT is
     PausableUpgradeable,
     ERC2981ContractWideRoyalties
 {
-
     using Strings for uint256;
 
     // eth prices for mint
@@ -209,7 +208,7 @@ contract Dwarfs_NFT is
         if ((seed & 0xFFFF) % 100 > 0) return;
 
         minted++;
-        if (minted > MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3) {
+        if (minted >= MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3) {
             generationOfNft++;
             count_casinoMints = 0;
         }
@@ -248,7 +247,7 @@ contract Dwarfs_NFT is
             require(
                 minted + amount <=
                     MAX_GEN_TOKENS[generationOfNft - 1] +
-                        ((MAX_GEN_TOKENS[generationOfNft - 1] -
+                        ((MAX_GEN_TOKENS[generationOfNft] -
                             MAX_GEN_TOKENS[generationOfNft - 1]) *
                             MAX_TOKENS_ETH_SOLD) /
                         100,
@@ -273,13 +272,13 @@ contract Dwarfs_NFT is
         for (uint16 i = 0; i < amount; i++) {
             minted++;
             if (
-                minted > MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3
+                minted >= MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3
             ) {
                 generationOfNft++;
                 count_casinoMints = 0;
             }
             seed = random(minted);
-            
+
             generate(minted, seed);
 
             _safeMint(_msgSender(), minted);
@@ -510,7 +509,11 @@ contract Dwarfs_NFT is
      * @dev Internal function to get a hash of an integer
      * @param index the index of the dwarf list
      */
-    function getHashString(uint32 index) public pure returns (string memory result) {
+    function getHashString(uint32 index)
+        public
+        pure
+        returns (string memory result)
+    {
         result = (uint256(keccak256(abi.encodePacked(index)))).toHexString();
     }
 
@@ -561,5 +564,21 @@ contract Dwarfs_NFT is
                     ".json"
                 )
             );
+    }
+
+    /**
+     * @dev set the generation of NFT
+     * @param _generation the generation of nft
+     */
+    function setGenerationOfNFT(uint8 _generation) external onlyOwner {
+        generationOfNft = _generation;
+    }
+
+    /**
+     * @dev get the generation of NFT
+     * @return the generation of nft
+     */
+    function getGenerationOfNFT() external view returns (uint8) {
+        return generationOfNft;
     }
 }
