@@ -104,7 +104,7 @@ contract Dwarfs_NFT is
 
         // god prices for mint
         MINT_GOD_PRICES = [
-            0, // GOD price in Gen0
+            80000, // GOD price in Gen0
             100000, // GOD price in Gen1
             120000, // GOD price in Gen2
             140000 // GOD price in Gen3
