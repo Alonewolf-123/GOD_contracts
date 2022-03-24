@@ -231,7 +231,10 @@ contract Dwarfs_NFT is
      */
     function mint(uint16 amount) external payable whenNotPaused {
         require(tx.origin == _msgSender(), "Only EOA");
-        require(minted + amount <= MAX_GEN_TOKENS[3], "All tokens minted");
+        require(
+            minted + amount <= MAX_GEN_TOKENS[generationOfNft],
+            "All tokens of generation on-sale already sold"
+        );
         require(amount > 0 && amount <= 10, "Invalid mint amount");
 
         if (generationOfNft == 0) {
@@ -243,16 +246,14 @@ contract Dwarfs_NFT is
                 amount * MINT_ETH_PRICES[generationOfNft] <= msg.value,
                 "Invalid ETH payment amount"
             );
-        } else {
-            require(
-                minted + amount <=
-                    MAX_GEN_TOKENS[generationOfNft - 1] +
-                        ((MAX_GEN_TOKENS[generationOfNft] -
-                            MAX_GEN_TOKENS[generationOfNft - 1]) *
-                            MAX_TOKENS_ETH_SOLD) /
-                        100,
-                "All tokens of generation on-sale already sold"
-            );
+        } else if (
+            minted + amount <=
+            MAX_GEN_TOKENS[generationOfNft - 1] +
+                ((MAX_GEN_TOKENS[generationOfNft] -
+                    MAX_GEN_TOKENS[generationOfNft - 1]) *
+                    MAX_TOKENS_ETH_SOLD) /
+                100
+        ) {
             require(
                 amount * MINT_ETH_PRICES[generationOfNft] <= msg.value,
                 "Invalid ETH payment amount"
@@ -263,6 +264,12 @@ contract Dwarfs_NFT is
         for (uint16 i = 0; i < amount; i++) {
             totalGodCost += mintCost(minted + i + 1);
         }
+        require(
+            (amount - totalGodCost / MINT_GOD_PRICES[generationOfNft]) *
+                MINT_ETH_PRICES[generationOfNft] <=
+                msg.value,
+            "Invalid ETH payment amount"
+        );
         if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
 
         uint32[] memory tokenIds = new uint32[](amount);
@@ -271,12 +278,6 @@ contract Dwarfs_NFT is
 
         for (uint16 i = 0; i < amount; i++) {
             minted++;
-            if (
-                minted >= MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3
-            ) {
-                generationOfNft++;
-                count_casinoMints = 0;
-            }
             seed = random(minted);
 
             generate(minted, seed);
@@ -284,6 +285,10 @@ contract Dwarfs_NFT is
             _safeMint(_msgSender(), minted);
             tokenIds[i] = minted;
             traits[i] = mapTokenTraits[minted];
+        }
+        if (minted >= MAX_GEN_TOKENS[generationOfNft]) {
+            generationOfNft++;
+            count_casinoMints = 0;
         }
 
         clan.addManyToClan(tokenIds);
@@ -297,33 +302,16 @@ contract Dwarfs_NFT is
      * @return the GOD cost of the given token ID
      */
     function mintCost(uint32 tokenId) public view returns (uint256) {
-        if (tokenId <= MAX_GEN_TOKENS[0]) return MINT_GOD_PRICES[0];
+        if (generationOfNft == 0) return 0;
         else if (
             tokenId <=
-            MAX_GEN_TOKENS[0] +
-                ((MAX_GEN_TOKENS[1] - MAX_GEN_TOKENS[0]) *
+            MAX_GEN_TOKENS[generationOfNft - 1] +
+                ((MAX_GEN_TOKENS[generationOfNft] -
+                    MAX_GEN_TOKENS[generationOfNft - 1]) *
                     MAX_TOKENS_ETH_SOLD) /
                 100
         ) return 0;
-        else if (tokenId <= MAX_GEN_TOKENS[1]) return MINT_GOD_PRICES[1];
-        if (
-            tokenId <=
-            MAX_GEN_TOKENS[1] +
-                ((MAX_GEN_TOKENS[2] - MAX_GEN_TOKENS[1]) *
-                    MAX_TOKENS_ETH_SOLD) /
-                100
-        ) return 0;
-        else if (tokenId <= MAX_GEN_TOKENS[2]) return MINT_GOD_PRICES[2];
-        else if (
-            tokenId <=
-            MAX_GEN_TOKENS[2] +
-                ((MAX_GEN_TOKENS[3] - MAX_GEN_TOKENS[2]) *
-                    MAX_TOKENS_ETH_SOLD) /
-                100
-        ) return 0;
-        else if (tokenId <= MAX_GEN_TOKENS[3]) return MINT_GOD_PRICES[3];
-
-        return 0;
+        else return MINT_GOD_PRICES[generationOfNft];
     }
 
     /**
@@ -424,42 +412,48 @@ contract Dwarfs_NFT is
     /**
      * @dev updates the number of tokens for sale
      * @param _genNumTokens the number of tokens array
+     * @param _generation the generation of the NFT
      */
-    function setGenTokens(uint256[] memory _genNumTokens) external onlyOwner {
-        require(
-            _genNumTokens.length == MAX_GEN_TOKENS.length,
-            "Invalid input parameter"
-        );
-        for (uint8 i = 0; i < _genNumTokens.length; i++) {
-            MAX_GEN_TOKENS[i] = _genNumTokens[i];
+    function setGenTokens(uint256 _genNumTokens, uint8 _generation)
+        external
+        onlyOwner
+    {
+        if (MAX_GEN_TOKENS.length <= _generation) {
+            MAX_GEN_TOKENS.push(_genNumTokens);
+        } else {
+            MAX_GEN_TOKENS[_generation] = _genNumTokens;
         }
     }
 
     /**
      * @dev set the ETH prices
-     * @param _prices the prices array
+     * @param _price the prices array
+     * @param _generation the generation of the NFT
      */
-    function setMintETHPrices(uint256[] memory _prices) external onlyOwner {
-        require(
-            _prices.length == MINT_ETH_PRICES.length,
-            "Invalid input parameter"
-        );
-        for (uint8 i = 0; i < _prices.length; i++) {
-            MINT_ETH_PRICES[i] = _prices[i];
+    function setMintETHPrices(uint256 _price, uint8 _generation)
+        external
+        onlyOwner
+    {
+        if (MINT_ETH_PRICES.length <= _generation) {
+            MINT_ETH_PRICES.push(_price);
+        } else {
+            MINT_ETH_PRICES[_generation] = _price;
         }
     }
 
     /**
      * @dev set the GOD prices
-     * @param _prices the prices array
+     * @param _price the prices array
+     * @param _generation the generation of the NFT
      */
-    function setMintGODPrices(uint256[] memory _prices) external onlyOwner {
-        require(
-            _prices.length == MINT_GOD_PRICES.length,
-            "Invalid input parameter"
-        );
-        for (uint8 i = 0; i < _prices.length; i++) {
-            MINT_GOD_PRICES[i] = _prices[i];
+    function setMintGODPrices(uint256 _price, uint8 _generation)
+        external
+        onlyOwner
+    {
+        if (MINT_GOD_PRICES.length <= _generation) {
+            MINT_GOD_PRICES.push(_price);
+        } else {
+            MINT_GOD_PRICES[_generation] = _price;
         }
     }
 
@@ -493,6 +487,7 @@ contract Dwarfs_NFT is
      * automatically added as a prefix to the value returned in {tokenURI},
      * or to the token ID if {tokenURI} is empty.
      * @param _baseURI the base URI string
+     * @param _generation the generation of the NFT
      */
     function setBaseURI(string memory _baseURI, uint8 _generation)
         external
