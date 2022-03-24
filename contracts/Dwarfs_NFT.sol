@@ -237,29 +237,6 @@ contract Dwarfs_NFT is
         );
         require(amount > 0 && amount <= 10, "Invalid mint amount");
 
-        if (generationOfNft == 0) {
-            require(
-                minted + amount <= MAX_GEN_TOKENS[generationOfNft],
-                "All tokens of generation on-sale already sold"
-            );
-            require(
-                amount * MINT_ETH_PRICES[generationOfNft] <= msg.value,
-                "Invalid ETH payment amount"
-            );
-        } else if (
-            minted + amount <=
-            MAX_GEN_TOKENS[generationOfNft - 1] +
-                ((MAX_GEN_TOKENS[generationOfNft] -
-                    MAX_GEN_TOKENS[generationOfNft - 1]) *
-                    MAX_TOKENS_ETH_SOLD) /
-                100
-        ) {
-            require(
-                amount * MINT_ETH_PRICES[generationOfNft] <= msg.value,
-                "Invalid ETH payment amount"
-            );
-        }
-
         uint256 totalGodCost = 0;
         for (uint16 i = 0; i < amount; i++) {
             totalGodCost += mintCost(minted + i + 1);
