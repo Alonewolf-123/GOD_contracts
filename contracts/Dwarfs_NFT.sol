@@ -104,10 +104,10 @@ contract Dwarfs_NFT is
 
         // god prices for mint
         MINT_GOD_PRICES = [
-            80000, // GOD price in Gen0
-            100000, // GOD price in Gen1
-            120000, // GOD price in Gen2
-            140000 // GOD price in Gen3
+            80000 ether, // GOD price in Gen0
+            100000 ether, // GOD price in Gen1
+            120000 ether, // GOD price in Gen2
+            140000 ether // GOD price in Gen3
         ];
 
         // max number of tokens that can be minted in each phase- 20000 in production
@@ -121,9 +121,9 @@ contract Dwarfs_NFT is
         // sold amount percent by eth (50%)
         MAX_TOKENS_ETH_SOLD = 50;
 
-        MAX_CASINO_MINTS = 50; // max number of mints from casino is 50
+        MAX_CASINO_MINTS = 500; // max number of mints from casino is 500
 
-        CASINO_PRICE = 1000; // price of casino play is 1000 GOD
+        CASINO_PRICE = 1000 ether; // price of casino play is 1000 GOD
 
         // number of cities in each generation status
         MAX_NUM_CITY = [6, 9, 12, 15];
@@ -184,7 +184,7 @@ contract Dwarfs_NFT is
     /**
      * @dev mint a token from casino
      */
-    function mintOfCasino() external payable whenNotPaused {
+    function mintOfCasino() external whenNotPaused {
         require(tx.origin == _msgSender(), "Only EOA");
         require(
             generationOfNft > 0,
@@ -195,10 +195,10 @@ contract Dwarfs_NFT is
             "All the casino dwarfs of current generation have been minted already"
         );
         require(
-            mapCasinoplayerTime[_msgSender()] + 12 hours >=
+            mapCasinoplayerTime[_msgSender()] + 2 hours <=
                 uint80(block.timestamp) ||
                 mapCasinoplayerTime[_msgSender()] == 0,
-            "You can play the casino in 12 hours"
+            "You can play the casino in 2 hours"
         );
         god.burn(_msgSender(), CASINO_PRICE);
 
@@ -208,7 +208,7 @@ contract Dwarfs_NFT is
         if ((seed & 0xFFFF) % 100 > 0) return;
 
         minted++;
-        if (minted >= MAX_GEN_TOKENS[generationOfNft] && generationOfNft < 3) {
+        if (minted >= MAX_GEN_TOKENS[generationOfNft]) {
             generationOfNft++;
             count_casinoMints = 0;
         }
