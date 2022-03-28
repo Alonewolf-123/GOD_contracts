@@ -428,8 +428,16 @@ contract Dwarfs_NFT is
      * @dev set the max number of dwarfs from casino
      * @param maxCasinoMints the max dwarfs from casino
      */
-    function getMaxCasinoMints(uint16 maxCasinoMints) external onlyOwner {
+    function setMaxCasinoMints(uint16 maxCasinoMints) external onlyOwner {
         MAX_CASINO_MINTS = maxCasinoMints;
+    }
+
+    /**
+     * @dev set the max number of dwarfs from casino
+     * @param _casinoPrice the max dwarfs from casino
+     */
+    function setCasinoPrice(uint256 _casinoPrice) external onlyOwner {
+        CASINO_PRICE = _casinoPrice;
     }
 
     /**
