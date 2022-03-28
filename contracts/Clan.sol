@@ -33,10 +33,10 @@ contract Clan is
     event MobsterClaimed(uint32 tokenId, uint256 earned);
 
     // reference to the Dwarfs_NFT NFT contract
-    Dwarfs_NFT dwarfs_nft;
+    Dwarfs_NFT public dwarfs_nft;
 
     // reference to the $GOD contract for minting $GOD earnings
-    GOD god;
+    GOD public god;
 
     // token information map
     mapping(uint32 => TokenInfo) private mapTokenInfo;
@@ -44,34 +44,34 @@ contract Clan is
     mapping(uint32 => bool) private mapTokenExisted;
 
     // total number of tokens in the clan
-    uint32 private totalNumberOfTokens;
+    uint32 public totalNumberOfTokens;
 
     // map of mobster IDs for cityId
     mapping(uint8 => uint32[]) private mapCityMobsters;
 
     // merchant earn 1% of investment of $GOD per day
-    uint8 private DAILY_GOD_RATE;
+    uint8 public DAILY_GOD_RATE;
 
     // mobsters take 15% on all $GOD claimed
-    uint8 private TAX_PERCENT;
+    uint8 public TAX_PERCENT;
 
     // there will only ever be (roughly) 2.4 billion $GOD earned through staking
-    uint256 private MAXIMUM_GLOBAL_GOD;
+    uint256 public MAXIMUM_GLOBAL_GOD;
 
     // initial Balance of a new Merchant
-    uint256 private INITIAL_GOD_AMOUNT;
+    uint256 public INITIAL_GOD_AMOUNT;
 
     // minimum GOD invested amount
-    uint256 private MIN_INVESTED_AMOUNT;
+    uint256 public MIN_INVESTED_AMOUNT;
 
     // amount of $GOD earned so far
-    uint256 private remainingGodAmount;
+    uint256 public remainingGodAmount;
 
     // profit percent of each mobster; x 0.1 %
-    uint8[] private mobsterProfitPercent;
+    uint8[] public mobsterProfitPercent;
 
     // playing merchant game enabled
-    bool private bMerchantGamePlaying;
+    bool public bMerchantGamePlaying;
 
     event AddManyToClan(uint32[] tokenIds, uint256 timestamp);
     event ClaimManyFromClan(uint32[] tokenIds, uint256 timestamp);
@@ -173,10 +173,21 @@ contract Clan is
 
     /**
      * @dev add the single merchant to the city
+     * @param tokenIds the IDs of the merchants token to add to the city
+     * @param cityId the city id
+     */
+    function addManyMerchantsToCity(uint32[] calldata tokenIds, uint8 cityId) external {
+        for (uint16 i = 0; i < tokenIds.length; i++) {
+            _addMerchantToCity(tokenIds[i], cityId);
+        }
+    }
+
+    /**
+     * @dev add the single merchant to the city
      * @param tokenId the ID of the merchant token to add to the city
      * @param cityId the city id
      */
-    function addMerchantToCity(uint32 tokenId, uint8 cityId) external {
+    function _addMerchantToCity(uint32 tokenId, uint8 cityId) internal {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
         require(
             dwarfs_nft.getTokenTraits(tokenId).isMerchant == true,
@@ -376,46 +387,11 @@ contract Clan is
     }
 
     /**
-     * @dev Get the number of mobsters in city
-     * @return the number of mobsters array
-     */
-    function getNumMobstersOfCity(uint8 cityId)
-        public
-        view
-        returns (uint16[] memory)
-    {
-        uint16[] memory _numOfMobstersOfCity = new uint16[](4);
-        uint8 level = 0;
-        for (uint32 i = 0; i < mapCityMobsters[cityId].length; i++) {
-            level = dwarfs_nft.getTokenTraits(mapCityMobsters[cityId][i]).level;
-            _numOfMobstersOfCity[level - 5]++;
-        }
-
-        return _numOfMobstersOfCity;
-    }
-
-    /**
-     * @dev Get the daily god earning rate
-     * @return the daily god earning rate
-     */
-    function getDailyGodRate() public view returns (uint8) {
-        return DAILY_GOD_RATE;
-    }
-
-    /**
      * @dev set the daily god earning rate
      * @param _dailyGodRate the daily god earning rate
      */
     function setDailyGodRate(uint8 _dailyGodRate) public {
         DAILY_GOD_RATE = _dailyGodRate;
-    }
-
-    /**
-     * @dev Get the tax percent of a merchant
-     * @return the tax percent
-     */
-    function getTaxPercent() public view returns (uint8) {
-        return TAX_PERCENT;
     }
 
     /**
@@ -427,27 +403,11 @@ contract Clan is
     }
 
     /**
-     * @dev Get the max global god amount
-     * @return the god amount
-     */
-    function getMaxGlobalGodAmount() public view returns (uint256) {
-        return MAXIMUM_GLOBAL_GOD;
-    }
-
-    /**
      * @dev set the max global god amount
      * @param _maxGlobalGod the god amount
      */
     function setMaxGlobalGodAmount(uint8 _maxGlobalGod) public {
         MAXIMUM_GLOBAL_GOD = _maxGlobalGod;
-    }
-
-    /**
-     * @dev Get the initial god amount of a merchant
-     * @return the god amount
-     */
-    function getInitialGodAmount() public view returns (uint256) {
-        return INITIAL_GOD_AMOUNT;
     }
 
     /**
@@ -459,27 +419,11 @@ contract Clan is
     }
 
     /**
-     * @dev Get the min god amount for investing
-     * @return the god amount
-     */
-    function getMinInvestedAmount() public view returns (uint256) {
-        return MIN_INVESTED_AMOUNT;
-    }
-
-    /**
      * @dev set the min god amount for investing
      * @param _minInvestedAmount the god amount
      */
     function setMinInvestedAmount(uint256 _minInvestedAmount) public {
         MIN_INVESTED_AMOUNT = _minInvestedAmount;
-    }
-
-    /**
-     * @dev Get the mobster profit percent (dwarfsoldier, dwarfcapos, boss and dwarfather)
-     * @return the percent array
-     */
-    function getMobsterProfitPercent() public view returns (uint8[] memory) {
-        return mobsterProfitPercent;
     }
 
     /**
@@ -491,22 +435,6 @@ contract Clan is
     }
 
     /**
-     * @dev Get the total number of tokens
-     * @return the number of tokens
-     */
-    function getTotalNumberOfTokens() public view returns (uint256) {
-        return totalNumberOfTokens;
-    }
-
-    /**
-     * @dev get the Dwarf NFT address
-     * @return the Dwarf NFT address
-     */
-    function getDwarfNFT() public view returns (address) {
-        return address(dwarfs_nft);
-    }
-
-    /**
      * @dev set the Dwarf NFT address
      * @param _dwarfNFT the Dwarf NFT address
      */
@@ -515,19 +443,51 @@ contract Clan is
     }
 
     /**
-     * @dev get the GOD address
-     * @return the GOD address
-     */
-    function getGod() public view returns (address) {
-        return address(god);
-    }
-
-    /**
      * @dev set the GOD address
      * @param _god the GOD address
      */
     function setGod(address _god) external onlyOwner {
         god = GOD(_god);
+    }
+
+    /**
+     * @dev get the current information of the selected tokens
+     * @param tokenIds the IDs of the tokens
+     */
+    function getDwarfsTokenInfo(uint32[] calldata tokenIds) external view returns (TokenInfo[] memory){
+        TokenInfo[] memory tokenInfos = new TokenInfo[](tokenIds.length);
+        for (uint16 i = 0; i < tokenIds.length; i++) {
+            tokenInfos[i] = mapTokenInfo[tokenIds[i]];
+        }
+
+        return tokenInfos;
+    }
+
+    /**
+     * @dev get the Merchant Ids of the selected city
+     * @param _cityId the Id of the city
+     */
+    function getMerchantIdsOfCity(uint8 _cityId) external view returns (uint32[] memory){
+        uint32[] memory tokenIds;
+        uint32 count = 0;
+        for (uint32 i = 1; i <= totalNumberOfTokens; i++) {
+            if (dwarfs_nft.getTokenTraits(i).isMerchant == true) {
+                if (mapTokenInfo[tokenIds[i]].cityId == _cityId) {
+                    tokenIds[count] = i;
+                    count++;
+                }
+            }
+        }
+
+        return tokenIds;
+    }
+
+    /**
+     * @dev get the Mobster Ids of the selected city
+     * @param _cityId the Id of the city
+     */
+    function getMobsterIdsOfCity(uint8 _cityId) external view returns (uint32[] memory){
+        return mapCityMobsters[_cityId];
     }
 
     /**

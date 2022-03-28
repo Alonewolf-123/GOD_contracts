@@ -7,7 +7,7 @@ import "./GOD.sol";
 import "./Strings.sol";
 import "./ERC2981ContractWideRoyalties.sol";
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 /// @title Dwarfs NFT
@@ -53,23 +53,23 @@ contract Dwarfs_NFT is
     mapping(address => uint80) private mapCasinoplayerTime;
 
     // reference to the Clan
-    IClan private clan;
+    IClan public clan;
     // reference to the ITrait
-    ITraits private nft_traits;
+    ITraits public nft_traits;
     // reference to $GOD for burning in mint
-    GOD private god;
+    GOD public god;
 
     // Base URI
     string[] private baseURI;
 
     // current count of mobsters
-    uint256 private count_mobsters;
+    uint256 public count_mobsters;
 
     // current number of dwarfs of casino play
-    uint16 private count_casinoMints;
+    uint16 public count_casinoMints;
 
     // current generation number of NFT
-    uint8 private generationOfNft;
+    uint8 public generationOfNft;
 
     event Mint(
         uint32[] tokenIds,
@@ -536,11 +536,4 @@ contract Dwarfs_NFT is
         generationOfNft = _generation;
     }
 
-    /**
-     * @dev get the generation of NFT
-     * @return the generation of nft
-     */
-    function getGenerationOfNFT() external view returns (uint8) {
-        return generationOfNft;
-    }
 }
