@@ -406,7 +406,7 @@ contract Clan is
      * @dev set the max global god amount
      * @param _maxGlobalGod the god amount
      */
-    function setMaxGlobalGodAmount(uint8 _maxGlobalGod) public {
+    function setMaxGlobalGodAmount(uint256 _maxGlobalGod) public {
         MAXIMUM_GLOBAL_GOD = _maxGlobalGod;
     }
 
@@ -414,7 +414,7 @@ contract Clan is
      * @dev set the initial god amount of a merchant
      * @param _initialGodAmount the god amount
      */
-    function setInitialGodAmount(uint8 _initialGodAmount) public {
+    function setInitialGodAmount(uint256 _initialGodAmount) public {
         INITIAL_GOD_AMOUNT = _initialGodAmount;
     }
 
