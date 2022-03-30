@@ -14,7 +14,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 /// @author Bounyavong
 /// @dev Dwarfs NFT logic is implemented and this is the upgradeable
 contract Dwarfs_NFT is
-    ERC721Upgradeable,
+    ERC721EnumerableUpgradeable,
     OwnableUpgradeable,
     IDwarfs_NFT,
     PausableUpgradeable,
@@ -146,7 +146,7 @@ contract Dwarfs_NFT is
         public
         view
         virtual
-        override(ERC721Upgradeable, ERC2981Base)
+        override(ERC721EnumerableUpgradeable, ERC2981Base)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
