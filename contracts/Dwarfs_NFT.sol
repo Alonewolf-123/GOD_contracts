@@ -66,7 +66,7 @@ contract Dwarfs_NFT is
     uint256 public count_mobsters;
 
     // current number of dwarfs of casino play
-    uint16 public count_casinoMints;
+    uint16[] public count_casinoMints;
 
     // current generation number of NFT
     uint8 public generationOfNft;
@@ -132,7 +132,7 @@ contract Dwarfs_NFT is
         count_mobsters = 0;
 
         // current number of dwarfs of casino
-        count_casinoMints = 0;
+        count_casinoMints = [0, 0, 0, 0];
 
         // current generation number of NFT
         generationOfNft = 0;
@@ -191,7 +191,7 @@ contract Dwarfs_NFT is
             "Casino mint will be started from Phase 2"
         );
         require(
-            count_casinoMints < MAX_CASINO_MINTS,
+            count_casinoMints[generationOfNft] < MAX_CASINO_MINTS,
             "All the casino dwarfs of current generation have been minted already"
         );
         require(
@@ -210,12 +210,11 @@ contract Dwarfs_NFT is
         minted++;
         if (minted >= MAX_GEN_TOKENS[generationOfNft]) {
             generationOfNft++;
-            count_casinoMints = 0;
         }
         seed = random(minted);
         generate(minted, seed);
 
-        count_casinoMints++;
+        count_casinoMints[generationOfNft]++;
 
         _safeMint(_msgSender(), minted);
 
@@ -265,7 +264,6 @@ contract Dwarfs_NFT is
         }
         if (minted >= MAX_GEN_TOKENS[generationOfNft]) {
             generationOfNft++;
-            count_casinoMints = 0;
         }
 
         clan.addManyToClan(tokenIds);
