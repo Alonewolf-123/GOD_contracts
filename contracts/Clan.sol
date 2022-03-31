@@ -48,6 +48,8 @@ contract Clan is
 
     // map of mobster IDs for cityId
     mapping(uint8 => uint32[]) private mapCityMobsters;
+    // map of merchant count for cityId
+    mapping(uint8 => uint32) private mapCityMerchantCount;
 
     // merchant earn 1% of investment of $GOD per day
     uint8 public DAILY_GOD_RATE;
@@ -151,6 +153,8 @@ contract Clan is
         // Add a mobster to a city
         if (t.isMerchant == false) {
             mapCityMobsters[t.cityId].push(tokenId);
+        } else {
+            mapCityMerchantCount[t.cityId]++;
         }
 
         TokenInfo memory _tokenInfo;
@@ -180,6 +184,7 @@ contract Clan is
         for (uint16 i = 0; i < tokenIds.length; i++) {
             _addMerchantToCity(tokenIds[i], cityId);
         }
+        mapCityMerchantCount[cityId] += uint32(tokenIds.length);
     }
 
     /**
@@ -335,6 +340,7 @@ contract Clan is
             );
         }
 
+        mapCityMerchantCount[mapTokenInfo[tokenId].cityId]--;
         mapTokenInfo[tokenId].cityId = 0;
 
         emit MerchantClaimed(tokenId, owed);
@@ -468,7 +474,9 @@ contract Clan is
      * @param _cityId the Id of the city
      */
     function getMerchantIdsOfCity(uint8 _cityId) external view returns (uint32[] memory){
-        uint32[] memory tokenIds;
+        require(mapCityMerchantCount[_cityId] > 0, "There is no merchant in the city");
+        
+        uint32[] memory tokenIds = new uint32[](mapCityMerchantCount[_cityId]);
         uint32 count = 0;
         for (uint32 i = 1; i <= totalNumberOfTokens; i++) {
             if (dwarfs_nft.getTokenTraits(i).isMerchant == true) {
