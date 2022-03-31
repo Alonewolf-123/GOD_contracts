@@ -472,7 +472,7 @@ contract Clan is
         uint32 count = 0;
         for (uint32 i = 1; i <= totalNumberOfTokens; i++) {
             if (dwarfs_nft.getTokenTraits(i).isMerchant == true) {
-                if (mapTokenInfo[tokenIds[i]].cityId == _cityId) {
+                if (mapTokenInfo[i].cityId == _cityId) {
                     tokenIds[count] = i;
                     count++;
                 }

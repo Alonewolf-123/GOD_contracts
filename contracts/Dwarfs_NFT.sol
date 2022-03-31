@@ -139,6 +139,8 @@ contract Dwarfs_NFT is
 
         // init the base URIs
         baseURI = ["", "", "", ""];
+
+        _pause();
     }
 
     /// @inheritdoc	ERC165Upgradeable
