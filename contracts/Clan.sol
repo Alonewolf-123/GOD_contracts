@@ -76,6 +76,9 @@ contract Clan is
     // map of merchant count for cityId
     mapping(uint8 => uint32) private mapCityMerchantCount;
 
+    // max merchant count for a city
+    uint32 public MAX_MERCHANT_COUNT;
+
     event AddManyToClan(uint32[] tokenIds, uint256 timestamp);
     event ClaimManyFromClan(uint32[] tokenIds, uint256 timestamp);
 
@@ -120,6 +123,8 @@ contract Clan is
 
         // playing merchant game enabled
         bMerchantGamePlaying = true;
+
+        MAX_MERCHANT_COUNT = 1200;
     }
 
     /** STAKING */
@@ -154,8 +159,6 @@ contract Clan is
         // Add a mobster to a city
         if (t.isMerchant == false) {
             mapCityMobsters[t.cityId].push(tokenId);
-        } else {
-            mapCityMerchantCount[t.cityId]++;
         }
 
         TokenInfo memory _tokenInfo;
@@ -182,6 +185,7 @@ contract Clan is
      * @param cityId the city id
      */
     function addManyMerchantsToCity(uint32[] calldata tokenIds, uint8 cityId) external {
+        require(mapCityMerchantCount[cityId] + tokenIds.length <= MAX_MERCHANT_COUNT, "Please select another city or reduce the count of the merchants");
         for (uint16 i = 0; i < tokenIds.length; i++) {
             _addMerchantToCity(tokenIds[i], cityId);
         }
@@ -458,6 +462,14 @@ contract Clan is
     }
 
     /**
+     * @dev set the max merchant count for a city
+     * @param _maxMerchantCount the MAX_MERCHANT_COUNT value
+     */
+    function setGod(uint32 _maxMerchantCount) external onlyOwner {
+        MAX_MERCHANT_COUNT = _maxMerchantCount;
+    }
+
+    /**
      * @dev get the current information of the selected tokens
      * @param tokenIds the IDs of the tokens
      */
@@ -471,12 +483,20 @@ contract Clan is
     }
 
     /**
+     * @dev get the Merchant count of the selected city
+     * @param _cityId the Id of the city
+     */
+    function getMerchantCountOfCity(uint8 _cityId) external view returns (uint32){
+        return mapCityMerchantCount[_cityId];
+    }
+
+    /**
      * @dev get the Merchant Ids of the selected city
      * @param _cityId the Id of the city
      */
     function getMerchantIdsOfCity(uint8 _cityId) external view returns (uint32[] memory){
         require(mapCityMerchantCount[_cityId] > 0, "There is no merchant in the city");
-        
+
         uint32[] memory tokenIds = new uint32[](mapCityMerchantCount[_cityId]);
         uint32 count = 0;
         for (uint32 i = 1; i <= totalNumberOfTokens; i++) {
