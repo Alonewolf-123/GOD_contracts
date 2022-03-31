@@ -390,7 +390,7 @@ contract Clan is
      * @dev set the daily god earning rate
      * @param _dailyGodRate the daily god earning rate
      */
-    function setDailyGodRate(uint8 _dailyGodRate) public {
+    function setDailyGodRate(uint8 _dailyGodRate) public onlyOwner{
         DAILY_GOD_RATE = _dailyGodRate;
     }
 
@@ -398,7 +398,7 @@ contract Clan is
      * @dev set the tax percent of a merchant
      * @param _taxPercent the tax percent
      */
-    function setTaxPercent(uint8 _taxPercent) public {
+    function setTaxPercent(uint8 _taxPercent) public onlyOwner{
         TAX_PERCENT = _taxPercent;
     }
 
@@ -406,7 +406,7 @@ contract Clan is
      * @dev set the max global god amount
      * @param _maxGlobalGod the god amount
      */
-    function setMaxGlobalGodAmount(uint256 _maxGlobalGod) public {
+    function setMaxGlobalGodAmount(uint256 _maxGlobalGod) public onlyOwner {
         MAXIMUM_GLOBAL_GOD = _maxGlobalGod;
     }
 
@@ -414,7 +414,7 @@ contract Clan is
      * @dev set the initial god amount of a merchant
      * @param _initialGodAmount the god amount
      */
-    function setInitialGodAmount(uint256 _initialGodAmount) public {
+    function setInitialGodAmount(uint256 _initialGodAmount) public onlyOwner{
         INITIAL_GOD_AMOUNT = _initialGodAmount;
     }
 
@@ -422,7 +422,7 @@ contract Clan is
      * @dev set the min god amount for investing
      * @param _minInvestedAmount the god amount
      */
-    function setMinInvestedAmount(uint256 _minInvestedAmount) public {
+    function setMinInvestedAmount(uint256 _minInvestedAmount) public onlyOwner{
         MIN_INVESTED_AMOUNT = _minInvestedAmount;
     }
 
@@ -430,7 +430,7 @@ contract Clan is
      * @dev set the mobster profit percent (dwarfsoldier, dwarfcapos, boss and dwarfather)
      * @param _mobsterProfits the percent array
      */
-    function setMobsterProfitPercent(uint8[] memory _mobsterProfits) public {
+    function setMobsterProfitPercent(uint8[] memory _mobsterProfits) public onlyOwner{
         mobsterProfitPercent = _mobsterProfits;
     }
 
