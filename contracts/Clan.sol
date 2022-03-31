@@ -48,8 +48,6 @@ contract Clan is
 
     // map of mobster IDs for cityId
     mapping(uint8 => uint32[]) private mapCityMobsters;
-    // map of merchant count for cityId
-    mapping(uint8 => uint32) private mapCityMerchantCount;
 
     // merchant earn 1% of investment of $GOD per day
     uint8 public DAILY_GOD_RATE;
@@ -74,6 +72,9 @@ contract Clan is
 
     // playing merchant game enabled
     bool public bMerchantGamePlaying;
+
+    // map of merchant count for cityId
+    mapping(uint8 => uint32) private mapCityMerchantCount;
 
     event AddManyToClan(uint32[] tokenIds, uint256 timestamp);
     event ClaimManyFromClan(uint32[] tokenIds, uint256 timestamp);
