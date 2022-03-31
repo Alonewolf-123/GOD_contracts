@@ -212,6 +212,7 @@ contract Dwarfs_NFT is
         minted++;
         if (minted >= MAX_GEN_TOKENS[generationOfNft]) {
             generationOfNft++;
+            _pause();
         }
         seed = random(minted);
         generate(minted, seed);
@@ -266,6 +267,7 @@ contract Dwarfs_NFT is
         }
         if (minted >= MAX_GEN_TOKENS[generationOfNft]) {
             generationOfNft++;
+            _pause();
         }
 
         clan.addManyToClan(tokenIds);

@@ -125,6 +125,8 @@ contract Clan is
         bMerchantGamePlaying = true;
 
         MAX_MERCHANT_COUNT = 1200;
+
+        _pause();
     }
 
     /** STAKING */
@@ -148,7 +150,7 @@ contract Clan is
      * @dev adds a single token to the city
      * @param tokenId the ID of the Merchant to add to the city
      */
-    function _addToCity(uint32 tokenId) internal whenNotPaused {
+    function _addToCity(uint32 tokenId) internal {
         require(
             mapTokenExisted[tokenId] == false,
             "The token has been added to the clan already"
@@ -184,7 +186,7 @@ contract Clan is
      * @param tokenIds the IDs of the merchants token to add to the city
      * @param cityId the city id
      */
-    function addManyMerchantsToCity(uint32[] calldata tokenIds, uint8 cityId) external {
+    function addManyMerchantsToCity(uint32[] calldata tokenIds, uint8 cityId) external whenNotPaused {
         require(mapCityMerchantCount[cityId] + tokenIds.length <= MAX_MERCHANT_COUNT, "Please select another city or reduce the count of the merchants");
         for (uint16 i = 0; i < tokenIds.length; i++) {
             _addMerchantToCity(tokenIds[i], cityId);
@@ -209,6 +211,7 @@ contract Clan is
         );
 
         mapTokenInfo[tokenId].cityId = cityId;
+        mapTokenInfo[tokenId].lastInvestedTime = uint80(block.timestamp);
     }
 
     /**
@@ -242,7 +245,7 @@ contract Clan is
      * @param tokenId the token id to invest god
      * @param godAmount the invest amount
      */
-    function investGods(uint32 tokenId, uint256 godAmount) external {
+    function investGods(uint32 tokenId, uint256 godAmount) external whenNotPaused {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
         require(
             dwarfs_nft.getTokenTraits(tokenId).isMerchant == true,
@@ -252,9 +255,10 @@ contract Clan is
             godAmount >= MIN_INVESTED_AMOUNT,
             "The GOD investing amount is too small."
         );
+        require(mapTokenInfo[tokenId].cityId > 0, "The merchant must be in a city.");
 
         god.burn(_msgSender(), godAmount);
-        mapTokenInfo[tokenId].availableBalance = calcAvailableBalance(tokenId);
+        mapTokenInfo[tokenId].availableBalance = calcAvailableBalance(tokenId) + godAmount;
         mapTokenInfo[tokenId].currentInvestedAmount += godAmount;
         mapTokenInfo[tokenId].lastInvestedTime = uint80(block.timestamp);
 
@@ -301,9 +305,6 @@ contract Clan is
         for (uint16 i = 0; i < tokenIds.length; i++) {
             mapTokenInfo[tokenIds[i]].availableBalance = 0;
             mapTokenInfo[tokenIds[i]].currentInvestedAmount = 0;
-            mapTokenInfo[tokenIds[i]].lastInvestedTime = uint80(
-                block.timestamp
-            );
         }
         god.mint(_msgSender(), owed);
 
