@@ -49,6 +49,12 @@ contract Clan is
     // map of mobster IDs for cityId
     mapping(uint8 => uint32[]) private mapCityMobsters;
 
+    // map of merchant count for cityId
+    mapping(uint8 => uint32) private mapCityMerchantCount;
+
+    // max merchant count for a city
+    uint32 public MAX_MERCHANT_COUNT;
+
     // merchant earn 1% of investment of $GOD per day
     uint8 public DAILY_GOD_RATE;
 
@@ -73,11 +79,8 @@ contract Clan is
     // playing merchant game enabled
     bool public bMerchantGamePlaying;
 
-    // map of merchant count for cityId
-    mapping(uint8 => uint32) private mapCityMerchantCount;
-
-    // max merchant count for a city
-    uint32 public MAX_MERCHANT_COUNT;
+    // the last cityID in the clan
+    uint8 public lastCityID;
 
     event AddManyToClan(uint32[] tokenIds, uint256 timestamp);
     event ClaimManyFromClan(uint32[] tokenIds, uint256 timestamp);
@@ -126,6 +129,8 @@ contract Clan is
 
         MAX_MERCHANT_COUNT = 1200;
 
+        lastCityID = 1;
+
         _pause();
     }
 
@@ -161,6 +166,7 @@ contract Clan is
         // Add a mobster to a city
         if (t.isMerchant == false) {
             mapCityMobsters[t.cityId].push(tokenId);
+            lastCityID = t.cityId;
         }
 
         TokenInfo memory _tokenInfo;
@@ -188,6 +194,7 @@ contract Clan is
      */
     function addManyMerchantsToCity(uint32[] calldata tokenIds, uint8 cityId) external whenNotPaused {
         require(mapCityMerchantCount[cityId] + tokenIds.length <= MAX_MERCHANT_COUNT, "Please select another city or reduce the count of the merchants");
+        require(cityId > 0 && cityId <= lastCityID, "Invalid cityId");
         for (uint16 i = 0; i < tokenIds.length; i++) {
             _addMerchantToCity(tokenIds[i], cityId);
         }
@@ -466,7 +473,7 @@ contract Clan is
      * @dev set the max merchant count for a city
      * @param _maxMerchantCount the MAX_MERCHANT_COUNT value
      */
-    function setGod(uint32 _maxMerchantCount) external onlyOwner {
+    function setMaxMerchantCount(uint32 _maxMerchantCount) external onlyOwner {
         MAX_MERCHANT_COUNT = _maxMerchantCount;
     }
 
