@@ -6,7 +6,7 @@ import "./ITraits.sol";
 
 interface IDwarfs_NFT {
 
-    function getTokenTraits(uint32 tokenId)
+    function getTokenTraits(uint256 tokenId)
         external
         view
         returns (ITraits.DwarfTrait memory);

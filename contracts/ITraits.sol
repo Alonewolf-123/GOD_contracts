@@ -6,16 +6,15 @@ interface ITraits {
 
     // struct to store each token's traits
     struct DwarfTrait {
-        bool isMerchant;
         uint32 index;
-        uint8 cityId;
-        uint8 level;
-        uint8 generation;
+        uint32 cityId;
+        uint32 level;
+        uint32 generation;
     }
 
     function selectTraits(
-        uint256 seed,
-        bool isMerchant,
-        uint8 generation
-    ) external returns (DwarfTrait memory aTrait);
+        uint32 generation,
+        uint256 countMerchant,
+        uint256 countMobster
+    ) external returns (DwarfTrait[] memory traits);
 }

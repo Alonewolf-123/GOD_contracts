@@ -29,28 +29,34 @@ contract Dwarfs_NFT is
     uint256[] public MINT_GOD_PRICES;
 
     // max number of tokens that can be minted in each phase- 20000 in production
-    uint256[] public MAX_GEN_TOKENS;
+    uint32[] public MAX_GEN_TOKENS;
 
-    // sold amount percent by eth (50%)
-    uint16 public MAX_TOKENS_ETH_SOLD;
-
-    // number of dwarfs from casino
-    uint16 public MAX_CASINO_MINTS;
+    struct ContractInfo {
+        // sold amount percent by eth (50%)
+        uint32 MAX_TOKENS_ETH_SOLD;
+        // number of dwarfs from casino
+        uint32 MAX_CASINO_MINTS;
+        // current count of mobsters
+        uint32 count_mobsters;
+        // current generation number of NFT
+        uint32 generationOfNft;
+    }
+    ContractInfo public contractInfo;
 
     // price for playing casino
     uint256 public CASINO_PRICE;
 
     // number of cities in each generation status
-    uint8[] private MAX_NUM_CITY;
+    uint32[] public MAX_NUM_CITY;
 
     // number of tokens have been minted so far
-    uint32 public minted;
+    uint256 public minted;
 
     // mapping from tokenId to a struct containing the token's traits
-    mapping(uint32 => ITraits.DwarfTrait) private mapTokenTraits;
+    mapping(uint256 => ITraits.DwarfTrait) private mapTokenTraits;
 
     // mapping casino player - time;
-    mapping(address => uint80) private mapCasinoplayerTime;
+    mapping(address => uint256) private mapCasinoplayerTime;
 
     // reference to the Clan
     IClan public clan;
@@ -62,22 +68,16 @@ contract Dwarfs_NFT is
     // Base URI
     string[] private baseURI;
 
-    // current count of mobsters
-    uint256 public count_mobsters;
-
     // current number of dwarfs of casino play
-    uint16[] public count_casinoMints;
-
-    // current generation number of NFT
-    uint8 public generationOfNft;
+    uint32[] public count_casinoMints;
 
     event Mint(
-        uint32[] tokenIds,
+        uint256[] tokenIds,
         ITraits.DwarfTrait[] traits,
         uint256 timestamp
     );
-    event MintByOwner(uint32[] tokenIds, uint256 timestamp);
-    event MintOfCasino(uint32[] tokenIds, uint256 timestamp);
+    event MintByOwner(uint256[] tokenIds, uint256 timestamp);
+    event MintOfCasino(uint256 tokenId, uint256 timestamp);
 
     /**
      * @dev instantiates contract and rarity tables
@@ -119,26 +119,20 @@ contract Dwarfs_NFT is
         ]; // number of tokens in Gen3
 
         // sold amount percent by eth (50%)
-        MAX_TOKENS_ETH_SOLD = 50;
+        contractInfo.MAX_TOKENS_ETH_SOLD = 50;
 
-        MAX_CASINO_MINTS = 500; // max number of mints from casino is 500
+        contractInfo.MAX_CASINO_MINTS = 500; // max number of mints from casino is 500
 
         CASINO_PRICE = 1000 ether; // price of casino play is 1000 GOD
 
         // number of cities in each generation status
         MAX_NUM_CITY = [6, 9, 12, 15];
 
-        // count of mobsters
-        count_mobsters = 0;
-
         // current number of dwarfs of casino
-        count_casinoMints = [0, 0, 0, 0];
-
-        // current generation number of NFT
-        generationOfNft = 0;
+        count_casinoMints = new uint32[](4);
 
         // init the base URIs
-        baseURI = ["", "", "", ""];
+        baseURI = new string[](4);
 
         _pause();
     }
@@ -165,22 +159,24 @@ contract Dwarfs_NFT is
     /**
      * @dev mint a token by owner
      * @param amount the mint amount
-     * @param s the traits array
+     * @param traits the traits array
      */
-    function mintByOwner(uint16 amount, ITraits.DwarfTrait[] memory s)
+    function mintByOwner(uint256 amount, ITraits.DwarfTrait[] calldata traits)
         external
         onlyOwner
     {
-        require(s.length == amount, "Invalid parameter");
-        uint32[] memory tokenIds = new uint32[](amount);
-        for (uint16 i = 0; i < amount; i++) {
-            minted++;
-            mapTokenTraits[minted] = s[i];
-            tokenIds[i] = minted;
-            _safeMint(_msgSender(), minted);
+        require(traits.length == amount, "Invalid parameter");
+        uint256[] memory tokenIds = new uint256[](amount);
+        uint256 tokenId = minted;
+        for (uint256 i = 0; i < amount; i++) {
+            tokenId++;
+            mapTokenTraits[tokenId] = traits[i];
+            tokenIds[i] = tokenId;
+            _safeMint(_msgSender(), tokenId);
         }
+        minted = tokenId;
 
-        emit MintByOwner(tokenIds, block.timestamp);
+        // emit MintByOwner(tokenIds, block.timestamp);
     }
 
     /**
@@ -188,91 +184,103 @@ contract Dwarfs_NFT is
      */
     function mintOfCasino() external whenNotPaused {
         require(tx.origin == _msgSender(), "Only EOA");
+        require(contractInfo.generationOfNft > 0, "START_PHASE_2");
         require(
-            generationOfNft > 0,
-            "Casino mint will be started from Phase 2"
+            count_casinoMints[contractInfo.generationOfNft] <
+                contractInfo.MAX_CASINO_MINTS,
+            "SOLD_OUT_CASINO"
         );
         require(
-            count_casinoMints[generationOfNft] < MAX_CASINO_MINTS,
-            "All the casino dwarfs of current generation have been minted already"
-        );
-        require(
-            mapCasinoplayerTime[_msgSender()] + 2 hours <=
-                uint80(block.timestamp) ||
+            mapCasinoplayerTime[_msgSender()] + 2 hours <= block.timestamp ||
                 mapCasinoplayerTime[_msgSender()] == 0,
-            "You can play the casino in 2 hours"
+            "PLAY_IN_2_HOURS"
         );
         god.burn(_msgSender(), CASINO_PRICE);
 
-        mapCasinoplayerTime[_msgSender()] = uint80(block.timestamp);
+        mapCasinoplayerTime[_msgSender()] = block.timestamp;
 
         uint256 seed = random(block.timestamp);
-        if ((seed & 0xFFFF) % 100 > 0) return;
+        if (seed % 100 > 0) return;
 
         minted++;
-        if (minted >= MAX_GEN_TOKENS[generationOfNft]) {
-            generationOfNft++;
+        if (minted >= MAX_GEN_TOKENS[contractInfo.generationOfNft]) {
+            contractInfo.generationOfNft++;
             _pause();
         }
-        seed = random(minted);
-        generate(minted, seed);
+        uint256 _countMerchant;
+        uint256 _countMobster;
+        (_countMerchant, _countMobster) = generate(1);
+        ITraits.DwarfTrait[] memory traits = nft_traits.selectTraits(
+            contractInfo.generationOfNft,
+            _countMerchant,
+            _countMobster
+        );
+        mapTokenTraits[minted] = traits[0];
 
-        count_casinoMints[generationOfNft]++;
+        count_casinoMints[contractInfo.generationOfNft]++;
 
         _safeMint(_msgSender(), minted);
 
-        uint32[] memory tokenIds = new uint32[](1);
+        uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = minted;
         clan.addManyToClan(tokenIds);
-        emit MintOfCasino(tokenIds, block.timestamp);
+        // emit MintOfCasino(minted, block.timestamp);
     }
 
     /**
      * @dev mint a token - 85% Merchant, 15% Mobsters
      * @param amount the amount of the token
      */
-    function mint(uint16 amount) external payable whenNotPaused {
+    function mint(uint256 amount) external payable whenNotPaused {
         require(tx.origin == _msgSender(), "Only EOA");
         require(
-            minted + amount <= MAX_GEN_TOKENS[generationOfNft],
-            "All tokens of generation on-sale already sold"
+            minted + amount <= MAX_GEN_TOKENS[contractInfo.generationOfNft],
+            "SOLD_OUT_OF_GEN"
         );
-        require(amount > 0 && amount <= 10, "Invalid mint amount");
+        require(amount > 0 && amount <= 10, "INVALID_AMOUNT");
 
         uint256 totalGodCost = 0;
-        for (uint16 i = 0; i < amount; i++) {
+        for (uint256 i = 0; i < amount; i++) {
             totalGodCost += mintCost(minted + i + 1);
         }
         require(
-            (amount - totalGodCost / MINT_GOD_PRICES[generationOfNft]) *
-                MINT_ETH_PRICES[generationOfNft] <=
+            (amount -
+                totalGodCost /
+                MINT_GOD_PRICES[contractInfo.generationOfNft]) *
+                MINT_ETH_PRICES[contractInfo.generationOfNft] <=
                 msg.value,
-            "Invalid ETH payment amount"
+            "INVALID_ETH_AMOUNT"
         );
         if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
 
-        uint32[] memory tokenIds = new uint32[](amount);
-        ITraits.DwarfTrait[] memory traits = new ITraits.DwarfTrait[](amount);
-        uint256 seed;
+        uint256[] memory tokenIds = new uint256[](amount);
 
-        for (uint16 i = 0; i < amount; i++) {
-            minted++;
-            seed = random(minted);
+        uint256 _countMerchant;
+        uint256 _countMobster;
+        (_countMerchant, _countMobster) = generate(amount);
+        ITraits.DwarfTrait[] memory traits = nft_traits.selectTraits(
+            contractInfo.generationOfNft,
+            _countMerchant,
+            _countMobster
+        );
 
-            generate(minted, seed);
-
-            _safeMint(_msgSender(), minted);
-            tokenIds[i] = minted;
-            traits[i] = mapTokenTraits[minted];
+        uint256 tokenId = minted;
+        for (uint256 i = 0; i < amount; i++) {
+            tokenId++;
+            _safeMint(_msgSender(), tokenId);
+            tokenIds[i] = tokenId;
+            mapTokenTraits[tokenId] = traits[i];
         }
-        if (minted >= MAX_GEN_TOKENS[generationOfNft]) {
-            generationOfNft++;
+        minted = tokenId;
+
+        if (minted >= MAX_GEN_TOKENS[contractInfo.generationOfNft]) {
+            contractInfo.generationOfNft++;
             _pause();
         }
 
         clan.addManyToClan(tokenIds);
 
-        emit Mint(tokenIds, traits, block.timestamp);
+        // emit Mint(tokenIds, traits, block.timestamp);
     }
 
     /**
@@ -280,63 +288,50 @@ contract Dwarfs_NFT is
      * @param tokenId the ID to check the cost of to mint
      * @return the GOD cost of the given token ID
      */
-    function mintCost(uint32 tokenId) public view returns (uint256) {
-        if (generationOfNft == 0) return 0;
+    function mintCost(uint256 tokenId) public view returns (uint256) {
+        if (contractInfo.generationOfNft == 0) return 0;
         else if (
             tokenId <=
-            MAX_GEN_TOKENS[generationOfNft - 1] +
-                ((MAX_GEN_TOKENS[generationOfNft] -
-                    MAX_GEN_TOKENS[generationOfNft - 1]) *
-                    MAX_TOKENS_ETH_SOLD) /
+            MAX_GEN_TOKENS[contractInfo.generationOfNft - 1] +
+                ((MAX_GEN_TOKENS[contractInfo.generationOfNft] -
+                    MAX_GEN_TOKENS[contractInfo.generationOfNft - 1]) *
+                    contractInfo.MAX_TOKENS_ETH_SOLD) /
                 100
         ) return 0;
-        else return MINT_GOD_PRICES[generationOfNft];
+        else return MINT_GOD_PRICES[contractInfo.generationOfNft];
     }
 
     /**
      * @dev generates traits for a specific token, checking to make sure it's unique
-     * @param tokenId the id of the token to generate traits for
-     * @param seed a pseudorandom 256 bit number to derive traits from
-     * @return t - a struct of traits for the given token ID
+     * @param amount count of mint tokens
+     * @return countMerchant count of Merchant
+     * @return countMobster count of Mobster
      */
-    function generate(uint32 tokenId, uint256 seed)
+    function generate(uint256 amount)
         internal
-        returns (ITraits.DwarfTrait memory t)
+        returns (uint32 countMerchant, uint32 countMobster)
     {
-        // check the merchant or mobster
-        bool _bMerchant = ((count_mobsters ==
-            uint256(MAX_NUM_CITY[generationOfNft]) * 200) &&
-            (tokenId <= uint32(MAX_GEN_TOKENS[generationOfNft])));
+        bool _bMerchant;
+        uint256 seed = random(minted);
+        uint256 tokenId = minted;
+        uint256 count_mobsters = contractInfo.count_mobsters;
+        for (uint256 i = 0; i < amount; i++) {
+            tokenId++;
+            _bMerchant = ((count_mobsters ==
+                MAX_NUM_CITY[contractInfo.generationOfNft] * 200) &&
+                (tokenId <= MAX_GEN_TOKENS[contractInfo.generationOfNft]));
 
-        seed = random(seed);
-        _bMerchant = (_bMerchant || (((seed & 0xFFFF) % 100) > 15));
+            _bMerchant = (_bMerchant || (((seed & 0xFFFF) % 100) > 15));
 
-        if (_bMerchant == false) {
-            count_mobsters++;
+            if (_bMerchant == false) {
+                countMobster++;
+                count_mobsters++;
+            } else {
+                countMerchant++;
+            }
+            seed = (seed >> 8);
         }
-
-        t = nft_traits.selectTraits(seed, _bMerchant, generationOfNft);
-
-        mapTokenTraits[tokenId] = t;
-    }
-
-    /**
-     * @dev generates a pseudorandom number
-     * @param seed a value ensure different outcomes for different sources in the same block
-     * @return a pseudorandom value
-     */
-    function random(uint256 seed) internal view returns (uint256) {
-        return
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        tx.origin,
-                        blockhash(block.number - 1),
-                        block.timestamp,
-                        seed
-                    )
-                )
-            );
+        contractInfo.count_mobsters = uint32(count_mobsters);
     }
 
     /** READ */
@@ -345,7 +340,7 @@ contract Dwarfs_NFT is
      * @param tokenId the token id
      * @return DwarfTrait memory
      */
-    function getTokenTraits(uint32 tokenId)
+    function getTokenTraits(uint256 tokenId)
         public
         view
         returns (ITraits.DwarfTrait memory)
@@ -375,14 +370,14 @@ contract Dwarfs_NFT is
      * @param _genNumTokens the number of tokens array
      * @param _generation the generation of the NFT
      */
-    function setGenTokens(uint256 _genNumTokens, uint8 _generation)
+    function setGenTokens(uint256 _genNumTokens, uint32 _generation)
         external
         onlyOwner
     {
         if (MAX_GEN_TOKENS.length <= _generation) {
-            MAX_GEN_TOKENS.push(_genNumTokens);
+            MAX_GEN_TOKENS.push(uint32(_genNumTokens));
         } else {
-            MAX_GEN_TOKENS[_generation] = _genNumTokens;
+            MAX_GEN_TOKENS[_generation] = uint32(_genNumTokens);
         }
     }
 
@@ -391,7 +386,7 @@ contract Dwarfs_NFT is
      * @param _price the prices array
      * @param _generation the generation of the NFT
      */
-    function setMintETHPrice(uint256 _price, uint8 _generation)
+    function setMintETHPrice(uint256 _price, uint32 _generation)
         external
         onlyOwner
     {
@@ -407,7 +402,7 @@ contract Dwarfs_NFT is
      * @param _price the prices array
      * @param _generation the generation of the NFT
      */
-    function setMintGODPrice(uint256 _price, uint8 _generation)
+    function setMintGODPrice(uint256 _price, uint32 _generation)
         external
         onlyOwner
     {
@@ -422,16 +417,16 @@ contract Dwarfs_NFT is
      * @dev set the ETH percent
      * @param _percent the percent of ETH
      */
-    function setEthSoldPercent(uint16 _percent) external onlyOwner {
-        MAX_TOKENS_ETH_SOLD = _percent;
+    function setEthSoldPercent(uint32 _percent) external onlyOwner {
+        contractInfo.MAX_TOKENS_ETH_SOLD = _percent;
     }
 
     /**
      * @dev set the max number of dwarfs from casino
      * @param maxCasinoMints the max dwarfs from casino
      */
-    function setMaxCasinoMints(uint16 maxCasinoMints) external onlyOwner {
-        MAX_CASINO_MINTS = maxCasinoMints;
+    function setMaxCasinoMints(uint32 maxCasinoMints) external onlyOwner {
+        contractInfo.MAX_CASINO_MINTS = maxCasinoMints;
     }
 
     /**
@@ -440,6 +435,14 @@ contract Dwarfs_NFT is
      */
     function setCasinoPrice(uint256 _casinoPrice) external onlyOwner {
         CASINO_PRICE = _casinoPrice;
+    }
+
+    /**
+     * @dev set the generation of NFT
+     * @param _generation the generation of nft
+     */
+    function setGenerationOfNFT(uint32 _generation) external onlyOwner {
+        contractInfo.generationOfNft = _generation;
     }
 
     /**
@@ -458,7 +461,7 @@ contract Dwarfs_NFT is
      * @param _baseURI the base URI string
      * @param _generation the generation of the NFT
      */
-    function setBaseURI(string memory _baseURI, uint8 _generation)
+    function setBaseURI(string memory _baseURI, uint32 _generation)
         external
         onlyOwner
     {
@@ -501,11 +504,9 @@ contract Dwarfs_NFT is
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        string memory _tokenURI = getHashString(
-            mapTokenTraits[uint32(tokenId)].index
-        );
+        string memory _tokenURI = getHashString(mapTokenTraits[tokenId].index);
 
-        uint8 _generation = mapTokenTraits[uint32(tokenId)].generation;
+        uint256 _generation = mapTokenTraits[tokenId].generation;
 
         // If there is no base URI, return the token URI.
         if (bytes(baseURI[_generation]).length == 0) {
@@ -531,11 +532,21 @@ contract Dwarfs_NFT is
     }
 
     /**
-     * @dev set the generation of NFT
-     * @param _generation the generation of nft
+     * @dev generates a pseudorandom number
+     * @param seed a value ensure different outcomes for different sources in the same block
+     * @return a pseudorandom value
      */
-    function setGenerationOfNFT(uint8 _generation) external onlyOwner {
-        generationOfNft = _generation;
+    function random(uint256 seed) internal view returns (uint256) {
+        return
+            uint256(
+                keccak256(
+                    abi.encodePacked(
+                        tx.origin,
+                        blockhash(block.number - 1),
+                        block.timestamp,
+                        seed
+                    )
+                )
+            );
     }
-
 }

@@ -3,5 +3,5 @@
 pragma solidity ^0.8.0;
 
 interface IClan {
-  function addManyToClan(uint32[] calldata tokenIds) external;
+  function addManyToClan(uint256[] calldata tokenIds) external;
 }
