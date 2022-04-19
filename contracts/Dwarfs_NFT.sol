@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT LICENSE
 
 pragma solidity ^0.8.0;
-import "./IDwarfs_NFT.sol";
 import "./IClan.sol";
-import "./GOD.sol";
+import "./IGOD.sol";
 import "./Strings.sol";
 import "./ERC2981ContractWideRoyalties.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 /// @title Dwarfs NFT
@@ -16,7 +16,6 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 contract Dwarfs_NFT is
     ERC721EnumerableUpgradeable,
     OwnableUpgradeable,
-    IDwarfs_NFT,
     PausableUpgradeable,
     ERC2981ContractWideRoyalties
 {
@@ -63,7 +62,7 @@ contract Dwarfs_NFT is
     // reference to the ITrait
     ITraits public nft_traits;
     // reference to $GOD for burning in mint
-    GOD public god;
+    IGOD public god;
 
     // Base URI
     string[] private baseURI;
@@ -72,11 +71,10 @@ contract Dwarfs_NFT is
     uint32[] public count_casinoMints;
 
     event Mint(
-        uint256[] tokenIds,
-        ITraits.DwarfTrait[] traits,
+        uint256 lastTokenId,
         uint256 timestamp
     );
-    event MintByOwner(uint256[] tokenIds, uint256 timestamp);
+
     event MintOfCasino(uint256 tokenId, uint256 timestamp);
 
     /**
@@ -91,7 +89,7 @@ contract Dwarfs_NFT is
         __Ownable_init();
         __Pausable_init();
         __ERC721_init("Dwarf NFT", "DWARF");
-        god = GOD(_god);
+        god = IGOD(_god);
         nft_traits = ITraits(_traits);
 
         // eth prices for mint
@@ -175,8 +173,6 @@ contract Dwarfs_NFT is
             _safeMint(_msgSender(), tokenId);
         }
         minted = tokenId;
-
-        // emit MintByOwner(tokenIds, block.timestamp);
     }
 
     /**
@@ -191,9 +187,9 @@ contract Dwarfs_NFT is
             "SOLD_OUT_CASINO"
         );
         require(
-            mapCasinoplayerTime[_msgSender()] + 2 hours <= block.timestamp ||
+            mapCasinoplayerTime[_msgSender()] + 12 hours <= block.timestamp ||
                 mapCasinoplayerTime[_msgSender()] == 0,
-            "PLAY_IN_2_HOURS"
+            "PLAY_IN_12_HOURS"
         );
         god.burn(_msgSender(), CASINO_PRICE);
 
@@ -223,8 +219,8 @@ contract Dwarfs_NFT is
 
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = minted;
-        clan.addManyToClan(tokenIds);
-        // emit MintOfCasino(minted, block.timestamp);
+        clan.addManyToClan(tokenIds, traits);
+        emit MintOfCasino(minted, block.timestamp);
     }
 
     /**
@@ -239,9 +235,24 @@ contract Dwarfs_NFT is
         );
         require(amount > 0 && amount <= 10, "INVALID_AMOUNT");
 
+        uint256[] memory tokenIds = new uint256[](amount);
+
+        uint256 _countMerchant;
+        uint256 _countMobster;
+        (_countMerchant, _countMobster) = generate(amount);
+        ITraits.DwarfTrait[] memory traits = nft_traits.selectTraits(
+            contractInfo.generationOfNft,
+            _countMerchant,
+            _countMobster
+        );
+        uint256 tokenId = minted;
         uint256 totalGodCost = 0;
         for (uint256 i = 0; i < amount; i++) {
-            totalGodCost += mintCost(minted + i + 1);
+            tokenId++;
+            _safeMint(_msgSender(), tokenId);
+            tokenIds[i] = tokenId;
+            mapTokenTraits[tokenId] = traits[i];
+            totalGodCost += mintCost(tokenId);
         }
         require(
             (amount -
@@ -253,34 +264,15 @@ contract Dwarfs_NFT is
         );
         if (totalGodCost > 0) god.burn(_msgSender(), totalGodCost);
 
-        uint256[] memory tokenIds = new uint256[](amount);
-
-        uint256 _countMerchant;
-        uint256 _countMobster;
-        (_countMerchant, _countMobster) = generate(amount);
-        ITraits.DwarfTrait[] memory traits = nft_traits.selectTraits(
-            contractInfo.generationOfNft,
-            _countMerchant,
-            _countMobster
-        );
-
-        uint256 tokenId = minted;
-        for (uint256 i = 0; i < amount; i++) {
-            tokenId++;
-            _safeMint(_msgSender(), tokenId);
-            tokenIds[i] = tokenId;
-            mapTokenTraits[tokenId] = traits[i];
-        }
         minted = tokenId;
-
         if (minted >= MAX_GEN_TOKENS[contractInfo.generationOfNft]) {
             contractInfo.generationOfNft++;
             _pause();
         }
 
-        clan.addManyToClan(tokenIds);
+        clan.addManyToClan(tokenIds, traits);
 
-        // emit Mint(tokenIds, traits, block.timestamp);
+        emit Mint(minted, block.timestamp);
     }
 
     /**
@@ -341,11 +333,27 @@ contract Dwarfs_NFT is
      * @return DwarfTrait memory
      */
     function getTokenTraits(uint256 tokenId)
-        public
+        external
         view
         returns (ITraits.DwarfTrait memory)
     {
         return mapTokenTraits[tokenId];
+    }
+
+    /**
+     * @dev get the token traits details
+     * @param tokenIds the token ids
+     * @return traits DwarfTrait[] memory
+     */
+    function getBatchTokenTraits(uint256[] calldata tokenIds)
+        external
+        view
+        returns (ITraits.DwarfTrait[] memory traits)
+    {
+        traits = new ITraits.DwarfTrait[](tokenIds.length);
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            traits[i] = mapTokenTraits[tokenIds[i]];
+        }
     }
 
     /** ADMIN */
