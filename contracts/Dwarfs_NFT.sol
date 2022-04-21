@@ -376,7 +376,7 @@ contract Dwarfs_NFT is
             } else {
                 countMerchant++;
             }
-            seed = (seed >> 8);
+            seed >>= 8;
         }
         contractInfo.count_mobsters = uint32(count_mobsters);
     }

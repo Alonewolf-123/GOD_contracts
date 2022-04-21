@@ -36,16 +36,16 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     IGOD public god;
 
     // token information map
-    mapping(uint256 => TokenInfo) private mapTokenInfo;
+    mapping(uint256 => TokenInfo) public mapTokenInfo;
 
     // map of mobster IDs for cityId
-    mapping(uint256 => uint32[]) private mapCityMobsters;
+    mapping(uint256 => uint32[]) public mapCityMobsters;
 
     // map of mobster unaccounted GOD for cityId
-    mapping(uint256 => uint256) private mapCityTax;
+    mapping(uint256 => uint256) public mapCityTax;
 
     // map of merchant count for cityId
-    mapping(uint256 => uint256) private mapCityMerchantCount;
+    mapping(uint256 => uint256) public mapCityMerchantCount;
 
     struct ContractInfo {
         // total number of tokens in the clan
@@ -138,18 +138,6 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     /** VIEW */
 
     /**
-     * @dev get the Merchant count of the selected city
-     * @param _cityId the Id of the city
-     */
-    function getMerchantCountOfCity(uint256 _cityId)
-        external
-        view
-        returns (uint256)
-    {
-        return mapCityMerchantCount[_cityId];
-    }
-
-    /**
      * @dev get the Merchant Ids of the selected city
      * @param _cityId the Id of the city
      */
@@ -177,18 +165,57 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     }
 
     /**
-     * @dev get the Mobster Ids of the selected city
-     * @param _cityId the Id of the city
+     * @dev get the current information of the selected tokens
+     * @param tokenIds the IDs of the tokens
      */
-    function getMobsterIdsOfCity(uint256 _cityId)
+    function getBatchTokenInfo(uint256[] calldata tokenIds)
         external
         view
-        returns (uint32[] memory)
+        returns (TokenInfo[] memory)
     {
-        return mapCityMobsters[_cityId];
+        TokenInfo[] memory tokenInfos = new TokenInfo[](tokenIds.length);
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            tokenInfos[i] = mapTokenInfo[tokenIds[i]];
+        }
+
+        return tokenInfos;
+    }
+
+    /**
+     * @dev get balance of a token
+     * @param tokenId the Id of a token
+     * @return tokenBalance the balance of the token
+     */
+    function getTokenBalance(uint256 tokenId)
+        public
+        view
+        returns (uint256 tokenBalance)
+    {
+        if (mapTokenInfo[tokenId].level < 5) {
+            tokenBalance = calcMerchantBalance(tokenId);
+        } else {
+            tokenBalance = calcMobsterBalance(tokenId);
+        }
+    }
+
+    /**
+     * @dev get balance of a token
+     * @param tokenIds the Ids of tokens
+     * @return tokenBalances
+     */
+    function getBatchTokenBalances(uint256[] calldata tokenIds)
+        external
+        view
+        returns (uint256[] memory tokenBalances)
+    {
+        tokenBalances = new uint256[](tokenIds.length);
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            tokenBalances[i] = getTokenBalance(tokenIds[i]);
+        }
     }
 
     /** UTILITY */
+
     /**
      * @dev generates a pseudorandom number
      * @param seed a value ensure different outcomes for different sources in the same block
@@ -208,7 +235,21 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
             );
     }
 
+    /**
+     * @dev floor 3 digits of $GOD amount
+     * @param amount $GOD amount
+     * @return floorAmount - the floor amount of $GOD
+     */
+    function _floorGodAmount(uint256 amount)
+        internal
+        pure
+        returns (uint256 floorAmount)
+    {
+        floorAmount = (amount / 1e12) * 1e12;
+    }
+    
     /** STAKING */
+
     /**
      * @dev adds Merchant and Mobsters to the Clan and Pack
      * @param tokenIds the IDs of the Merchant and Mobsters to add to the clan
@@ -279,23 +320,10 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     }
 
     /**
-     * @dev floor 3 digits of $GOD amount
-     * @param amount $GOD amount
-     * @return floorAmount - the floor amount of $GOD
-     */
-    function _floorGodAmount(uint256 amount)
-        internal
-        pure
-        returns (uint256 floorAmount)
-    {
-        floorAmount = (amount / 1e12) * 1e12;
-    }
-
-    /**
-     * @dev Calcualte the current available balance to claim
+     * @dev Calcualte the current available balance of a merchant to claim
      * @param tokenId the token id to calculate the available balance
      */
-    function calcAvailableBalance(uint256 tokenId)
+    function calcMerchantBalance(uint256 tokenId)
         internal
         view
         returns (uint256 availableBalance)
@@ -316,6 +344,22 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     }
 
     /**
+     * @dev Calcualte the current available balance of a mobster to claim
+     * @param tokenId the token id to calculate the available balance
+     */
+    function calcMobsterBalance(uint256 tokenId)
+        internal
+        view
+        returns (uint256 availableBalance)
+    {
+        availableBalance = _floorGodAmount(
+            ((mapCityTax[mapTokenInfo[tokenId].cityId] *
+                mobsterProfitPercent[mapTokenInfo[tokenId].level - 5]) / 1000) -
+                mapTokenInfo[tokenId].currentInvestedAmount
+        );
+    }
+
+    /**
      * @dev Invest GODs
      * @param tokenId the token id to invest god
      * @param godAmount the invest amount
@@ -331,7 +375,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
 
         god.burn(_msgSender(), godAmount);
         mapTokenInfo[tokenId].availableBalance =
-            calcAvailableBalance(tokenId) +
+            calcMerchantBalance(tokenId) +
             godAmount;
         mapTokenInfo[tokenId].currentInvestedAmount += godAmount;
         mapTokenInfo[tokenId].lastInvestedTime = uint128(block.timestamp);
@@ -395,7 +439,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
 
-        owed = calcAvailableBalance(tokenId);
+        owed = calcMerchantBalance(tokenId);
 
         if (mapTokenInfo[tokenId].cityId > 0) {
             uint256 tax;
@@ -430,16 +474,13 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
 
-        owed = _floorGodAmount(
-            ((mapCityTax[mapTokenInfo[tokenId].cityId] *
-                mobsterProfitPercent[mapTokenInfo[tokenId].level - 5]) / 1000) -
-                mapTokenInfo[tokenId].currentInvestedAmount
-        );
+        owed = calcMobsterBalance(tokenId);
         mapTokenInfo[tokenId].currentInvestedAmount += owed;
         mapTokenInfo[tokenId].lastInvestedTime = uint128(block.timestamp);
     }
 
     /** ADMIN */
+
     /**
      * @dev enables owner to pause / unpause minting
      * @param _bPaused the flag to pause or unpause
@@ -525,22 +566,5 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
      */
     function setMaxMerchantCount(uint32 _maxMerchantCount) external onlyOwner {
         contractInfo.MAX_MERCHANT_COUNT = _maxMerchantCount;
-    }
-
-    /**
-     * @dev get the current information of the selected tokens
-     * @param tokenIds the IDs of the tokens
-     */
-    function getDwarfsTokenInfo(uint256[] calldata tokenIds)
-        external
-        view
-        returns (TokenInfo[] memory)
-    {
-        TokenInfo[] memory tokenInfos = new TokenInfo[](tokenIds.length);
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            tokenInfos[i] = mapTokenInfo[tokenIds[i]];
-        }
-
-        return tokenInfos;
     }
 }

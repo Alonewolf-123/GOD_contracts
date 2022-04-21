@@ -128,7 +128,7 @@ contract Traits is OwnableUpgradeable, ITraits {
                     count_mobsters = contractInfo.MAX_MOBSTERS;
                     contractInfo.city_id++;
                 }
-                seed = (seed >> 8);
+                seed >>= 8;
             }
             contractInfo.count_mobsters = uint32(count_mobsters);
         }
