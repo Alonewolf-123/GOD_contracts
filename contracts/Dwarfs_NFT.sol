@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 import "./IClan.sol";
 import "./IGOD.sol";
-import "./Strings.sol";
 import "./ERC2981ContractWideRoyalties.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
@@ -19,8 +18,6 @@ contract Dwarfs_NFT is
     PausableUpgradeable,
     ERC2981ContractWideRoyalties
 {
-    using Strings for uint256;
-
     // eth prices for mint
     uint256[] public MINT_ETH_PRICES;
 
@@ -54,8 +51,8 @@ contract Dwarfs_NFT is
     // mapping from tokenId to a struct containing the token's traits
     mapping(uint256 => ITraits.DwarfTrait) private mapTokenTraits;
 
-    // mapping casino player - time;
-    mapping(address => uint256) private mapCasinoplayerTime;
+    // mapping casino player's tokenId - time;
+    mapping(uint256 => uint256) private mapCasinoplayerTime;
 
     // reference to the Clan
     IClan public clan;
@@ -70,10 +67,17 @@ contract Dwarfs_NFT is
     // current number of dwarfs of casino play
     uint32[] public count_casinoMints;
 
-    event Mint(
-        uint256 lastTokenId,
-        uint256 timestamp
-    );
+    event Mint(uint256 lastTokenId, uint256 timestamp);
+
+    struct AirdropInfo {
+        uint64 countAirdropAddresses;
+        uint64 MAX_AIRDROP_AMOUNT;
+        uint128 lockTime;
+    }
+    AirdropInfo public airdropInfo;
+
+    mapping(address => bool) mapAirdropAddresses;
+    mapping(address => uint256) mapAirdropaddressMinttime;
 
     event MintOfCasino(uint256 tokenId, uint256 timestamp);
 
@@ -132,6 +136,11 @@ contract Dwarfs_NFT is
         // init the base URIs
         baseURI = new string[](4);
 
+        // 1200 NFTs will be mint for free
+        airdropInfo.MAX_AIRDROP_AMOUNT = 1200;
+        // Airdrop NFTs will be locked for 6 days;
+        airdropInfo.lockTime = 6 days;
+
         _pause();
     }
 
@@ -176,28 +185,9 @@ contract Dwarfs_NFT is
     }
 
     /**
-     * @dev mint a token from casino
+     * @dev mint a token
      */
-    function mintOfCasino() external whenNotPaused {
-        require(tx.origin == _msgSender(), "Only EOA");
-        require(contractInfo.generationOfNft > 0, "START_PHASE_2");
-        require(
-            count_casinoMints[contractInfo.generationOfNft] <
-                contractInfo.MAX_CASINO_MINTS,
-            "SOLD_OUT_CASINO"
-        );
-        require(
-            mapCasinoplayerTime[_msgSender()] + 12 hours <= block.timestamp ||
-                mapCasinoplayerTime[_msgSender()] == 0,
-            "PLAY_IN_12_HOURS"
-        );
-        god.burn(_msgSender(), CASINO_PRICE);
-
-        mapCasinoplayerTime[_msgSender()] = block.timestamp;
-
-        uint256 seed = random(block.timestamp);
-        if (seed % 100 > 0) return;
-
+    function _mintOneToken() internal {
         minted++;
         if (minted >= MAX_GEN_TOKENS[contractInfo.generationOfNft]) {
             contractInfo.generationOfNft++;
@@ -220,7 +210,72 @@ contract Dwarfs_NFT is
         uint256[] memory tokenIds = new uint256[](1);
         tokenIds[0] = minted;
         clan.addManyToClan(tokenIds, traits);
+    }
+
+    /**
+     * @dev mint a token from casino
+     * @param tokenId that you have. Only one of NFT owners can play the casino
+     */
+    function mintOfCasino(uint256 tokenId) external whenNotPaused {
+        require(tx.origin == _msgSender(), "Only EOA");
+        require(contractInfo.generationOfNft > 0, "START_PHASE_2");
+        require(
+            count_casinoMints[contractInfo.generationOfNft] <
+                contractInfo.MAX_CASINO_MINTS,
+            "SOLD_OUT_CASINO"
+        );
+        require(ownerOf(tokenId) == _msgSender(), "NOT_NFT_OWNER");
+        require(
+            mapCasinoplayerTime[tokenId] + 12 hours <= block.timestamp ||
+                mapCasinoplayerTime[tokenId] == 0,
+            "PLAY_IN_12_HOURS"
+        );
+        god.burn(_msgSender(), CASINO_PRICE);
+
+        mapCasinoplayerTime[tokenId] = block.timestamp;
+
+        uint256 seed = random(block.timestamp);
+        if (seed % 100 > 0) return;
+
+        _mintOneToken();
+
         emit MintOfCasino(minted, block.timestamp);
+    }
+
+    /**
+     * @dev airdrop mint a token - 85% Merchant, 15% Mobsters
+     */
+    function airdropMint() external whenNotPaused {
+        require(tx.origin == _msgSender(), "Only EOA");
+        require(minted < airdropInfo.MAX_AIRDROP_AMOUNT, "SOLD_OUT_AIRDROP");
+        require(
+            mapAirdropAddresses[_msgSender()] == true,
+            "NOT_AIRDROP_ADDRESS"
+        );
+        require(
+            mapAirdropaddressMinttime[_msgSender()] == 0,
+            "ALREADY_AIRDROPED"
+        );
+        _mintOneToken();
+        mapAirdropaddressMinttime[_msgSender()] = block.timestamp;
+    }
+
+    /**
+     * @dev airdrop mint a token with $GOD - 85% Merchant, 15% Mobsters
+     */
+    function airdropMintWithGod() external whenNotPaused {
+        require(tx.origin == _msgSender(), "Only EOA");
+        require(
+            minted < airdropInfo.MAX_AIRDROP_AMOUNT * 2,
+            "SOLD_OUT_AIRDROP"
+        );
+        require(
+            mapAirdropAddresses[_msgSender()] == true,
+            "NOT_AIRDROP_ADDRESS"
+        );
+        god.burn(_msgSender(), MINT_GOD_PRICES[contractInfo.generationOfNft]);
+        _mintOneToken();
+        mapAirdropaddressMinttime[_msgSender()] = block.timestamp;
     }
 
     /**
@@ -466,30 +521,56 @@ contract Dwarfs_NFT is
      * @dev Internal function to set the base URI for all token IDs. It is
      * automatically added as a prefix to the value returned in {tokenURI},
      * or to the token ID if {tokenURI} is empty.
-     * @param _baseURI the base URI string
+     * @param _myBaseUri the base URI string
      * @param _generation the generation of the NFT
      */
-    function setBaseURI(string memory _baseURI, uint32 _generation)
+    function setBaseURI(string memory _myBaseUri, uint32 _generation)
         external
         onlyOwner
     {
         if (baseURI.length <= _generation) {
-            baseURI.push(_baseURI);
+            baseURI.push(_myBaseUri);
         } else {
-            baseURI[_generation] = _baseURI;
+            baseURI[_generation] = _myBaseUri;
         }
     }
 
     /**
-     * @dev Internal function to get a hash of an integer
-     * @param index the index of the dwarf list
+     * @dev add airdrop addresses
+     * @param _airdropAddresses the addresses for Airdrop
      */
-    function getHashString(uint32 index)
-        public
-        pure
-        returns (string memory result)
+    function addAirdropAddresses(address[] calldata _airdropAddresses)
+        external
+        onlyOwner
     {
-        result = (uint256(keccak256(abi.encodePacked(index)))).toHexString();
+        require(
+            airdropInfo.countAirdropAddresses + _airdropAddresses.length <=
+                airdropInfo.MAX_AIRDROP_AMOUNT,
+            "OUT_AIRDROP_COUNT"
+        );
+        for (uint256 i = 0; i < _airdropAddresses.length; i++) {
+            mapAirdropAddresses[_airdropAddresses[i]] = true;
+        }
+        airdropInfo.countAirdropAddresses += uint64(_airdropAddresses.length);
+    }
+
+    /**
+     * @dev remove airdrop addresses
+     * @param _airdropAddresses the addresses for Airdrop
+     */
+    function removeAirdropAddresses(address[] calldata _airdropAddresses)
+        external
+        onlyOwner
+    {
+        require(
+            airdropInfo.countAirdropAddresses >= _airdropAddresses.length,
+            "OUT_AIRDROP_COUNT"
+        );
+        for (uint256 i = 0; i < _airdropAddresses.length; i++) {
+            require(mapAirdropAddresses[_airdropAddresses[i]] == true, "NO_AIRDROP_ADDRESS");
+            mapAirdropAddresses[_airdropAddresses[i]] = false;
+        }
+        airdropInfo.countAirdropAddresses -= uint64(_airdropAddresses.length);
     }
 
     /** RENDER */
@@ -512,32 +593,90 @@ contract Dwarfs_NFT is
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        string memory _tokenURI = getHashString(mapTokenTraits[tokenId].index);
-
         uint256 _generation = mapTokenTraits[tokenId].generation;
 
         // If there is no base URI, return the token URI.
         if (bytes(baseURI[_generation]).length == 0) {
-            return string(abi.encodePacked(_tokenURI, ".json"));
-        }
-
-        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
-        if (bytes(_tokenURI).length > 0) {
             return
                 string(
-                    abi.encodePacked(baseURI[_generation], _tokenURI, ".json")
+                    abi.encodePacked(mapTokenTraits[tokenId].index, ".json")
                 );
         }
-        // If there is a baseURI but no tokenURI, concatenate the tokenId to the baseURI.
+
         return
             string(
                 abi.encodePacked(
                     baseURI[_generation],
-                    abi.encodePacked(tokenId),
+                    mapTokenTraits[tokenId].index,
                     ".json"
                 )
             );
     }
+
+    /**
+     * @dev See {IERC721-transferFrom}.
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override {
+        //solhint-disable-next-line max-line-length
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId),
+            "ERC721: transfer caller is not owner nor approved"
+        );
+
+        // Hardcode the airdop tokens are locked for LOCK duration
+        if (mapAirdropAddresses[from] == true) {
+            require(
+                mapAirdropaddressMinttime[from] + airdropInfo.lockTime <
+                    block.timestamp,
+                "LOCKED_TOKEN"
+            );
+        }
+
+        _transfer(from, to, tokenId);
+    }
+
+    /**
+     * @dev See {IERC721-safeTransferFrom}.
+     */
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override {
+        safeTransferFrom(from, to, tokenId, "");
+    }
+
+    /**
+     * @dev See {IERC721-safeTransferFrom}.
+     */
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory _data
+    ) public virtual override {
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId),
+            "ERC721: transfer caller is not owner nor approved"
+        );
+
+        // Hardcode the airdop tokens are locked for LOCK duration
+        if (mapAirdropAddresses[from] == true) {
+            require(
+                mapAirdropaddressMinttime[from] + airdropInfo.lockTime <
+                    block.timestamp,
+                "LOCKED_TOKEN"
+            );
+        }
+
+        _safeTransfer(from, to, tokenId, _data);
+    }
+
+    /** UTILITY */
 
     /**
      * @dev generates a pseudorandom number

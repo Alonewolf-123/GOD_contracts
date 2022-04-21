@@ -135,6 +135,79 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         _pause();
     }
 
+    /** VIEW */
+
+    /**
+     * @dev get the Merchant count of the selected city
+     * @param _cityId the Id of the city
+     */
+    function getMerchantCountOfCity(uint256 _cityId)
+        external
+        view
+        returns (uint256)
+    {
+        return mapCityMerchantCount[_cityId];
+    }
+
+    /**
+     * @dev get the Merchant Ids of the selected city
+     * @param _cityId the Id of the city
+     */
+    function getMerchantIdsOfCity(uint256 _cityId)
+        external
+        view
+        returns (uint256[] memory)
+    {
+        require(mapCityMerchantCount[_cityId] > 0, "NO_MERCHANT_IN_CITY");
+
+        uint256[] memory tokenIds = new uint256[](
+            mapCityMerchantCount[_cityId]
+        );
+        uint256 count = 0;
+        for (uint256 i = 1; i <= contractInfo.totalNumberOfTokens; i++) {
+            if (
+                mapTokenInfo[i].level < 5 && mapTokenInfo[i].cityId == _cityId
+            ) {
+                tokenIds[count] = i;
+                count++;
+            }
+        }
+
+        return tokenIds;
+    }
+
+    /**
+     * @dev get the Mobster Ids of the selected city
+     * @param _cityId the Id of the city
+     */
+    function getMobsterIdsOfCity(uint256 _cityId)
+        external
+        view
+        returns (uint32[] memory)
+    {
+        return mapCityMobsters[_cityId];
+    }
+
+    /** UTILITY */
+    /**
+     * @dev generates a pseudorandom number
+     * @param seed a value ensure different outcomes for different sources in the same block
+     * @return a pseudorandom value
+     */
+    function random(uint256 seed) internal view returns (uint256) {
+        return
+            uint256(
+                keccak256(
+                    abi.encodePacked(
+                        tx.origin,
+                        blockhash(block.number - 1),
+                        block.timestamp,
+                        seed
+                    )
+                )
+            );
+    }
+
     /** STAKING */
     /**
      * @dev adds Merchant and Mobsters to the Clan and Pack
@@ -469,75 +542,5 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         }
 
         return tokenInfos;
-    }
-
-    /**
-     * @dev get the Merchant count of the selected city
-     * @param _cityId the Id of the city
-     */
-    function getMerchantCountOfCity(uint256 _cityId)
-        external
-        view
-        returns (uint256)
-    {
-        return mapCityMerchantCount[_cityId];
-    }
-
-    /**
-     * @dev get the Merchant Ids of the selected city
-     * @param _cityId the Id of the city
-     */
-    function getMerchantIdsOfCity(uint256 _cityId)
-        external
-        view
-        returns (uint256[] memory)
-    {
-        require(mapCityMerchantCount[_cityId] > 0, "NO_MERCHANT_IN_CITY");
-
-        uint256[] memory tokenIds = new uint256[](
-            mapCityMerchantCount[_cityId]
-        );
-        uint256 count = 0;
-        for (uint256 i = 1; i <= contractInfo.totalNumberOfTokens; i++) {
-            if (
-                mapTokenInfo[i].level < 5 && mapTokenInfo[i].cityId == _cityId
-            ) {
-                tokenIds[count] = i;
-                count++;
-            }
-        }
-
-        return tokenIds;
-    }
-
-    /**
-     * @dev get the Mobster Ids of the selected city
-     * @param _cityId the Id of the city
-     */
-    function getMobsterIdsOfCity(uint256 _cityId)
-        external
-        view
-        returns (uint32[] memory)
-    {
-        return mapCityMobsters[_cityId];
-    }
-
-    /**
-     * @dev generates a pseudorandom number
-     * @param seed a value ensure different outcomes for different sources in the same block
-     * @return a pseudorandom value
-     */
-    function random(uint256 seed) internal view returns (uint256) {
-        return
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        tx.origin,
-                        blockhash(block.number - 1),
-                        block.timestamp,
-                        seed
-                    )
-                )
-            );
     }
 }
