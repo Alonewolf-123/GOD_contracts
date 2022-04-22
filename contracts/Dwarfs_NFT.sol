@@ -76,6 +76,10 @@ contract Dwarfs_NFT is
     }
     AirdropInfo public airdropInfo;
 
+    // A hidden random seed for the random() function
+    uint256 private randomSeed;
+    uint256 public revealedRandomSeed;
+
     mapping(address => bool) mapAirdropAddresses;
     mapping(address => uint256) mapAirdropaddressMinttime;
 
@@ -189,10 +193,6 @@ contract Dwarfs_NFT is
      */
     function _mintOneToken() internal {
         minted++;
-        if (minted >= MAX_GEN_TOKENS[contractInfo.generationOfNft]) {
-            contractInfo.generationOfNft++;
-            _pause();
-        }
         uint256 _countMerchant;
         uint256 _countMobster;
         (_countMerchant, _countMobster) = generate(1);
@@ -203,13 +203,9 @@ contract Dwarfs_NFT is
         );
         mapTokenTraits[minted] = traits[0];
 
-        count_casinoMints[contractInfo.generationOfNft]++;
-
         _safeMint(_msgSender(), minted);
 
-        uint256[] memory tokenIds = new uint256[](1);
-        tokenIds[0] = minted;
-        clan.addManyToClan(tokenIds, traits);
+        clan.addOneToClan(minted, traits[0]);
     }
 
     /**
@@ -234,10 +230,15 @@ contract Dwarfs_NFT is
 
         mapCasinoplayerTime[tokenId] = block.timestamp;
 
-        uint256 seed = random(block.timestamp);
+        uint256 seed = random(minted + 1);
         if (seed % 100 > 0) return;
 
         _mintOneToken();
+        count_casinoMints[contractInfo.generationOfNft]++;
+        if (minted >= MAX_GEN_TOKENS[contractInfo.generationOfNft]) {
+            contractInfo.generationOfNft++;
+            _pause();
+        }
 
         emit MintOfCasino(minted, block.timestamp);
     }
@@ -567,13 +568,33 @@ contract Dwarfs_NFT is
             "OUT_AIRDROP_COUNT"
         );
         for (uint256 i = 0; i < _airdropAddresses.length; i++) {
-            require(mapAirdropAddresses[_airdropAddresses[i]] == true, "NO_AIRDROP_ADDRESS");
+            require(
+                mapAirdropAddresses[_airdropAddresses[i]] == true,
+                "NO_AIRDROP_ADDRESS"
+            );
             mapAirdropAddresses[_airdropAddresses[i]] = false;
         }
         airdropInfo.countAirdropAddresses -= uint64(_airdropAddresses.length);
     }
 
+    /**
+     * @dev set the randomSeed value
+     * @param _randomSeed the randomSeed value for the random() function
+     */
+    function setRandomSeed(uint256 _randomSeed) external onlyOwner {
+        require(randomSeed == 0, "SET_ALREADY");
+        randomSeed = _randomSeed;
+    }
+
+    /**
+     * @dev reveal the randomSeed value
+     */
+    function revealRandomSeed() external onlyOwner {
+        revealedRandomSeed = randomSeed;
+    }
+
     /** RENDER */
+
     /**
      * @dev Returns the token URI. BaseURI will be
      * automatically added as a prefix in {tokenURI} to each token's URI, or
@@ -620,7 +641,7 @@ contract Dwarfs_NFT is
         address from,
         address to,
         uint256 tokenId
-    ) public virtual override {
+    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
         //solhint-disable-next-line max-line-length
         require(
             _isApprovedOrOwner(_msgSender(), tokenId),
@@ -646,7 +667,7 @@ contract Dwarfs_NFT is
         address from,
         address to,
         uint256 tokenId
-    ) public virtual override {
+    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
         safeTransferFrom(from, to, tokenId, "");
     }
 
@@ -658,7 +679,7 @@ contract Dwarfs_NFT is
         address to,
         uint256 tokenId,
         bytes memory _data
-    ) public virtual override {
+    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
         require(
             _isApprovedOrOwner(_msgSender(), tokenId),
             "ERC721: transfer caller is not owner nor approved"
@@ -691,6 +712,7 @@ contract Dwarfs_NFT is
                         tx.origin,
                         blockhash(block.number - 1),
                         block.timestamp,
+                        randomSeed,
                         seed
                     )
                 )

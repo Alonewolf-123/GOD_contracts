@@ -78,6 +78,10 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     // profit percent of each mobster; x 0.1 %
     uint32[] public mobsterProfitPercent;
 
+        // A hidden random seed for the random() function
+    uint256 private randomSeed;
+    uint256 public revealedRandomSeed;
+
     event ClaimManyFromClan(
         uint256[] tokenIds,
         uint256 amount,
@@ -229,6 +233,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
                         tx.origin,
                         blockhash(block.number - 1),
                         block.timestamp,
+                        randomSeed,
                         seed
                     )
                 )
@@ -247,12 +252,54 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     {
         floorAmount = (amount / 1e12) * 1e12;
     }
-    
+
     /** STAKING */
 
     /**
-     * @dev adds Merchant and Mobsters to the Clan and Pack
-     * @param tokenIds the IDs of the Merchant and Mobsters to add to the clan
+     * @dev adds Merchant and Mobsters to the Clan
+     * @param tokenId the ID of the Merchant or Mobster to add to the clan
+     * @param trait the trait of the token
+     */
+    function _addToClan(uint256 tokenId, ITraits.DwarfTrait calldata trait)
+        internal returns (uint256 godAmount)
+    {
+        if (trait.level >= 5) {
+            mapCityMobsters[trait.cityId].push(uint32(tokenId));
+            contractInfo.lastCityID = trait.cityId;
+        }
+
+        TokenInfo memory _tokenInfo;
+        _tokenInfo.tokenId = uint32(tokenId);
+        _tokenInfo.cityId = trait.cityId;
+        _tokenInfo.level = trait.level;
+        _tokenInfo.availableBalance = (
+            trait.level < 5 ? INITIAL_GOD_AMOUNT[trait.generation] : 0
+        );
+        _tokenInfo.currentInvestedAmount = _tokenInfo.availableBalance;
+        _tokenInfo.lastInvestedTime = uint128(block.timestamp);
+        mapTokenInfo[tokenId] = _tokenInfo;
+
+        godAmount = _tokenInfo.currentInvestedAmount;
+    }
+
+    /**
+     * @dev adds Merchant and Mobsters to the Clan
+     * @param tokenId the ID of the Merchant or Mobster to add to the clan
+     * @param trait the trait of the token
+     */
+    function addOneToClan(uint256 tokenId, ITraits.DwarfTrait calldata trait)
+        external
+    {
+        require(_msgSender() == address(dwarfs_nft), "CALLER_NOT_DWARF");
+        uint256 godAmount = _addToClan(tokenId, trait);
+        contractInfo.totalNumberOfTokens++;
+        remainingGodAmount += godAmount;
+    }
+
+    /**
+     * @dev adds Merchant and Mobsters to the Clan
+     * @param tokenIds the IDs of the Merchants and Mobsters to add to the clan
+     * @param traits the traits of the tokens
      */
     function addManyToClan(
         uint256[] calldata tokenIds,
@@ -261,25 +308,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         require(_msgSender() == address(dwarfs_nft), "CALLER_NOT_DWARF");
         uint256 _totalGod;
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            if (traits[i].level >= 5) {
-                mapCityMobsters[traits[i].cityId].push(uint32(tokenIds[i]));
-                contractInfo.lastCityID = traits[i].cityId;
-            }
-
-            TokenInfo memory _tokenInfo;
-            _tokenInfo.tokenId = uint32(tokenIds[i]);
-            _tokenInfo.cityId = traits[i].cityId;
-            _tokenInfo.level = traits[i].level;
-            _tokenInfo.availableBalance = (
-                traits[i].level < 5
-                    ? INITIAL_GOD_AMOUNT[traits[i].generation]
-                    : 0
-            );
-            _tokenInfo.currentInvestedAmount = _tokenInfo.availableBalance;
-            _tokenInfo.lastInvestedTime = uint128(block.timestamp);
-            mapTokenInfo[tokenIds[i]] = _tokenInfo;
-
-            _totalGod += _tokenInfo.currentInvestedAmount;
+            _totalGod += _addToClan(tokenIds[i], traits[i]);
         }
         contractInfo.totalNumberOfTokens += uint32(tokenIds.length);
         remainingGodAmount += _totalGod;
@@ -445,7 +474,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
             uint256 tax;
             if (bRisk == true) {
                 // risky game
-                if (random(block.timestamp) & 1 == 1) {
+                if (random(tokenId) & 1 == 1) {
                     tax = owed;
                     owed = 0;
                 }
@@ -566,5 +595,21 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
      */
     function setMaxMerchantCount(uint32 _maxMerchantCount) external onlyOwner {
         contractInfo.MAX_MERCHANT_COUNT = _maxMerchantCount;
+    }
+
+        /**
+     * @dev set the randomSeed value
+     * @param _randomSeed the randomSeed value for the random() function
+     */
+    function setRandomSeed(uint256 _randomSeed) external onlyOwner {
+        require(randomSeed == 0, "SET_ALREADY");
+        randomSeed = _randomSeed;
+    }
+
+    /**
+     * @dev reveal the randomSeed value
+     */
+    function revealRandomSeed() external onlyOwner {
+        revealedRandomSeed = randomSeed;
     }
 }
