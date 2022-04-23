@@ -144,8 +144,6 @@ contract Dwarfs_NFT is
         airdropInfo.MAX_AIRDROP_AMOUNT = 1200;
         // Airdrop NFTs will be locked for 6 days;
         airdropInfo.lockTime = 6 days;
-
-        _pause();
     }
 
     /// @inheritdoc	ERC165Upgradeable
