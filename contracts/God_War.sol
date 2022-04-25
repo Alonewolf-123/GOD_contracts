@@ -34,7 +34,7 @@ contract God_War is
   struct TokenStake {
     uint32 clan;
     uint80 lastUpdated;
-    address owner;
+    address player;
   }
 
   // Represents the state of an address' total GOD staked in a clan
@@ -46,41 +46,41 @@ contract God_War is
 
   // Emitted when NFTs are staked
   event TokensStaked(
-    address owner,
+    address player,
     uint32[] tokenIds,
     uint32 clan
   );
 
   // Emitted when NFTs are unstaked
   event TokensUnstaked(
-    address owner,
+    address player,
     uint32[] tokenIds
   );
 
   // Emitted when GOD is staked
   event GodStaked(
-    address owner,
+    address player,
     uint32 clan,
     uint256 amount
   );
 
   // Emitted when GOD is unstaked
   event GodUnstaked(
-    address owner,
+    address player,
     uint32 clan,
     uint256 amount
   );
 
   // Emitted when NFTs claim their rewards
   event TokenRewardsClaimed(
-    address owner,
+    address player,
     uint32[] tokenIds,
     uint256 reward
   );
 
   // Emitted when rewards for GOD stakes are claimed
   event GodRewardsClaimed(
-    address owner,
+    address player,
     uint256 reward
   );
 
@@ -107,7 +107,7 @@ contract God_War is
   mapping(uint32 => Clan) public clans;
   // mapping from Token ID to its stake
   mapping(uint32 => TokenStake) public tokenStakes;
-  // mapping from clan to owner to GOD stake
+  // mapping from clan to player to GOD stake
   mapping(uint32 => mapping(address => GodStake)) public godStakes;
   // array of all the dwarfather's IDs
   uint32[] public dwarfathers;
@@ -192,11 +192,11 @@ contract God_War is
     require(clans[clan].enabled, "NOT A CLAN");
 
     // redundant sanity check
-    require(tokenStakes[tokenId].owner == address(0x0), "ALREADY IN A CLAN");
+    require(tokenStakes[tokenId].player == address(0x0), "ALREADY IN A CLAN");
     tokenStakes[tokenId] = TokenStake({
       clan: uint16(clan),
       lastUpdated: uint80(block.timestamp),
-      owner: _msgSender()
+      player: _msgSender()
     });
 
     clans[clan].tokenValue += dwarfPointUnits[_levelOfDwarf(tokenId)];
@@ -230,7 +230,7 @@ contract God_War is
     uint256 level = _levelOfDwarf(tokenId);
     require(level != MAX_LEVEL, "DWARFATHERS CANT LEAVE THEIR CLAN");
     TokenStake storage stake = tokenStakes[tokenId];
-    require(stake.owner == _msgSender(), "AINT YO TOKEN");
+    require(stake.player == _msgSender(), "AINT YO TOKEN");
     require(stake.clan != newClan, "CANT TRANSFER TO SAME CLAN");
     _updateClan(stake.clan);
     clans[stake.clan].tokenValue -= dwarfPointUnits[level];
@@ -258,7 +258,7 @@ contract God_War is
   }
 
   function _leaveClan(uint32 tokenId) internal {
-    require(tokenStakes[tokenId].owner == _msgSender(), "AINT YO TOKEN");
+    require(tokenStakes[tokenId].player == _msgSender(), "AINT YO TOKEN");
     uint32 clan = tokenStakes[tokenId].clan;
     require(clan != 0x0, "AINT WITH A CLAN");
     require(_levelOfDwarf(tokenId) != MAX_LEVEL, "DWARFATHERS CANT LEAVE THEIR CLAN");
@@ -271,7 +271,7 @@ contract God_War is
   }
 
   /**
-   * sends GOD from user and creates a stake for the owner
+   * sends GOD from user and creates a stake for the player
    * @param clan the clan to stake the GOD in
    * @param amount the amount of GOD to stake
    */
@@ -325,7 +325,7 @@ contract God_War is
   }
 
   /**
-   * sends all GOD staked in a clan back to owner and resets the stake
+   * sends all GOD staked in a clan back to player and resets the stake
    * @param clan the clan to unstake from
    */
   function unstakeGod(uint32 clan) external whenNotPaused {
@@ -337,7 +337,7 @@ contract God_War is
     delete godStakes[clan][_msgSender()];
 
     // we burned the GOD during stakeGod to save an approval
-    // here we are minting it back to the owner
+    // here we are minting it back to the player
     god.mint(_msgSender(), staked);
 
     emit GodUnstaked(_msgSender(), clan, staked);
@@ -352,7 +352,7 @@ contract God_War is
     require(gameEndTimestamp == 0, "GAME HAS ENDED");
     require(clans[dwarfatherId].enabled, "YOURE NOT A CLAN LEADER");
     require(dwarfatherId != target, "CANT VENDETTA YOURSELF");
-    require(tokenStakes[dwarfatherId].owner == _msgSender(), "AINT YO TOKEN");
+    require(tokenStakes[dwarfatherId].player == _msgSender(), "AINT YO TOKEN");
     require(clans[target].enabled, "NOT A VALID TARGET");
 
     _updateClan(dwarfatherId); // account for any earned balance
@@ -377,7 +377,7 @@ contract God_War is
   function protect(uint32 dwarfatherId) external whenNotPaused {
     require(gameEndTimestamp == 0, "GAME HAS ENDED");
     require(clans[dwarfatherId].enabled, "YOURE NOT A CLAN LEADER");
-    require(tokenStakes[dwarfatherId].owner == _msgSender(), "AINT YO TOKEN");
+    require(tokenStakes[dwarfatherId].player == _msgSender(), "AINT YO TOKEN");
     _updateClan(dwarfatherId); // account for any earned balance
     require(clans[dwarfatherId].balance > protectionCost(dwarfatherId), "INSUFFICIENT BALANCE TO DEFEND");
     clans[dwarfatherId].protection += 1; 
@@ -403,11 +403,11 @@ contract God_War is
   }
 
   /** 
-   * calculates the winnings for a dwarf and returns it to the owner
+   * calculates the winnings for a dwarf and returns it to the player
    * @param tokenId the ID of the dwarf to claim
    */
   function _claimToken(uint32 tokenId) internal returns (uint256 won) {
-    require(_msgSender() == tokenStakes[tokenId].owner, "AINT YO TOKEN");
+    require(_msgSender() == tokenStakes[tokenId].player, "AINT YO TOKEN");
 
     won = _tokenWinnings(tokenId);
 
@@ -467,23 +467,23 @@ contract God_War is
       : 3000 ether * 1 days * uint128(clans[dwarfatherId].tokenValue);
   }
 
-  function godWinnings(address owner) public view returns (uint256) {
+  function godWinnings(address player) public view returns (uint256) {
     require(gameEndTimestamp > 0, "GAME HAS NOT ENDED");
     uint256 won;
     for (uint i = 0; i < dwarfathers.length; i++) { // loop through every clan
-      if (godStakes[dwarfathers[i]][owner].god == 0) continue; // check for a stake
-      won += _godWinnings(dwarfathers[i], owner);
+      if (godStakes[dwarfathers[i]][player].god == 0) continue; // check for a stake
+      won += _godWinnings(dwarfathers[i], player);
     }
     return won;
   }
 
   /** INTERNAL */
 
-  function _isMerchant(uint32 tokenId) internal view returns (bool merchant) {
-    merchant = dwarfs_nft.getTokenTraits(tokenId).isMerchant;
+  function _isMerchant(uint32 tokenId) internal view returns (bool _bMerchant) {
+    _bMerchant = (dwarfs_nft.getTokenTraits(tokenId).level < 5);
   }
 
-  function _levelOfDwarf(uint32 tokenId) internal view returns (uint8 level) {
+  function _levelOfDwarf(uint32 tokenId) internal view returns (uint32 level) {
     level = dwarfs_nft.getTokenTraits(tokenId).level;
   }
 
@@ -516,12 +516,12 @@ contract God_War is
    * @param tokenId the ID of the token to calculate winnings for
    */
   function _tokenWinnings(uint32 tokenId) internal view returns (uint256) {
-    if (tokenStakes[tokenId].owner == address(0x0)) return 0;
+    if (tokenStakes[tokenId].player == address(0x0)) return 0;
     uint32 clan = tokenStakes[tokenId].clan;
     uint256 elapsed = gameEndTimestamp - tokenStakes[tokenId].lastUpdated;
     if (_isMerchant(tokenId))
       return dwarfPointUnits[0] * elapsed * _clanWinnings(clan) * (100 - DWARFATHER_PERCENTAGE) / 100 / clans[clan].tokenValueSeconds / 2;
-    uint8 level = _levelOfDwarf(tokenId);
+    uint32 level = _levelOfDwarf(tokenId);
     if (level != MAX_LEVEL)
       return dwarfPointUnits[level] * elapsed * _clanWinnings(clan) * (100 - DWARFATHER_PERCENTAGE) / 100 / clans[clan].tokenValueSeconds / 2;
     else
@@ -533,10 +533,10 @@ contract God_War is
    * half of the clan's winnings are made available for god stakes to claim
    * @param clan the clan to calculate GOD winnings for
    */
-  function _godWinnings(uint32 clan, address owner) internal view returns (uint256) {
-    if (godStakes[clan][owner].god == 0) return 0;
-    uint256 elapsed = gameEndTimestamp - godStakes[clan][owner].lastUpdated;
-    uint256 godSeconds = godStakes[clan][owner].godSeconds + godStakes[clan][owner].god * elapsed;
+  function _godWinnings(uint32 clan, address player) internal view returns (uint256) {
+    if (godStakes[clan][player].god == 0) return 0;
+    uint256 elapsed = gameEndTimestamp - godStakes[clan][player].lastUpdated;
+    uint256 godSeconds = godStakes[clan][player].godSeconds + godStakes[clan][player].god * elapsed;
     // DWARFATHER_PERCENTAGE is taken off to account for it being earned in _tokenWinnings
     return godSeconds * _clanWinnings(clan) * (100 - DWARFATHER_PERCENTAGE) / clans[clan].godSeconds / 200;
   }
@@ -552,7 +552,7 @@ contract God_War is
   /** ADMIN */
 
   /**
-   * allows owner to guarantee a reward to a specific clan
+   * allows player to guarantee a reward to a specific clan
    * used for surprises and possible checkpoint winnings
    * total pot will never eclipse original pot size
    * @param clan the clan to guarantee rewards for
@@ -598,7 +598,7 @@ contract God_War is
   }
 
   /**
-   * enables owner to pause / unpause minting
+   * enables player to pause / unpause minting
    */
   function setPaused(bool _p) external onlyOwner {
     if (_p) _pause();
@@ -606,7 +606,7 @@ contract God_War is
   }
 
   /**
-   * enables owner to enable / disable new clans from being started
+   * enables player to enable / disable new clans from being started
    */
   function setbStartClans(bool _a) external onlyOwner {
     bStartClans = _a;

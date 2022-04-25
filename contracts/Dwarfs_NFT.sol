@@ -639,7 +639,7 @@ contract Dwarfs_NFT is
         address from,
         address to,
         uint256 tokenId
-    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
+    ) public virtual override {
         //solhint-disable-next-line max-line-length
         require(
             _isApprovedOrOwner(_msgSender(), tokenId),
@@ -665,7 +665,7 @@ contract Dwarfs_NFT is
         address from,
         address to,
         uint256 tokenId
-    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
+    ) public virtual override {
         safeTransferFrom(from, to, tokenId, "");
     }
 
@@ -677,7 +677,7 @@ contract Dwarfs_NFT is
         address to,
         uint256 tokenId,
         bytes memory _data
-    ) public virtual override(IERC721Upgradeable, ERC721Upgradeable) {
+    ) public virtual override {
         require(
             _isApprovedOrOwner(_msgSender(), tokenId),
             "ERC721: transfer caller is not owner nor approved"

@@ -319,7 +319,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
      * @param tokenIds the IDs of the merchants token to add to the city
      * @param cityId the city id
      */
-    function addManyMerchantsToCity(uint256[] calldata tokenIds, uint256 cityId)
+    function addMerchantsToCity(uint256[] calldata tokenIds, uint256 cityId)
         external
         whenNotPaused
     {
