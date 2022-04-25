@@ -22,4 +22,11 @@ interface IClan {
         uint256[] calldata tokenIds,
         ITraits.DwarfTrait[] calldata traits
     ) external;
+
+    /**
+     * @dev reduce the balance of the token in the clan contract
+     * @param tokenId the Id of the token
+     * @param amount the amount of GOD to reduce in the clan
+     */
+    function reduceGodBalance(uint256 tokenId, uint256 amount) external;
 }

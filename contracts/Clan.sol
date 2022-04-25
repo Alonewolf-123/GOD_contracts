@@ -78,7 +78,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     // profit percent of each mobster; x 0.1 %
     uint32[] public mobsterProfitPercent;
 
-        // A hidden random seed for the random() function
+    // A hidden random seed for the random() function
     uint256 private randomSeed;
     uint256 public revealedRandomSeed;
 
@@ -135,8 +135,6 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         contractInfo.MAX_MERCHANT_COUNT = 1200;
 
         contractInfo.lastCityID = 1;
-
-        _pause();
     }
 
     /** VIEW */
@@ -158,7 +156,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         uint256 count = 0;
         for (uint256 i = 1; i <= contractInfo.totalNumberOfTokens; i++) {
             if (
-                mapTokenInfo[i].level < 5 && mapTokenInfo[i].cityId == _cityId
+                isMerchant(i) && mapTokenInfo[i].cityId == _cityId
             ) {
                 tokenIds[count] = i;
                 count++;
@@ -195,7 +193,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         view
         returns (uint256 tokenBalance)
     {
-        if (mapTokenInfo[tokenId].level < 5) {
+        if (isMerchant(tokenId)) {
             tokenBalance = calcMerchantBalance(tokenId);
         } else {
             tokenBalance = calcMobsterBalance(tokenId);
@@ -241,6 +239,15 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     }
 
     /**
+     * @dev check if the token is Merchant
+     * @param tokenId the token Id of the token
+     * @return Is Merchant ?
+     */
+    function isMerchant(uint256 tokenId) internal view returns (bool) {
+        return (mapTokenInfo[tokenId].level < 5);
+    }
+
+    /**
      * @dev floor 3 digits of $GOD amount
      * @param amount $GOD amount
      * @return floorAmount - the floor amount of $GOD
@@ -261,7 +268,8 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
      * @param trait the trait of the token
      */
     function _addToClan(uint256 tokenId, ITraits.DwarfTrait calldata trait)
-        internal returns (uint256 godAmount)
+        internal
+        returns (uint256 godAmount)
     {
         if (trait.level >= 5) {
             mapCityMobsters[trait.cityId].push(uint32(tokenId));
@@ -315,6 +323,39 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     }
 
     /**
+     * @dev reduce the balance of the token in the clan contract
+     * @param tokenId the Id of the token
+     * @param amount the amount of GOD to reduce in the clan
+     */
+    function reduceGodBalance(uint256 tokenId, uint256 amount) external {
+        require(_msgSender() == address(dwarfs_nft), "CALLER_NOT_DWARF");
+        uint256 _balance;
+        if (isMerchant(tokenId)) {
+            // Is merchant
+            uint256 _totalAmount = (amount / (100 - contractInfo.TAX_PERCENT)) *
+                100;
+            _balance = calcMerchantBalance(tokenId);
+            require(_balance >= _totalAmount, "NOT_ENOUGH_BALANCE");
+
+            mapCityTax[mapTokenInfo[tokenId].cityId] += ((_totalAmount *
+                contractInfo.TAX_PERCENT) / 100);
+
+            mapTokenInfo[tokenId].availableBalance = _balance - _totalAmount;
+            mapTokenInfo[tokenId].currentInvestedAmount =
+                _balance -
+                _totalAmount;
+            mapTokenInfo[tokenId].lastInvestedTime = uint128(block.timestamp);
+        }
+        {
+            // Is mobster
+            _balance = calcMobsterBalance(tokenId);
+            require(_balance >= amount, "NOT_ENOUGH_BALANCE");
+            mapTokenInfo[tokenId].currentInvestedAmount += amount; // total withdrawed amount
+            mapTokenInfo[tokenId].lastInvestedTime = uint128(block.timestamp);
+        }
+    }
+
+    /**
      * @dev add the single merchant to the city
      * @param tokenIds the IDs of the merchants token to add to the city
      * @param cityId the city id
@@ -337,7 +378,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
                 dwarfs_nft.ownerOf(tokenIds[i]) == _msgSender(),
                 "AINT YO TOKEN"
             );
-            require(mapTokenInfo[tokenIds[i]].level < 5, "NOT_MERCHANT");
+            require(isMerchant(tokenIds[i]), "NOT_MERCHANT");
             require(mapTokenInfo[tokenIds[i]].cityId == 0, "ALREADY_IN_CITY");
 
             mapTokenInfo[tokenIds[i]].cityId = uint32(cityId);
@@ -398,7 +439,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         whenNotPaused
     {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
-        require(mapTokenInfo[tokenId].level < 5, "NOT_MERCHANT");
+        require(isMerchant(tokenId), "NOT_MERCHANT");
         require(godAmount >= MIN_INVESTED_AMOUNT, "GOD_INSUFFICIENT");
         require(mapTokenInfo[tokenId].cityId > 0, "OUT_OF_CITY");
 
@@ -406,7 +447,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         mapTokenInfo[tokenId].availableBalance =
             calcMerchantBalance(tokenId) +
             godAmount;
-        mapTokenInfo[tokenId].currentInvestedAmount += godAmount;
+        mapTokenInfo[tokenId].currentInvestedAmount += godAmount; // total invested amount
         mapTokenInfo[tokenId].lastInvestedTime = uint128(block.timestamp);
 
         remainingGodAmount += godAmount;
@@ -428,6 +469,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         external
         whenNotPaused
     {
+        require(contractInfo.totalNumberOfTokens > 8000, "NOT_PHASE2");
         uint256 owed;
         for (uint256 i = 0; i < tokenIds.length; i++) {
             require(
@@ -504,7 +546,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         require(dwarfs_nft.ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
 
         owed = calcMobsterBalance(tokenId);
-        mapTokenInfo[tokenId].currentInvestedAmount += owed;
+        mapTokenInfo[tokenId].currentInvestedAmount += owed; // total withdrawed amount
         mapTokenInfo[tokenId].lastInvestedTime = uint128(block.timestamp);
     }
 
@@ -597,7 +639,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         contractInfo.MAX_MERCHANT_COUNT = _maxMerchantCount;
     }
 
-        /**
+    /**
      * @dev set the randomSeed value
      * @param _randomSeed the randomSeed value for the random() function
      */

@@ -212,7 +212,6 @@ contract Dwarfs_NFT is
      */
     function mintOfCasino(uint256 tokenId) external whenNotPaused {
         require(tx.origin == _msgSender(), "Only EOA");
-        require(contractInfo.generationOfNft > 0, "START_PHASE_2");
         require(
             count_casinoMints[contractInfo.generationOfNft] <
                 contractInfo.MAX_CASINO_MINTS,
@@ -224,7 +223,13 @@ contract Dwarfs_NFT is
                 mapCasinoplayerTime[tokenId] == 0,
             "PLAY_IN_12_HOURS"
         );
-        god.burn(_msgSender(), CASINO_PRICE);
+        if (contractInfo.generationOfNft == 0) {
+            // Phase 1
+            clan.reduceGodBalance(tokenId, CASINO_PRICE);
+        } else {
+            // Phase 2
+            god.burn(_msgSender(), CASINO_PRICE);
+        }
 
         mapCasinoplayerTime[tokenId] = block.timestamp;
 
@@ -262,8 +267,9 @@ contract Dwarfs_NFT is
     /**
      * @dev airdrop mint a token with $GOD - 85% Merchant, 15% Mobsters
      */
-    function airdropMintWithGod() external whenNotPaused {
+    function airdropMintWithGod(uint256 tokenId) external whenNotPaused {
         require(tx.origin == _msgSender(), "Only EOA");
+        require(ownerOf(tokenId) == _msgSender(), "AINT YO TOKEN");
         require(
             minted < airdropInfo.MAX_AIRDROP_AMOUNT * 2,
             "SOLD_OUT_AIRDROP"
@@ -272,7 +278,11 @@ contract Dwarfs_NFT is
             mapAirdropAddresses[_msgSender()] == true,
             "NOT_AIRDROP_ADDRESS"
         );
-        god.burn(_msgSender(), MINT_GOD_PRICES[contractInfo.generationOfNft]);
+
+        clan.reduceGodBalance(
+            tokenId,
+            MINT_GOD_PRICES[contractInfo.generationOfNft]
+        );
         _mintOneToken();
         mapAirdropaddressMinttime[_msgSender()] = block.timestamp;
     }
