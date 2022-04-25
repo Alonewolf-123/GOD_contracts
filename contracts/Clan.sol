@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./IDwarfs_NFT.sol";
 import "./IGOD.sol";
+import "./Random.sol";
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
