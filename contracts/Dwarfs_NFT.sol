@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 import "./IClan.sol";
 import "./IGOD.sol";
+import "./Random.sol";
 import "./ERC2981ContractWideRoyalties.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
@@ -233,7 +234,7 @@ contract Dwarfs_NFT is
 
         mapCasinoplayerTime[tokenId] = block.timestamp;
 
-        uint256 seed = random(minted + 1);
+        uint256 seed = Random.random(minted + 1, randomSeed);
         if (seed % 100 > 0) return;
 
         _mintOneToken();
@@ -368,7 +369,7 @@ contract Dwarfs_NFT is
         returns (uint32 countMerchant, uint32 countMobster)
     {
         bool _bMerchant;
-        uint256 seed = random(minted);
+        uint256 seed = Random.random(minted, randomSeed);
         uint256 tokenId = minted;
         uint256 count_mobsters = contractInfo.count_mobsters;
         for (uint256 i = 0; i < amount; i++) {
@@ -703,27 +704,5 @@ contract Dwarfs_NFT is
         }
 
         _safeTransfer(from, to, tokenId, _data);
-    }
-
-    /** UTILITY */
-
-    /**
-     * @dev generates a pseudorandom number
-     * @param seed a value ensure different outcomes for different sources in the same block
-     * @return a pseudorandom value
-     */
-    function random(uint256 seed) internal view returns (uint256) {
-        return
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        tx.origin,
-                        blockhash(block.number - 1),
-                        block.timestamp,
-                        randomSeed,
-                        seed
-                    )
-                )
-            );
     }
 }

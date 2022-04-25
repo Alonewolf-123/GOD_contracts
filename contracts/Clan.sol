@@ -155,9 +155,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         );
         uint256 count = 0;
         for (uint256 i = 1; i <= contractInfo.totalNumberOfTokens; i++) {
-            if (
-                isMerchant(i) && mapTokenInfo[i].cityId == _cityId
-            ) {
+            if (isMerchant(i) && mapTokenInfo[i].cityId == _cityId) {
                 tokenIds[count] = i;
                 count++;
             }
@@ -217,26 +215,6 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     }
 
     /** UTILITY */
-
-    /**
-     * @dev generates a pseudorandom number
-     * @param seed a value ensure different outcomes for different sources in the same block
-     * @return a pseudorandom value
-     */
-    function random(uint256 seed) internal view returns (uint256) {
-        return
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        tx.origin,
-                        blockhash(block.number - 1),
-                        block.timestamp,
-                        randomSeed,
-                        seed
-                    )
-                )
-            );
-    }
 
     /**
      * @dev check if the token is Merchant
@@ -344,15 +322,14 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
             mapTokenInfo[tokenId].currentInvestedAmount =
                 _balance -
                 _totalAmount;
-            mapTokenInfo[tokenId].lastInvestedTime = uint128(block.timestamp);
         }
         {
             // Is mobster
             _balance = calcMobsterBalance(tokenId);
             require(_balance >= amount, "NOT_ENOUGH_BALANCE");
             mapTokenInfo[tokenId].currentInvestedAmount += amount; // total withdrawed amount
-            mapTokenInfo[tokenId].lastInvestedTime = uint128(block.timestamp);
         }
+        mapTokenInfo[tokenId].lastInvestedTime = uint128(block.timestamp);
     }
 
     /**
@@ -516,7 +493,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
             uint256 tax;
             if (bRisk == true) {
                 // risky game
-                if (random(tokenId) & 1 == 1) {
+                if (Random.random(tokenId, randomSeed) & 1 == 1) {
                     tax = owed;
                     owed = 0;
                 }
