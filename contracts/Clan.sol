@@ -116,8 +116,6 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         // initial Balance of a new Merchant
         INITIAL_GOD_AMOUNT = [
             100000 ether,
-            50000 ether,
-            50000 ether,
             50000 ether
         ];
 
@@ -227,6 +225,17 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
     }
 
     /**
+     * @dev get Generation of NFT
+     * @param tokenId the token Id of the token
+     * @return _gen generation
+     */
+    function getGenerationOfNFT(uint256 tokenId) internal pure returns (uint32 _gen) {
+        if (tokenId > 8000) {
+            _gen = 1;
+        } 
+    }
+
+    /**
      * @dev floor 3 digits of $GOD amount
      * @param amount $GOD amount
      * @return floorAmount - the floor amount of $GOD
@@ -260,7 +269,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
         _tokenInfo.cityId = trait.cityId;
         _tokenInfo.level = trait.level;
         _tokenInfo.availableBalance = (
-            trait.level < 5 ? INITIAL_GOD_AMOUNT[trait.generation] : 0
+            trait.level < 5 ? INITIAL_GOD_AMOUNT[getGenerationOfNFT(tokenId)] : 0
         );
         _tokenInfo.currentInvestedAmount = _tokenInfo.availableBalance;
         _tokenInfo.lastInvestedTime = uint128(block.timestamp);
@@ -455,7 +464,7 @@ contract Clan is OwnableUpgradeable, PausableUpgradeable {
                 "NOT_IN_CLAN"
             );
 
-            if (mapTokenInfo[tokenIds[i]].level < 5) {
+            if (isMerchant(tokenIds[i])) {
                 owed += _claimMerchantFromCity(tokenIds[i], bRisk);
             } else owed += _claimMobsterFromCity(tokenIds[i]);
         }

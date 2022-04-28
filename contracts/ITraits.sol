@@ -9,11 +9,9 @@ interface ITraits {
         uint32 index;
         uint32 cityId;
         uint32 level;
-        uint32 generation;
     }
 
     function selectTraits(
-        uint32 generation,
         uint256 countMerchant,
         uint256 countMobster
     ) external returns (DwarfTrait[] memory traits);

@@ -63,7 +63,7 @@ contract Dwarfs_NFT is
     IGOD public god;
 
     // Base URI
-    string[] private baseURI;
+    string public baseURI;
 
     // current number of dwarfs of casino play
     uint32[] public count_casinoMints;
@@ -138,9 +138,6 @@ contract Dwarfs_NFT is
         // current number of dwarfs of casino
         count_casinoMints = new uint32[](4);
 
-        // init the base URIs
-        baseURI = new string[](4);
-
         // 1200 NFTs will be mint for free
         airdropInfo.MAX_AIRDROP_AMOUNT = 1200;
         // Airdrop NFTs will be locked for 6 days;
@@ -196,7 +193,6 @@ contract Dwarfs_NFT is
         uint256 _countMobster;
         (_countMerchant, _countMobster) = generate(1);
         ITraits.DwarfTrait[] memory traits = nft_traits.selectTraits(
-            contractInfo.generationOfNft,
             _countMerchant,
             _countMobster
         );
@@ -306,7 +302,6 @@ contract Dwarfs_NFT is
         uint256 _countMobster;
         (_countMerchant, _countMobster) = generate(amount);
         ITraits.DwarfTrait[] memory traits = nft_traits.selectTraits(
-            contractInfo.generationOfNft,
             _countMerchant,
             _countMobster
         );
@@ -532,17 +527,9 @@ contract Dwarfs_NFT is
      * automatically added as a prefix to the value returned in {tokenURI},
      * or to the token ID if {tokenURI} is empty.
      * @param _myBaseUri the base URI string
-     * @param _generation the generation of the NFT
      */
-    function setBaseURI(string memory _myBaseUri, uint32 _generation)
-        external
-        onlyOwner
-    {
-        if (baseURI.length <= _generation) {
-            baseURI.push(_myBaseUri);
-        } else {
-            baseURI[_generation] = _myBaseUri;
-        }
+    function setBaseURI(string memory _myBaseUri) external onlyOwner {
+        baseURI = _myBaseUri;
     }
 
     /**
@@ -623,10 +610,8 @@ contract Dwarfs_NFT is
             "ERC721Metadata: URI query for nonexistent token"
         );
 
-        uint256 _generation = mapTokenTraits[tokenId].generation;
-
         // If there is no base URI, return the token URI.
-        if (bytes(baseURI[_generation]).length == 0) {
+        if (bytes(baseURI).length == 0) {
             return
                 string(
                     abi.encodePacked(mapTokenTraits[tokenId].index, ".json")
@@ -636,7 +621,7 @@ contract Dwarfs_NFT is
         return
             string(
                 abi.encodePacked(
-                    baseURI[_generation],
+                    baseURI,
                     mapTokenTraits[tokenId].index,
                     ".json"
                 )
