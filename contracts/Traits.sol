@@ -34,6 +34,7 @@ contract Traits is OwnableUpgradeable, ITraits {
         __Ownable_init();
 
         contractInfo.merchantStartIndex = 3001;
+        mobster_level_list = new uint256[](30);
     }
 
     /**
@@ -100,7 +101,7 @@ contract Traits is OwnableUpgradeable, ITraits {
     function setMobsterLevelList(uint256[] calldata _levels) external onlyOwner {
         require(mobster_level_list[0] == 0, "SET_ALREADY");
         require(_levels.length == 30, "INVALID_PARAMS");
-        mobster_level_list = new uint256[](30);
+        
         for (uint i = 0; i < 30; i++) {
             mobster_level_list[i] = _levels[i];
         }
